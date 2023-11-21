@@ -10,6 +10,11 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     {{ __("You're logged in!") }}
+
+                    <div class="mt-6">
+                        <label class="block mb-1" for="datepicker">Datepicker</label>
+                        <input type="text" id="datepicker">
+                    </div>
                 </div>
             </div>
         </div>

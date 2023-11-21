@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-//    return view('welcome');
+    return view('welcome');
 
     $response = \Illuminate\Support\Facades\Http::get(env('AIRBNB_ICS_LINK'));
 
@@ -36,17 +36,23 @@ Route::get('/', function () {
             $event[$key] = $value;
         }
 
-        $reservation = \App\Models\Reservation::makeFromIcalEvent($event);
-
-        $reservations[] = $reservation->toArray();
+        $reservations[] = [
+            'uid' => $event['UID'],
+            'start_at' => (new \DateTime($event['DTSTART;VALUE=DATE']))->format('Y-m-d'),
+            'end_at' => (new \DateTime($event['DTEND;VALUE=DATE']))->format('Y-m-d'),
+            'summary' => $event['DESCRIPTION'] ?? $event['SUMMARY']
+        ];
     }
 
-    \App\Models\Reservation::query()->upsert($reservations, 'uid');
+    \Illuminate\Support\Facades\Storage::put(
+        'calendar.json',
+        json_encode($reservations, JSON_PRETTY_PRINT)
+    );
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', fn() => view('dashboard'))
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
