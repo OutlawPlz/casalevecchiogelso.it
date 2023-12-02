@@ -2,27 +2,42 @@
 
 namespace App\Models;
 
+use App\Casts\AsDateInterval;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property \DateTime $check_in
+ * @property \DateTime $check_out
+ * @property ?\DateInterval $preparation_time
+ * @property-read \DatePeriod $reservedPeriod
+ */
 class Reservation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['uid', 'check_in', 'check_out', 'summary'];
+    protected $fillable = ['uid', 'check_in', 'check_out', 'guests_count', 'preparation_time', 'summary'];
+
+    protected $casts = [
+        'check_in' => 'immutable_date',
+        'check_out' => 'immutable_date',
+        'preparation_time' => AsDateInterval::class
+    ];
 
     /**
-     * @param array $event
-     * @return self
-     * @throws \Exception
+     * @return Attribute
      */
-    public static function makeFromIcalEvent(array $event): self
+    protected function reservedPeriod(): Attribute
     {
-        return new self([
-            'uid' => $event['UID'],
-            'check_in' => new \DateTime($event['DTSTART;VALUE=DATE']),
-            'check_out' => new \DateTime($event['DTEND;VALUE=DATE']),
-            'summary' => $event['DESCRIPTION'] ?? $event['SUMMARY']
-        ]);
+        $startAt = $this->check_in->sub($this->preparation_time);
+
+        $endAt = $this->check_out->add($this->preparation_time);
+
+        $oneDayInterval = new \DateInterval('P1D');
+
+        return Attribute::make(
+            get: fn () => new \DatePeriod($startAt, $oneDayInterval, $endAt)
+        );
     }
 }

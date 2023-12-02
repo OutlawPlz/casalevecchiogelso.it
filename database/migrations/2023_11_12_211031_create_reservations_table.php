@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->unique();
-            $table->date('check_in')->index();
-            $table->date('check_out')->index();
+            $table->timestamp('check_in')->index();
+            $table->timestamp('check_out')->index();
+            $table->tinyInteger('guests_count')->unsigned();
+            $table->tinyText('preparation_time')->nullable();
             $table->string('summary')->nullable();
             $table->timestamps();
         });
