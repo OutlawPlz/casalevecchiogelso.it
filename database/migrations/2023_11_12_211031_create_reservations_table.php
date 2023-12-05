@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('uid')->unique();
             $table->timestamp('check_in')->index();
             $table->timestamp('check_out')->index();
+            $table->tinyText('reserved_period');
             $table->tinyInteger('guests_count')->unsigned();
-            $table->tinyText('preparation_time')->nullable();
             $table->string('summary')->nullable();
             $table->timestamps();
         });

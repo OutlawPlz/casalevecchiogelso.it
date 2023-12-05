@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\AsDateInterval;
+use App\Casts\AsDatePeriod;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property \DateTime $check_in
  * @property \DateTime $check_out
- * @property ?\DateInterval $preparation_time
+ * @property \DateInterval[] $preparation_time
  * @property-read \DatePeriod $reservedPeriod
  */
 class Reservation extends Model
@@ -22,22 +23,39 @@ class Reservation extends Model
     protected $casts = [
         'check_in' => 'immutable_date',
         'check_out' => 'immutable_date',
-        'preparation_time' => AsDateInterval::class
+        'reserved_period' => AsDatePeriod::class
     ];
 
     /**
      * @return Attribute
      */
-    protected function reservedPeriod(): Attribute
+    protected function preparationTime(): Attribute
     {
-        $startAt = $this->check_in->sub($this->preparation_time);
-
-        $endAt = $this->check_out->add($this->preparation_time);
-
-        $oneDayInterval = new \DateInterval('P1D');
-
         return Attribute::make(
-            get: fn () => new \DatePeriod($startAt, $oneDayInterval, $endAt)
+            get: fn () => '',
+            set: fn() => ''
         );
     }
+
+//    /**
+//     * @return Attribute
+//     */
+//    protected function reservedPeriod(): Attribute
+//    {
+//        return Attribute::make(
+//            get: function (mixed $value, array $attributes) {
+//                $preparationTime = new \DateInterval($attributes['preparation_time']);
+//
+//                $startAt = (new \DateTime($attributes['check_in']))
+//                    ->sub($preparationTime);
+//
+//                $endAt = (new \DateTime($attributes['check_out']))
+//                    ->add($preparationTime);
+//
+//                $oneDayInterval = new \DateInterval('P1D');
+//
+//                return new \DatePeriod($startAt, $oneDayInterval, $endAt);
+//            }
+//        );
+//    }
 }
