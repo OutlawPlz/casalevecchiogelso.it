@@ -18,10 +18,10 @@ return new class extends Migration
             $table->tinyText('last_name');
             $table->tinyText('email')->index();
             $table->tinyText('phone');
-            $table->timestamp('check_in')->index();
-            $table->timestamp('check_out')->index();
+            $table->date('check_in')->index();
+            $table->date('check_out')->index();
             $table->tinyText('preparation_time');
-            $table->tinyInteger('guests_count')->unsigned();
+            $table->tinyInteger('guest_count')->unsigned();
             $table->string('summary')->nullable();
             $table->timestamps();
         });

@@ -8,9 +8,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @property-read int $id
+ * @property string $uid
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $email
+ * @property string $phone
+ * @property int $guest_count
  * @property \DateTimeImmutable $check_in
  * @property \DateTimeImmutable $check_out
  * @property \DateInterval|null $preparation_time
+ * @property string $summary
  * @property-read int $nights
  * @property-read \DateTimeImmutable|\DateTimeImmutable[]|null $check_in_preparation_time
  * @property-read \DateTimeImmutable|\DateTimeImmutable[]|null $check_out_preparation_time
@@ -25,7 +33,7 @@ class Reservation extends Model
         'last_name',
         'email',
         'phone',
-        'guests_count',
+        'guest_count',
         'check_in',
         'check_out',
         'preparation_time',

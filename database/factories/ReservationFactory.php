@@ -24,9 +24,9 @@ class ReservationFactory extends Factory
             'last_name' => $this->faker->lastName,
             'email' => $this->faker->email,
             'phone' => $this->faker->phoneNumber,
-            'check_in' => today(),
-            'check_out' => today()->addWeek(),
-            'guests_count' => 7,
+            'check_in' => today()->addWeek(),
+            'check_out' => today()->addWeeks(2),
+            'guest_count' => 7,
             'preparation_time' => new \DateInterval('P1D')
         ];
     }
