@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @property \DateTime $check_in
- * @property \DateTime $check_out
- * @property \DateInterval[] $preparation_time
+ * @property \DateTimeImmutable $check_in
+ * @property \DateTimeImmutable $check_out
+ * @property \DateInterval|null $preparation_time
  * @property-read int $nights
+ * @property-read \DateTimeImmutable|\DateTimeImmutable[]|null $check_in_preparation_time
+ * @property-read \DateTimeImmutable|\DateTimeImmutable[]|null $check_out_preparation_time
  */
 class Reservation extends Model
 {
@@ -44,10 +46,47 @@ class Reservation extends Model
     protected function nights(): Attribute
     {
         return Attribute::make(
-            get: fn (null $value, array $attributes) => date_diff(
-                new \DateTime($attributes['check_in']),
-                new \DateTime($attributes['check_out'])
-            )->d
+            get: fn (null $value, array $attributes) => date_diff($this->check_in, $this->check_out)->d
+        );
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function checkInPreparationTime(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (! $this->preparation_time) return null;
+
+                $preparationFrom = $this->check_in->sub($this->preparation_time);
+
+                if ($this->preparation_time->d === 1) return $preparationFrom;
+
+                $preparationTo = $this->check_in->sub(new \DateInterval('P1D'));
+
+                return [$preparationFrom, $preparationTo];
+            }
+        );
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function checkOutPreparationTime(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (! $this->preparation_time) return null;
+
+                $preparationFrom = $this->check_out->add($this->preparation_time);
+
+                if ($this->preparation_time->d === 1) return $preparationFrom;
+
+                $preparationTo = $this->check_out->add(new \DateInterval('P1D'));
+
+                return [$preparationFrom, $preparationTo];
+            }
         );
     }
 }
