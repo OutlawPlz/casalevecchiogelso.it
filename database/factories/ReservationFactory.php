@@ -20,6 +20,10 @@ class ReservationFactory extends Factory
     {
         return [
             'uid' => Str::ulid(),
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'email' => $this->faker->email,
+            'phone' => $this->faker->phoneNumber,
             'check_in' => today(),
             'check_out' => today()->addWeek(),
             'guests_count' => 7,

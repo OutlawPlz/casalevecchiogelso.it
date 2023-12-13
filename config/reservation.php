@@ -7,20 +7,18 @@ return [
     |--------------------------------------------------------------------------
     |
     | How many days before and after each reservation do you need to block.
+    | The interval must be in iso8601 format. E.g. Use "P2D" for 2 days.
     |
     */
 
-    'preparation_time' => env('PREPARATION_TIME', 1),
+    'preparation_time' => env('PREPARATION_TIME', 'P1D'),
 
     /*
     |--------------------------------------------------------------------------
     | Default Check-in/Check-out Time
     |--------------------------------------------------------------------------
     |
-    | This value is the default check-in and check-out time. This value is
-    | used when the application needs to determine the reserved period. The
-    | check-in date + check-in time + preparation time determines reserved
-    | period. The same happens for check-out.
+    | This value is the default check-in and check-out time.
     |
     */
 
