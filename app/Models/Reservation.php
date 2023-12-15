@@ -67,13 +67,10 @@ class Reservation extends Model
             get: function () {
                 if (! $this->preparation_time) return null;
 
-                $preparationFrom = $this->check_in->sub($this->preparation_time);
-
-                if ($this->preparation_time->d === 1) return $preparationFrom;
-
-                $preparationTo = $this->check_in->sub(new \DateInterval('P1D'));
-
-                return [$preparationFrom, $preparationTo];
+                return [
+                    $this->check_in->sub(new \DateInterval('P1D')),
+                    $this->check_in
+                ];
             }
         );
     }
@@ -87,13 +84,10 @@ class Reservation extends Model
             get: function () {
                 if (! $this->preparation_time) return null;
 
-                $preparationFrom = $this->check_out->add($this->preparation_time);
-
-                if ($this->preparation_time->d === 1) return $preparationFrom;
-
-                $preparationTo = $this->check_out->add(new \DateInterval('P1D'));
-
-                return [$preparationFrom, $preparationTo];
+                return [
+                    $this->check_out,
+                    $this->check_out->add(new \DateInterval('P1D'))
+                ];
             }
         );
     }

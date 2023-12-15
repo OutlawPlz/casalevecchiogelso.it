@@ -6,27 +6,46 @@ use App\Models\Reservation;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Spatie\Period\Boundaries;
+use Spatie\Period\Period;
+use Spatie\Period\Precision;
 
 class Calendar
 {
-    protected array $reservedDates;
+    public array $events;
 
     /** @var string[] */
     protected array $defaultServices = ['database', 'airbnb'];
 
     public function __construct()
     {
-        $this->reservedDates = Storage::json('calendar.json') ?? [];
+        $this->events = Storage::json('calendar.json') ?? [];
     }
 
     /**
-     * @param \DateTimeInterface $checkin
-     * @param \DateTimeInterface $checkout
+     * @param \DateTimeImmutable $checkIn
+     * @param \DateTimeImmutable $checkOut
      * @return bool
+     * @throws \Exception
      */
-    public function isAvailable(\DateTimeInterface $checkin, \DateTimeInterface $checkout): bool
+    public function isAvailable(\DateTimeImmutable $checkIn, \DateTimeImmutable $checkOut): bool
     {
-        // TODO: Whether the dates are available or not.
+        $reservedPeriod = new Period($checkIn, $checkOut, Precision::DAY(), Boundaries::EXCLUDE_END());
+
+        foreach ($this->events as $event) {
+            $eventPeriod = new Period(
+                new \DateTimeImmutable($event['start_at']),
+                new \DateTimeImmutable($event['end_at']),
+                Precision::DAY(),
+                Boundaries::EXCLUDE_END()
+            );
+
+            $overlaps = $eventPeriod->overlapsWith($reservedPeriod);
+
+            if ($overlaps) return false;
+        }
+
+        return true;
     }
 
     /**
@@ -37,17 +56,19 @@ class Calendar
     {
         if (! $services) $services = $this->defaultServices;
 
-        $reservedDates = [];
+        $events = [];
 
         foreach ($services as $service) {
             $fromService = 'from' . Str::studly($service);
 
-            $reservedDates += $this->$fromService();
+            $events = array_merge($events, $this->$fromService());
         }
 
         // TODO: I'd like to order the dates inside the array.
 
-        $this->reservedDates = $reservedDates;
+        $this->events = $events;
+
+        Storage::put('calendar.json', json_encode($this->events, JSON_PRETTY_PRINT));
     }
 
     /**
@@ -58,17 +79,31 @@ class Calendar
         /** @var \Illuminate\Database\Eloquent\Collection<Reservation> $reservations */
         $reservations = Reservation::query()->where('check_in', '>', today())->get();
 
-        $reservedDates = [];
+        $events = [];
 
         foreach ($reservations as $reservation) {
-            if ($reservation->preparation_time) $reservedDates[] = $reservation->check_in_preparation_time;
+            $events[] = [
+                'uid' => $reservation->uid,
+                'start_at' => $reservation->check_in,
+                'end_at' => $reservation->check_out,
+                'summary' => $reservation->summary
+            ];
 
-            $reservedDates[] = [$reservation->check_in, $reservation->check_out];
+            if (! $reservation->preparation_time) continue;
 
-            if ($reservation->preparation_time) $reservedDates[] = $reservation->check_out_preparation_time;
+            foreach (['check_in_preparation_time', 'check_out_preparation_time'] as $preparationTime) {
+                list($startAt, $endAt) = $reservation->$preparationTime;
+
+                $events[] = [
+                    'uid' => $reservation->uid,
+                    'start_at' => $startAt,
+                    'end_at' => $endAt,
+                    'summary' => 'Preparation time'
+                ];
+            }
         }
 
-        return $reservedDates;
+        return $events;
     }
 
     /**
