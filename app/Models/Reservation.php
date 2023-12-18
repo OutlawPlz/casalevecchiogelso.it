@@ -68,7 +68,7 @@ class Reservation extends Model
                 if (! $this->preparation_time) return null;
 
                 return [
-                    $this->check_in->sub(new \DateInterval('P1D')),
+                    $this->check_in->sub($this->preparation_time),
                     $this->check_in
                 ];
             }
@@ -86,7 +86,7 @@ class Reservation extends Model
 
                 return [
                     $this->check_out,
-                    $this->check_out->add(new \DateInterval('P1D'))
+                    $this->check_out->add($this->preparation_time)
                 ];
             }
         );

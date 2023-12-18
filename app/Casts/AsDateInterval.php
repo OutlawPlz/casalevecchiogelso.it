@@ -13,6 +13,7 @@ class AsDateInterval implements CastsAttributes
      * @param string $value
      * @param array $attributes
      * @return \DateInterval
+     * @throws \Exception
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): \DateInterval
     {
