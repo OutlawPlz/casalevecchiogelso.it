@@ -26,7 +26,6 @@ class Calendar
      * @param \DateTimeImmutable $checkIn
      * @param \DateTimeImmutable $checkOut
      * @return bool
-     * @throws \Exception
      */
     public function isAvailable(\DateTimeImmutable $checkIn, \DateTimeImmutable $checkOut): bool
     {
@@ -49,6 +48,16 @@ class Calendar
     }
 
     /**
+     * @param \DateTimeImmutable $checkIn
+     * @param \DateTimeImmutable $checkOut
+     * @return bool
+     */
+    public function isNotAvailable(\DateTimeImmutable $checkIn, \DateTimeImmutable $checkOut): bool
+    {
+        return ! $this->isAvailable($checkIn, $checkOut);
+    }
+
+    /**
      * @param string ...$services
      * @return void
      */
@@ -63,8 +72,6 @@ class Calendar
 
             $events = array_merge($events, $this->$fromService());
         }
-
-        // TODO: I'd like to order the dates inside the array.
 
         $this->events = $events;
 
@@ -136,8 +143,8 @@ class Calendar
 
             $reservations[] = [
                 'uid' => $event['UID'],
-                'start_at' => (new \DateTime($event['DTSTART;VALUE=DATE']))->format('Y-m-d'),
-                'end_at' => (new \DateTime($event['DTEND;VALUE=DATE']))->format('Y-m-d'),
+                'start_at' => (new \DateTimeImmutable($event['DTSTART;VALUE=DATE'])),
+                'end_at' => (new \DateTimeImmutable($event['DTEND;VALUE=DATE'])),
                 'summary' => $event['DESCRIPTION'] ?? $event['SUMMARY']
             ];
         }

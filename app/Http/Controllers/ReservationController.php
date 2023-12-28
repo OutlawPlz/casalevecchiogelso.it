@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Services\Calendar;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ReservationController extends Controller
 {
@@ -11,13 +13,24 @@ class ReservationController extends Controller
      * @param Request $request
      * @return void
      */
-    public function store(Request $request): void
+    public function store(Request $request, Calendar $calendar): void
     {
         $attributes = $request->validate(self::rules());
 
-        $attributes += ['preparation_time' => config('reservation.preparation_time')];
+        $attributes += [
+            'preparation_time' => config('reservation.preparation_time'),
+//            'status' => 'pending'
+        ];
 
-        Reservation::query()->create($attributes);
+        $reservation = new Reservation($attributes);
+
+        if ($calendar->isNotAvailable(...$reservation->reserved_period)) {
+            throw ValidationException::withMessages([
+                // TODO: Add validation message...
+            ]);
+        }
+
+        $reservation->save();
     }
 
     /**

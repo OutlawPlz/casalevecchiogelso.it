@@ -20,8 +20,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property \DateInterval|null $preparation_time
  * @property string $summary
  * @property-read int $nights
- * @property-read \DateTimeImmutable|\DateTimeImmutable[]|null $check_in_preparation_time
- * @property-read \DateTimeImmutable|\DateTimeImmutable[]|null $check_out_preparation_time
+ * @property-read \DateTimeImmutable[] $reserved_period
+ * @property-read \DateTimeImmutable[] $check_in_preparation_time
+ * @property-read \DateTimeImmutable[] $check_out_preparation_time
  */
 class Reservation extends Model
 {
@@ -65,7 +66,7 @@ class Reservation extends Model
     {
         return Attribute::make(
             get: function () {
-                if (! $this->preparation_time) return null;
+                if (! $this->preparation_time) return [];
 
                 return [
                     $this->check_in->sub($this->preparation_time),
@@ -82,10 +83,29 @@ class Reservation extends Model
     {
         return Attribute::make(
             get: function () {
-                if (! $this->preparation_time) return null;
+                if (! $this->preparation_time) return [];
 
                 return [
                     $this->check_out,
+                    $this->check_out->add($this->preparation_time)
+                ];
+            }
+        );
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function reservedPeriod(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (! $this->preparation_time) {
+                    return [$this->check_in, $this->check_out];
+                }
+
+                return [
+                    $this->check_in->sub($this->preparation_time),
                     $this->check_out->add($this->preparation_time)
                 ];
             }
