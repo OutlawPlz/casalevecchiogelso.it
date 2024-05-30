@@ -1,31 +1,19 @@
 // import './bootstrap';
 
-import Alpine from 'alpinejs';
-// import {easepick} from "@easepick/core";
-// import {LockPlugin} from "@easepick/lock-plugin";
-// import {RangePlugin} from "@easepick/range-plugin";
+import '#/vanillajs-datepicker/dist/css/datepicker.min.css';
+import '../css/app.css';
 
-window.Alpine = Alpine;
+// import Alpine from 'alpinejs';
+import { DateRangePicker } from 'vanillajs-datepicker';
 
-Alpine.start();
+// window.Alpine = Alpine;
 
-// const picker = new easepick.create({
-//     element: "#datepicker",
-//     css: [
-//         "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css"
-//     ],
-//     zIndex: 10,
-//     grid: 2,
-//     calendars: 2,
-//     autoApply: false,
-//     LockPlugin: {
-//         minDate: Date.now(),
-//         minDays: 3,
-//         maxDays: 28
-//     },
-//     plugins: [
-//         RangePlugin,
-//         LockPlugin
-//     ],
-//     lang: "it-IT"
-// });
+// Alpine.start();
+
+const elem = document.getElementById('daterange');
+
+if (elem) {
+    const datepicker = new DateRangePicker(elem, {
+        minDate: Date.now(),
+    });
+}

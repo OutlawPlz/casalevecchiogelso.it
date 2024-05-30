@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
             $table->ulid('uid')->unique();
-            $table->tinyText('first_name');
-            $table->tinyText('last_name');
-            $table->tinyText('email')->index();
-            $table->tinyText('phone');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('email')->index();
+            $table->string('phone');
             $table->date('check_in')->index();
             $table->date('check_out')->index();
-            $table->tinyText('preparation_time');
-            $table->tinyInteger('guest_count')->unsigned();
+            $table->string('preparation_time');
+            $table->integer('guest_count')->unsigned();
             $table->string('summary')->nullable();
             $table->timestamps();
         });

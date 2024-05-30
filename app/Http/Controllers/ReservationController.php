@@ -11,7 +11,9 @@ class ReservationController extends Controller
 {
     /**
      * @param Request $request
+     * @param Calendar $calendar
      * @return void
+     * @throws ValidationException
      */
     public function store(Request $request, Calendar $calendar): void
     {
