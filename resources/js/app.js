@@ -1,19 +1,11 @@
-// import './bootstrap';
-
-import '#/vanillajs-datepicker/dist/css/datepicker.min.css';
 import '../css/app.css';
 
-// import Alpine from 'alpinejs';
-import { DateRangePicker } from 'vanillajs-datepicker';
+import './bootstrap';
+import Alpine from 'alpinejs';
+import { format } from 'date-fns';
 
-// window.Alpine = Alpine;
+window.Alpine = Alpine;
 
-// Alpine.start();
+window.format = format;
 
-const elem = document.getElementById('daterange');
-
-if (elem) {
-    const datepicker = new DateRangePicker(elem, {
-        minDate: Date.now(),
-    });
-}
+Alpine.start();

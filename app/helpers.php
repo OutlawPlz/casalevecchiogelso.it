@@ -78,3 +78,33 @@ if (! function_exists('iso8601_decode')) {
         return $interval ?? $date;
     }
 }
+
+if (! function_exists('dates_in_range')) {
+    /**
+     * @param DateTimeImmutable $start
+     * @param DateTimeImmutable $end
+     * @param string|DateInterval $interval
+     * @param string $format
+     * @return string[]
+     * @throws Exception
+     */
+    function dates_in_range(
+        DateTimeImmutable $start,
+        DateTimeImmutable $end,
+        string|DateInterval $interval = 'P1D',
+        string $format = 'Y-m-d'
+    ): array
+    {
+        if (is_string($interval)) $interval = new DateInterval($interval);
+
+        $period = new DatePeriod($start, $interval, $end);
+
+        $dates = [];
+
+        foreach ($period as $date) {
+            $dates[] = $date->format($format);
+        }
+
+        return $dates;
+    }
+}

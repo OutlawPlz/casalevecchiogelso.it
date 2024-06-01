@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReservationController;
+use App\Services\Calendar;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,9 +20,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', fn() => view('dashboard'))
+Route::get('/dashboard', fn(Calendar $calendar) => view('dashboard', ['unavailableDates' => $calendar->unavailableDates()]))
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

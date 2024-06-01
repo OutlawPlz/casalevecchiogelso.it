@@ -12,7 +12,7 @@ use Spatie\Period\Precision;
 
 class Calendar
 {
-    public array $events;
+    protected array $events;
 
     /** @var string[] */
     protected array $defaultServices = ['database', 'airbnb'];
@@ -93,18 +93,20 @@ class Calendar
                 'uid' => $reservation->uid,
                 'start_at' => $reservation->check_in,
                 'end_at' => $reservation->check_out,
+                'unavailable_dates' => dates_in_range($reservation->check_in, $reservation->check_out),
                 'summary' => $reservation->summary
             ];
 
             if (! $reservation->preparation_time) continue;
 
             foreach (['check_in_preparation_time', 'check_out_preparation_time'] as $preparationTime) {
-                list($startAt, $endAt) = $reservation->$preparationTime;
+                [$startAt, $endAt] = $reservation->$preparationTime;
 
                 $events[] = [
                     'uid' => $reservation->uid,
                     'start_at' => $startAt,
                     'end_at' => $endAt,
+                    'unavailable_dates' => dates_in_range($startAt, $endAt),
                     'summary' => 'Preparation time'
                 ];
             }
@@ -122,7 +124,8 @@ class Calendar
     {
         $ics ??= env('AIRBNB_ICS_LINK');
 
-        $response = Http::get($ics);
+        // I have to use withUserAgent(), otherwise AirBnB will return 429 code.
+        $response = Http::withUserAgent('')->get($ics);
 
         $body = str_replace("\n ", '', $response->body());
 
@@ -141,14 +144,29 @@ class Calendar
                 $event[$key] = $value;
             }
 
+            $startAt = new \DateTimeImmutable($event['DTSTART;VALUE=DATE']);
+            $endAt = new \DateTimeImmutable($event['DTEND;VALUE=DATE']);
+
             $reservations[] = [
                 'uid' => $event['UID'],
-                'start_at' => (new \DateTimeImmutable($event['DTSTART;VALUE=DATE'])),
-                'end_at' => (new \DateTimeImmutable($event['DTEND;VALUE=DATE'])),
+                'start_at' => $startAt,
+                'end_at' => $endAt,
+                'unavailable_dates' => dates_in_range($startAt, $endAt),
                 'summary' => $event['DESCRIPTION'] ?? $event['SUMMARY']
             ];
         }
 
         return $reservations;
+    }
+
+    /**
+     * @return array
+     */
+    public function unavailableDates(): array
+    {
+        return call_user_func_array(
+            'array_merge',
+            array_column($this->events, 'unavailable_dates')
+        );
     }
 }
