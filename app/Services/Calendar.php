@@ -33,8 +33,8 @@ class Calendar
 
         foreach ($this->events as $event) {
             $eventPeriod = new Period(
-                new \DateTimeImmutable($event['start_at']),
-                new \DateTimeImmutable($event['end_at']),
+                new \DateTimeImmutable($event['start_at']['date']),
+                new \DateTimeImmutable($event['end_at']['date']),
                 Precision::DAY(),
                 Boundaries::EXCLUDE_END()
             );

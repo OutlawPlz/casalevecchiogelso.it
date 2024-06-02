@@ -6,9 +6,20 @@ use App\Models\Reservation;
 use App\Services\Calendar;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class ReservationController extends Controller
 {
+    public function create(Request $request, Calendar $calendar): View
+    {
+        return \view('reservation.create', [
+            'unavailableDates' => $calendar->unavailableDates(),
+            'checkIn' => $request->check_in,
+            'checkOut' => $request->check_out,
+            'guestCount' => $request->guest_count,
+        ]);
+    }
+
     /**
      * @param Request $request
      * @param Calendar $calendar
@@ -47,7 +58,7 @@ class ReservationController extends Controller
             'phone' => ['required'],
             'check_in' => ['required', 'date', 'after:tomorrow'],
             'check_out' => ['required', 'date', 'after:start_date'],
-            'guests_count' => ['required', 'digits_between:1,10']
+            'guest_count' => ['required', 'digits_between:1,10']
         ];
     }
 }
