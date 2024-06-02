@@ -21,7 +21,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <x-daterange-input class="grid grid-cols-2 gap-4"
+                        <x-daterange-input class="relative grid grid-cols-2 gap-4"
                                            x-model="period"
                                            :unavailable="$unavailableDates"/>
 

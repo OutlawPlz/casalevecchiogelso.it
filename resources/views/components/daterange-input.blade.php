@@ -1,16 +1,15 @@
 @props([
-    'disabled' => false,
     'unavailable' => [],
 ])
 
-<div {!! $attributes !!} x-modelable="_dates" x-data="{
+<div {!! $attributes !!} class="relative" x-modelable="_dates" x-data="{
     _dates: [],
     picker: null,
     init() {
         const calendarColumns = (window.innerWidth < 1024) ? 1 : 2;
 
         this.picker = new easepick.create({
-            element: this.$refs.checkIn,
+            element: this.$refs.picker,
             grid: calendarColumns,
             calendars: calendarColumns,
             css: [
@@ -18,6 +17,14 @@
                 'https://cdn.jsdelivr.net/npm/@easepick/range-plugin@1.2.1/dist/index.css',
                 'https://cdn.jsdelivr.net/npm/@easepick/lock-plugin@1.2.1/dist/index.css',
             ],
+            setup: (instance) => {
+                instance.on('show', (event) => {
+                    const rect = event.detail.target.parentElement.getBoundingClientRect();
+
+                    instance.ui.container.style.top = `${rect.height}px`;
+                    instance.ui.container.style.left = '0px';
+                });
+            },
             plugins: ['RangePlugin', 'LockPlugin'],
             RangePlugin: {
                 tooltipNumber: (days) => days - 1,
@@ -50,7 +57,7 @@
 }">
     <div>
         <x-input-label>{{ __('Check-in') }}</x-input-label>
-        <x-text-input :disabled="$disabled"
+        <x-text-input readonly=""
                       type="text"
                       x-ref="checkIn"
                       name="check_in"
@@ -61,11 +68,12 @@
     <div>
         <x-input-label>{{ __('Check-out') }}</x-input-label>
         <x-text-input readonly=""
-                      :disabled="$disabled"
                       type="text"
                       x-ref="checkOut"
                       name="check_out"
                       x-model="_dates[1]"
                       x-on:click="picker.show()"/>
     </div>
+
+    <input type="hidden" x-ref="picker">
 </div>
