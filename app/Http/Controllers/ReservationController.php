@@ -17,6 +17,8 @@ class ReservationController extends Controller
             'checkIn' => $request->check_in,
             'checkOut' => $request->check_out,
             'guestCount' => $request->guest_count,
+            'pricePerNight' => config('reservation.price_per_night'),
+            'cleaningFee' => config('reservation.cleaning_fee'),
         ]);
     }
 

@@ -1,15 +1,13 @@
 @props([
     'disabled' => false,
     'unavailable' => [],
-    'start' => '',
-    'end' => '',
 ])
 
-<div {!! $attributes !!} x-data="{
-    dates: [],
+<div {!! $attributes !!} x-modelable="_dates" x-data="{
+    _dates: [],
     picker: null,
     init() {
-        const calendarColumns = window.innerWidth < 1024 ? 1 : 2;
+        const calendarColumns = (window.innerWidth < 1024) ? 1 : 2;
 
         this.picker = new easepick.create({
             element: this.$refs.checkIn,
@@ -24,8 +22,6 @@
             RangePlugin: {
                 tooltipNumber: (days) => days - 1,
                 locale: { one: '{{ __('night') }}', other: '{{ __('nights') }}' },
-                startDate: '{{ $start }}',
-                endDate: '{{ $end }}'
             },
             LockPlugin: {
                 minDate: Date.now(),
@@ -42,12 +38,13 @@
             },
         });
 
-        this.$refs.checkIn.value = '{{ $start }}';
-        this.$refs.checkOut.value = '{{ $end }}';
+        this.$watch('_dates', () => this.picker.setDateRange(this._dates[0], this._dates[1]));
 
         this.picker.on('select', (event) => {
-            this.$refs.checkIn.value = format(event.detail.start, 'yyyy-MM-dd');
-            this.$refs.checkOut.value = format(event.detail.end, 'yyyy-MM-dd');
+            this._dates = [
+                format(event.detail.start, 'yyyy-MM-dd'),
+                format(event.detail.end, 'yyyy-MM-dd')
+            ]
         });
     },
 }">
@@ -57,6 +54,7 @@
                       type="text"
                       x-ref="checkIn"
                       name="check_in"
+                      x-model="_dates[0]"
                       x-on:click="picker.show()"/>
     </div>
 
@@ -67,6 +65,7 @@
                       type="text"
                       x-ref="checkOut"
                       name="check_out"
+                      x-model="_dates[1]"
                       x-on:click="picker.show()"/>
     </div>
 </div>

@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'price_per_night' => env('PRICE_PER_NIGHT', 230),
+    'cleaning_fee' => env('CLEANING_FEE', 50),
+
     /*
     |--------------------------------------------------------------------------
     | Default Preparation Time

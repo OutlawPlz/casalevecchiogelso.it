@@ -6,16 +6,23 @@
                   class="grid grid-cols-1 md:grid-cols-5 gap-6">
                 @csrf
 
-                <div class="bg-white p-6 shadow-sm space-y-8 sm:rounded-lg md:col-span-2">
+                <div class="bg-white p-6 shadow-sm space-y-6 sm:rounded-lg md:col-span-2" x-data="{
+                    price: {{ $pricePerNight }},
+                    cleaningFee: {{ $cleaningFee }},
+                    period: ['{{ $checkIn }}', '{{ $checkOut }}'],
+
+                    get nights() {
+                        return differenceInDays(this.period[1], this.period[0])
+                    }
+                }">
                     <div>
-                        <span class="text-2xl font-bold">230 €</span>
+                        <span class="text-2xl font-bold" x-text="`${price} €`"></span>
                         <span class="ms-2">{{ __('night') }}</span>
                     </div>
 
                     <div class="space-y-2">
                         <x-daterange-input class="grid grid-cols-2 gap-4"
-                                           start="{{ $checkIn }}"
-                                           end="{{ $checkOut }}"
+                                           x-model="period"
                                            :unavailable="$unavailableDates"/>
 
                         <div>
@@ -26,13 +33,13 @@
 
                     <div class="space-y-2">
                         <div class="flex justify-between">
-                            <span class="underline">230 € x 7 {{ __('nights') }}</span>
-                            <span>€ 1610</span>
+                            <span class="underline" x-text="`230 € x ${nights} {{ __('nights') }}`"></span>
+                            <span x-text="`€ ${nights * price}`"></span>
                         </div>
 
                         <div class="flex justify-between">
                             <span class="underline">{{ __('Cleaning fee') }}</span>
-                            <span>€ 50</span>
+                            <span x-text="`€ ${cleaningFee}`"></span>
                         </div>
                     </div>
 
@@ -40,7 +47,7 @@
 
                     <div class="flex justify-between font-bold">
                         <span>Tot.</span>
-                        <span>€ 1660</span>
+                        <span x-text="`€ ${nights * price + cleaningFee}`"></span>
                     </div>
                 </div>
 
