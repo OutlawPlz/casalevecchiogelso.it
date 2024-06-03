@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reservation;
 use App\Services\Calendar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -33,7 +34,8 @@ class ReservationController extends Controller
         $attributes = $request->validate(self::rules());
 
         $attributes += [
-            'preparation_time' => config('reservation.preparation_time'),
+            'ulid' => Str::ulid(),
+            'preparation_time' => new \DateInterval(config('reservation.preparation_time')),
 //            'status' => 'pending'
         ];
 
@@ -41,7 +43,7 @@ class ReservationController extends Controller
 
         if ($calendar->isNotAvailable(...$reservation->reserved_period)) {
             throw ValidationException::withMessages([
-                // TODO: Add validation message...
+                'unavailable_dates' => __('The selected dates are not available.')
             ]);
         }
 

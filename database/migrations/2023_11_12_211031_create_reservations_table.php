@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->ulid('uid')->unique();
+            $table->ulid('ulid')->unique();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->index();
-            $table->string('phone');
+            $table->string('phone')->nullable();
             $table->date('check_in')->index();
             $table->date('check_out')->index();
             $table->string('preparation_time');
