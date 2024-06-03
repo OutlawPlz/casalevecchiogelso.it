@@ -57,7 +57,6 @@ class ReservationController extends Controller
             'first_name' => ['required', 'min:3', 'max:255'],
             'last_name' => ['required', 'min:3', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
-            'phone' => ['required'],
             'check_in' => ['required', 'date', 'after:tomorrow'],
             'check_out' => ['required', 'date', 'after:start_date'],
             'guest_count' => ['required', 'digits_between:1,10']
