@@ -45,6 +45,8 @@
                 format(event.detail.start, 'yyyy-MM-dd'),
                 format(event.detail.end, 'yyyy-MM-dd')
             ]
+
+            this.$el.dispatchEvent(new Event('input', { bubbles: true }));
         });
     },
 }">

@@ -24,10 +24,13 @@
 
                         <div class="prose">
                             <h1>{{ __('You\'re one step away from booking!') }} 🥳</h1>
-                            <p>{{ __('We need your name and email to proceed with the booking.') }} {{ __('If you have any questions or curiosities, this is the right time to ask!') }} <span class="underline">{{ __('In this step you will not be charged anything.') }}</span></p>
+                            <p>{{ __('We need your name and email to proceed with the booking.') }} {{ __('If you have any questions or curiosities, this is the right time to ask!') }}
+                                <span
+                                    class="underline">{{ __('In this step you will not be charged anything.') }}</span>
+                            </p>
 
                             <div class="space-y-2 mt-4">
-                                @include('reservation.partials.create-reservation-form')
+                                @include('reservation.partials.guest-form')
                             </div>
                         </div>
                     </div>

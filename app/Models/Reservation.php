@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property \DateTimeImmutable $check_out
  * @property \DateInterval|null $preparation_time
  * @property string $summary
+ * @property array $price_list
+ * @property-read int $total
  * @property-read int $nights
  * @property-read \DateTimeImmutable[] $reserved_period
  * @property-read \DateTimeImmutable[] $check_in_preparation_time
@@ -37,6 +39,7 @@ class Reservation extends Model
         'check_in',
         'check_out',
         'preparation_time',
+        'price_list',
         'summary'
     ];
 
@@ -44,13 +47,9 @@ class Reservation extends Model
         'check_in' => 'immutable_date',
         'check_out' => 'immutable_date',
         'preparation_time' => AsDateInterval::class,
+        'price_list' => 'array',
     ];
 
-    /**
-     * The nights spent at the hotel.
-     *
-     * @return Attribute
-     */
     protected function nights(): Attribute
     {
         return Attribute::make(
@@ -58,9 +57,6 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return Attribute
-     */
     protected function checkInPreparationTime(): Attribute
     {
         return Attribute::make(
@@ -75,9 +71,6 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return Attribute
-     */
     protected function checkOutPreparationTime(): Attribute
     {
         return Attribute::make(
@@ -92,14 +85,28 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return Attribute
-     */
     protected function reservedPeriod(): Attribute
     {
         return Attribute::make(
             get: function () {
                 return [$this->check_in, $this->check_out];
+            }
+        );
+    }
+
+    protected function total(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $priceList = $this->price_list;
+
+                $total = $priceList['price_per_night'] * $this->nights;
+
+                unset($priceList['price_per_night']);
+
+                $total += array_sum($priceList);
+
+                return $total;
             }
         );
     }
