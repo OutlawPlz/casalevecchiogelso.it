@@ -9,7 +9,7 @@
         const calendarColumns = (window.innerWidth < 1024) ? 1 : 2;
 
         this.picker = new easepick.create({
-            element: this.$refs.picker,
+            element: this.$refs.checkIn,
             grid: calendarColumns,
             calendars: calendarColumns,
             css: [
@@ -17,21 +17,14 @@
                 'https://cdn.jsdelivr.net/npm/@easepick/range-plugin@1.2.1/dist/index.css',
                 'https://cdn.jsdelivr.net/npm/@easepick/lock-plugin@1.2.1/dist/index.css',
             ],
-            setup: (instance) => {
-                instance.on('show', (event) => {
-                    const rect = event.detail.target.parentElement.getBoundingClientRect();
-
-                    instance.ui.container.style.top = `${rect.height}px`;
-                    instance.ui.container.style.left = '0px';
-                });
-            },
             plugins: ['RangePlugin', 'LockPlugin'],
             RangePlugin: {
                 tooltipNumber: (days) => days - 1,
+                elementEnd: this.$refs.checkOut,
                 locale: { one: '{{ __('night') }}', other: '{{ __('nights') }}' },
             },
             LockPlugin: {
-                minDate: Date.now(),
+                minDate: addDays(Date.now(), 2),
                 maxDate: addYears(Date.now(), 1),
                 minDays: 3,
                 maxDays: 29,
@@ -74,6 +67,4 @@
                       x-model="_dates[1]"
                       x-on:click="picker.show()"/>
     </div>
-
-    <input type="hidden" x-ref="picker">
 </div>

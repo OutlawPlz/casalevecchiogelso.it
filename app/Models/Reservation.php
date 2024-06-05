@@ -99,14 +99,7 @@ class Reservation extends Model
     {
         return Attribute::make(
             get: function () {
-                if (! $this->preparation_time) {
-                    return [$this->check_in, $this->check_out];
-                }
-
-                return [
-                    $this->check_in->sub($this->preparation_time),
-                    $this->check_out->add($this->preparation_time)
-                ];
+                return [$this->check_in, $this->check_out];
             }
         );
     }

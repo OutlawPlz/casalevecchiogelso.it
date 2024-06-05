@@ -25,7 +25,7 @@
 
     <div class="space-y-2">
         <div class="flex justify-between">
-            <span class="underline" x-text="`230 € x ${nights} {{ __('nights') }}`"></span>
+            <span class="underline" x-text="`${price} € x ${nights} {{ __('nights') }}`"></span>
             <span x-text="`€ ${nights * price}`"></span>
         </div>
 

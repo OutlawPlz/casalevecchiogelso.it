@@ -97,7 +97,7 @@ if (! function_exists('dates_in_range')) {
     {
         if (is_string($interval)) $interval = new DateInterval($interval);
 
-        $period = new DatePeriod($start, $interval, $end);
+        $period = new DatePeriod($start, $interval, $end, DatePeriod::EXCLUDE_START_DATE | DatePeriod::INCLUDE_END_DATE);
 
         $dates = [];
 
