@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationController;
 use App\Services\Calendar;
@@ -32,7 +33,14 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
-Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservations.create');
-Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservations.show');
-Route::patch('/reservations/{reservation:ulid}', [ReservationController::class, 'update'])->name('reservations.update');
+Route::post('/reservations', [ReservationController::class, 'store'])->name('reservation.store');
+Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservation.create');
+Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');
+Route::patch('/reservations/{reservation:ulid}', [ReservationController::class, 'update'])->name('reservation.update');
+
+Route::post('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+Route::get('/checkout', [CheckoutController::class, 'success'])->name('checkout.success');
+
+Route::get('/test', function (\Illuminate\Http\Request $request) {
+    return \Laravel\Cashier\Cashier::stripe()->prices->all()['data'];
+});

@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form action="{{ route('reservations.create') }}" class="flex space-x-4">
+                    <form action="{{ route('reservation.create') }}" class="flex space-x-4">
                         <x-daterange-input class="flex space-x-4" :unavailable="$unavailableDates" />
 
                         <div>

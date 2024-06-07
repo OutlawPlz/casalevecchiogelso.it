@@ -50,6 +50,20 @@ class Reservation extends Model
         'price_list' => 'array',
     ];
 
+    /**
+     * @return array
+     */
+    public function order(): array
+    {
+        return [
+            config('reservation.overnight_stay') => $this->nights,
+            config('reservation.cleaning_fee'),
+        ];
+    }
+
+    /**
+     * @return Attribute
+     */
     protected function nights(): Attribute
     {
         return Attribute::make(
@@ -57,6 +71,9 @@ class Reservation extends Model
         );
     }
 
+    /**
+     * @return Attribute
+     */
     protected function checkInPreparationTime(): Attribute
     {
         return Attribute::make(
@@ -71,6 +88,9 @@ class Reservation extends Model
         );
     }
 
+    /**
+     * @return Attribute
+     */
     protected function checkOutPreparationTime(): Attribute
     {
         return Attribute::make(
@@ -85,6 +105,9 @@ class Reservation extends Model
         );
     }
 
+    /**
+     * @return Attribute
+     */
     protected function reservedPeriod(): Attribute
     {
         return Attribute::make(
@@ -94,6 +117,9 @@ class Reservation extends Model
         );
     }
 
+    /**
+     * @return Attribute
+     */
     protected function total(): Attribute
     {
         return Attribute::make(

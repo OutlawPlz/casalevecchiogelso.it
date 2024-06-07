@@ -1,10 +1,10 @@
 <div class="space-y-6" x-data="{
-        price: {{ $reservation->price_list['price_per_night'] }},
-        cleaningFee: {{ $reservation->price_list['cleaning_fee'] }},
+        price: 250,
+        cleaningFee: 70,
         period: ['{{ $reservation->check_in }}', '{{ $reservation->check_out }}'],
 
         get nights() {
-            return differenceInDays(this.period[1], this.period[0])
+            return differenceInDays(this.period[1], this.period[0]);
         }
     }">
     <div class="space-y-2">

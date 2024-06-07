@@ -1,6 +1,6 @@
 <div class="space-y-6" x-data="{
-        price: {{ $pricePerNight }},
-        cleaningFee: {{ $cleaningFee }},
+        price: {{ $overnightStay['unit_amount'] / 100 }},
+        cleaningFee: {{ $cleaningFee['unit_amount'] / 100 }},
         period: ['{{ $checkIn }}', '{{ $checkOut }}'],
 
         get nights() {

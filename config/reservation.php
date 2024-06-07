@@ -6,10 +6,14 @@ return [
     |--------------------------------------------------------------------------
     | Pricing
     |--------------------------------------------------------------------------
+    |
+    | Prices refers to Stripe prices ids. You should create those prices
+    | upfront in Stripe, then reference those prices by the id.
     */
 
-    'price_per_night' => env('PRICE_PER_NIGHT', 230),
-    'cleaning_fee' => env('CLEANING_FEE', 50),
+    'overnight_stay' => env('OVERNIGHT_STAY'),
+
+    'cleaning_fee' => env('CLEANING_FEE'),
 
     /*
     |--------------------------------------------------------------------------

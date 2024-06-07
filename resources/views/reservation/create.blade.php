@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <form action="{{ route('reservations.store') }}"
+            <form action="{{ route('reservation.store') }}"
                   method="POST"
                   class="grid grid-cols-1 md:grid-cols-5 gap-8">
                 @csrf
