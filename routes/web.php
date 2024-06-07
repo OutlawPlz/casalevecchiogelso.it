@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationController;
 use App\Services\Calendar;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,9 +21,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
-Route::get('/dashboard', fn(Calendar $calendar) => view('dashboard', ['unavailableDates' => $calendar->unavailableDates()]))
+Route::get('/dashboard', fn (Calendar $calendar) => view('dashboard', ['unavailableDates' => $calendar->unavailableDates()]))
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -33,6 +35,9 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+Route::get('/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])->name('social.redirect');
+Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])->name('social.callback');
+
 Route::post('/reservations', [ReservationController::class, 'store'])->name('reservation.store');
 Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservation.create');
 Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');
@@ -40,9 +45,3 @@ Route::patch('/reservations/{reservation:ulid}', [ReservationController::class, 
 
 Route::post('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::get('/checkout', [CheckoutController::class, 'success'])->name('checkout.success');
-
-Route::get('/test', function (\Illuminate\Http\Request $request) {
-    $stripe = \Laravel\Cashier\Cashier::stripe();
-
-    return $stripe->prices->all()['data'];
-});
