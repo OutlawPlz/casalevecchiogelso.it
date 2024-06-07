@@ -1,7 +1,7 @@
 <div class="space-y-6" x-data="{
-        price: {{ $overnightStay['unit_amount'] / 100 }},
-        cleaningFee: {{ $cleaningFee['unit_amount'] / 100 }},
-        period: ['{{ $reservation->check_in }}', '{{ $reservation->check_out }}'],
+        price: {{ $overnight_stay['unit_amount'] / 100 }},
+        cleaningFee: {{ $cleaning_fee['unit_amount'] / 100 }},
+        period: ['{{ $reservation['check_in'] }}', '{{ $reservation['check_out'] }}'],
 
         get nights() {
             if (! this.period[1] || ! this.period[0]) return 0;
@@ -17,11 +17,11 @@
     <div class="space-y-2">
         <x-daterange-input class="relative grid grid-cols-2 gap-4"
                            x-model="period"
-                           :unavailable="$unavailableDates"/>
+                           :unavailable="$unavailable_dates"/>
 
         <div>
             <x-input-label>{{ __('Guests') }}</x-input-label>
-            <x-text-input type="number" name="guest_count" min="1" max="10" value="{{ $reservation->guest_count }}"/>
+            <x-text-input type="number" name="guest_count" min="1" max="10" value="{{ $reservation['guest_count'] }}"/>
         </div>
     </div>
 

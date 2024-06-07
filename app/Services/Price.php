@@ -5,6 +5,7 @@ namespace App\Services;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Cashier\Cashier;
+use Stripe\Exception\ApiErrorException;
 
 class Price
 {
@@ -62,7 +63,7 @@ class Price
 
     /**
      * @return bool
-     * @throws \Stripe\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
     public function sync(): bool
     {

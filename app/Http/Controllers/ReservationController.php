@@ -7,89 +7,39 @@ use App\Services\Calendar;
 use App\Services\Price;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ReservationController extends Controller
 {
-    protected array $overnightStay;
-
-    protected array $cleaningFee;
-
-    public function __construct()
-    {
-        $prices = Storage::json('prices.json') ?? [];
-
-        $overnightStayIndex = array_search(
-            config('reservation.overnight_stay'),
-            array_column($prices, 'id')
-        );
-
-        if ($overnightStayIndex === false) {
-            throw new \Exception('The price "overnight_stay" not found in prices.json file.');
-        }
-
-        $this->overnightStay = $prices[$overnightStayIndex];
-
-        $cleaningFeeIndex = array_search(
-            config('reservation.cleaning_fee'),
-            array_column($prices, 'id')
-        );
-
-        if ($overnightStayIndex === false) {
-            throw new \Exception('The price "cleaning_fee" not found in prices.json file.');
-        }
-
-        $this->cleaningFee = $prices[$cleaningFeeIndex];
-    }
-
-    /**
-     * @param string ...$priceKeys
-     * @return array
-     * @throws \Exception
-     */
-    protected function getPrices(string ...$priceKeys): array
-    {
-        $prices = Storage::json('prices.json');
-
-        if (! $prices) {
-            throw new \Exception('The prices.json file is empty. You should sync local prices with Stripe prices.');
-        }
-
-        foreach ($priceKeys as $priceKey) {
-            $index = array_search(
-                config("reservation.$priceKey"),
-                array_column($prices, 'id')
-            );
-
-            if ($index === false) {
-                throw new \Exception("The price \"$priceKey\" not found in prices.json file.");
-            }
-
-
-        }
-    }
-
     /**
      * @param Request $request
      * @param Calendar $calendar
+     * @param Price $price
      * @return View
+     * @throws \Exception
      */
     public function create(Request $request, Calendar $calendar, Price $price): View
     {
-        $reservation = new Reservation([
-            'check_id' => $request->get('check_id'),
-            'check_out' => $request->get('check_out'),
-            'guest_count' => $request->get('guest_count'),
-        ]);
+        // TODO: Validate check_in, check_out and guest_count properties. Redirect to home if fails.
+
+        $reservation = [];
+
+        foreach (['check_in', 'check_out', 'guest_count'] as $key) {
+            $reservation[$key] = $request->get($key);
+        }
+
+        $prices = [];
+
+        foreach (['overnight_stay', 'cleaning_fee'] as $key) {
+            $prices[$key] = $price->get(config("reservation.$key"));
+        }
 
         return \view('reservation.create', [
-            'unavailableDates' => $calendar->unavailableDates(),
+            'unavailable_dates' => $calendar->unavailableDates(),
             'reservation' => $reservation,
-            'overnightStay' => $price->get(config('reservation.overnight_stay')),
-            'cleaningFee' => $price->get(config('reservation.cleaning_fee')),
+            ...$prices,
         ]);
     }
 
