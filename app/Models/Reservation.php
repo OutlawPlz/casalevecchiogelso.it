@@ -20,11 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property \DateInterval|null $preparation_time
  * @property string $summary
  * @property array $price_list
- * @property-read int $total
  * @property-read int $nights
- * @property-read \DateTimeImmutable[] $reserved_period
- * @property-read \DateTimeImmutable[] $check_in_preparation_time
- * @property-read \DateTimeImmutable[] $check_out_preparation_time
+ * @property-read \DateTimeImmutable[] $reservedPeriod
  */
 class Reservation extends Model
 {
@@ -51,56 +48,15 @@ class Reservation extends Model
     ];
 
     /**
-     * @return array
-     */
-    public function order(): array
-    {
-        return [
-            config('reservation.overnight_stay') => $this->nights,
-            config('reservation.cleaning_fee'),
-        ];
-    }
-
-    /**
      * @return Attribute
      */
     protected function nights(): Attribute
     {
         return Attribute::make(
-            get: fn (null $value, array $attributes) => date_diff($this->check_in, $this->check_out)->d
-        );
-    }
-
-    /**
-     * @return Attribute
-     */
-    protected function checkInPreparationTime(): Attribute
-    {
-        return Attribute::make(
             get: function () {
-                if (! $this->preparation_time) return [];
+                if (! $this->check_in || ! $this->check_out) return 0;
 
-                return [
-                    $this->check_in->sub($this->preparation_time),
-                    $this->check_in
-                ];
-            }
-        );
-    }
-
-    /**
-     * @return Attribute
-     */
-    protected function checkOutPreparationTime(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                if (! $this->preparation_time) return [];
-
-                return [
-                    $this->check_out,
-                    $this->check_out->add($this->preparation_time)
-                ];
+                return date_diff($this->check_in, $this->check_out)->d;
             }
         );
     }
@@ -111,29 +67,20 @@ class Reservation extends Model
     protected function reservedPeriod(): Attribute
     {
         return Attribute::make(
-            get: function () {
-                return [$this->check_in, $this->check_out];
-            }
+            get: fn () => [$this->check_in, $this->check_out]
         );
     }
 
     /**
      * @return Attribute
      */
-    protected function total(): Attribute
+    protected function order(): Attribute
     {
         return Attribute::make(
-            get: function () {
-                $priceList = $this->price_list;
-
-                $total = $priceList['price_per_night'] * $this->nights;
-
-                unset($priceList['price_per_night']);
-
-                $total += array_sum($priceList);
-
-                return $total;
-            }
+            get: fn () => [
+                config('reservation.overnight_stay') => $this->nights,
+                config('reservation.cleaning_fee'),
+            ]
         );
     }
 }

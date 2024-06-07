@@ -79,11 +79,15 @@ class ReservationController extends Controller
      */
     public function create(Request $request, Calendar $calendar, Price $price): View
     {
+        $reservation = new Reservation([
+            'check_id' => $request->get('check_id'),
+            'check_out' => $request->get('check_out'),
+            'guest_count' => $request->get('guest_count'),
+        ]);
+
         return \view('reservation.create', [
             'unavailableDates' => $calendar->unavailableDates(),
-            'checkIn' => $request->check_in,
-            'checkOut' => $request->check_out,
-            'guestCount' => $request->guest_count,
+            'reservation' => $reservation,
             'overnightStay' => $price->get(config('reservation.overnight_stay')),
             'cleaningFee' => $price->get(config('reservation.cleaning_fee')),
         ]);
@@ -111,7 +115,7 @@ class ReservationController extends Controller
 
         $reservation = new Reservation($attributes);
 
-        if ($calendar->isNotAvailable(...$reservation->reserved_period)) {
+        if ($calendar->isNotAvailable(...$reservation->reservedPeriod)) {
             throw ValidationException::withMessages([
                 'unavailable_dates' => __('The selected dates are not available.')
             ]);
@@ -150,7 +154,7 @@ class ReservationController extends Controller
 
         $reservation->fill($attributes);
 
-        if ($calendar->isNotAvailable(...$reservation->reserved_period)) {
+        if ($calendar->isNotAvailable(...$reservation->reservedPeriod)) {
             throw ValidationException::withMessages([
                 'unavailable_dates' => __('The selected dates are not available.')
             ]);

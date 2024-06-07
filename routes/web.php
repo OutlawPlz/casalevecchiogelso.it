@@ -42,5 +42,7 @@ Route::post('/checkout', [CheckoutController::class, 'create'])->name('checkout.
 Route::get('/checkout', [CheckoutController::class, 'success'])->name('checkout.success');
 
 Route::get('/test', function (\Illuminate\Http\Request $request) {
-    return \Laravel\Cashier\Cashier::stripe()->prices->all()['data'];
+    $stripe = \Laravel\Cashier\Cashier::stripe();
+
+    return $stripe->prices->all()['data'];
 });

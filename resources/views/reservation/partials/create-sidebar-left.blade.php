@@ -1,10 +1,12 @@
 <div class="space-y-6" x-data="{
         price: {{ $overnightStay['unit_amount'] / 100 }},
         cleaningFee: {{ $cleaningFee['unit_amount'] / 100 }},
-        period: ['{{ $checkIn }}', '{{ $checkOut }}'],
+        period: ['{{ $reservation->check_in }}', '{{ $reservation->check_out }}'],
 
         get nights() {
-            return differenceInDays(this.period[1], this.period[0])
+            if (! this.period[1] || ! this.period[0]) return 0;
+
+            return differenceInDays(this.period[1], this.period[0]);
         }
     }">
     <div>
@@ -19,7 +21,7 @@
 
         <div>
             <x-input-label>{{ __('Guests') }}</x-input-label>
-            <x-text-input type="number" name="guest_count" min="1" max="10" value="{{ $guestCount }}"/>
+            <x-text-input type="number" name="guest_count" min="1" max="10" value="{{ $reservation->guest_count }}"/>
         </div>
     </div>
 
