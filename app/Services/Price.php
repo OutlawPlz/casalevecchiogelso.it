@@ -27,7 +27,7 @@ class Price
         $index = array_search($stripeId, array_column($this->prices, 'id'));
 
         if ($index === false) {
-            throw new Exception("Price $stripeId not found, try to sync prices from Stripe.");
+            throw new Exception("Price \"$stripeId\" not found, you should sync prices from Stripe");
         }
 
         return $this->prices[$index];

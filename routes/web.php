@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthTokenController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\CheckAvailableDatesController;
 use App\Http\Controllers\CheckoutController;
@@ -35,6 +36,9 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::store('auth/token', [AuthTokenController::class, 'store']);
+Route::get('auth/token', [AuthTokenController::class, 'store'])->name('auth.token');
 
 Route::get('/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])->name('social.callback');
