@@ -26,7 +26,7 @@
                                     class="border border-gray-300 bg-gray-50 border-dashed rounded-lg prose px-5 py-3 max-w-[90%]">
                                     <h3 class="text-center">Log-in</h3>
 
-                                    <form action="" method="POST">
+                                    <form action="/auth/token" method="POST">
                                         @csrf
 
                                         <div>

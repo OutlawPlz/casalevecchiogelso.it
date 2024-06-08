@@ -35,19 +35,15 @@ class SocialiteController
         // TODO: Handle HTTP errors.
         $googleUser = Socialite::driver($provider)->user();
 
-        /** @var User $user */
-        $user = User::query()->updateOrCreate([
+        $user = User::query()->firstOrNew(['email' => $googleUser->getEmail()]);
+
+        if (! $user->exists) $user->forceFill([
+            'name' => $googleUser->getName(),
+            'password' => Hash::make(Str::password(24)),
+            'email_verified_at' => now(),
             'provider' => $provider,
             'provider_id' => $googleUser->getId(),
-        ], [
-            'name' => $googleUser->getName(),
-            'email' => $googleUser->getEmail(),
-            'password' => Hash::make(Str::password(24)),
         ]);
-
-        if (! $user->hasVerifiedEmail()) {
-            $user->markEmailAsVerified();
-        }
 
         Auth::login($user);
 
