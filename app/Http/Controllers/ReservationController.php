@@ -22,13 +22,9 @@ class ReservationController extends Controller
      */
     public function create(Request $request, Calendar $calendar, Price $price): View
     {
-        // TODO: Validate check_in, check_out and guest_count properties. Redirect to home if fails.
+        $attributes = $request->session()->get('reservation', []);
 
-        $reservation = [];
-
-        foreach (['check_in', 'check_out', 'guest_count'] as $key) {
-            $reservation[$key] = $request->get($key);
-        }
+        $reservation = new Reservation($attributes);
 
         $prices = [];
 

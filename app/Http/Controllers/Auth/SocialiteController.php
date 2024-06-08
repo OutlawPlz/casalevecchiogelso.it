@@ -51,7 +51,6 @@ class SocialiteController
 
         Auth::login($user);
 
-        // TODO: Redirect to reservation page.
-        return redirect()->route('dashboard');
+        return redirect()->route('reservation.create');
     }
 }

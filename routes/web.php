@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\CheckAvailableDatesController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationController;
@@ -24,7 +25,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/dashboard', fn (Calendar $calendar) => view('dashboard', ['unavailableDates' => $calendar->unavailableDates()]))
-    ->middleware(['auth', 'verified'])
+//    ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -45,3 +46,7 @@ Route::patch('/reservations/{reservation:ulid}', [ReservationController::class, 
 
 Route::post('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::get('/checkout', [CheckoutController::class, 'success'])->name('checkout.success');
+
+Route::post('check-available-dates', CheckAvailableDatesController::class)->name('validate.dates');
+
+Route::get('/clear', fn (\Illuminate\Http\Request $request) => $request->session()->forget('reservation'));

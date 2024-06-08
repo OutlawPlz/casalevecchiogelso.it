@@ -6,6 +6,7 @@ use App\Casts\AsDateInterval;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
 
 /**
  * @property-read int $id
@@ -47,6 +48,10 @@ class Reservation extends Model
         'price_list' => 'array',
     ];
 
+    protected $attributes = [
+        'guest_count' => 1,
+    ];
+
     /**
      * @return Attribute
      */
@@ -82,5 +87,25 @@ class Reservation extends Model
                 config('reservation.cleaning_fee'),
             ]
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function toSession(): void
+    {
+        foreach (['check_in', 'check_out', 'guest_count'] as $attribute) {
+            Session::put("reservation.$attribute", $this->$attribute);
+        }
+    }
+
+    /**
+     * @return static
+     */
+    public static function fromSession(): static
+    {
+        $attributes = Session::get("reservation");
+
+        return new static($attributes);
     }
 }
