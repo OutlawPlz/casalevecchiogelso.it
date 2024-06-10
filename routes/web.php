@@ -21,9 +21,7 @@ use Laravel\Socialite\Facades\Socialite;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [ReservationController::class, 'create']);
 
 Route::get('/dashboard', fn (Calendar $calendar) => view('dashboard', ['unavailableDates' => $calendar->unavailableDates()]))
 //    ->middleware(['auth', 'verified'])

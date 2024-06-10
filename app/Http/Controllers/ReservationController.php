@@ -32,7 +32,7 @@ class ReservationController extends Controller
             $prices[$key] = $price->get(config("reservation.$key"));
         }
 
-        return \view('reservation.create', [
+        return \view('home', [
             'unavailable_dates' => $calendar->unavailableDates(),
             'reservation' => $reservation,
             ...$prices,
