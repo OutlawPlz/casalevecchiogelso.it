@@ -11,7 +11,8 @@
         "laravel/socialite": "^5.14",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
-        "livewire/volt": "^1.0"
+        "livewire/volt": "^1.0",
+        "spatie/period": "^2.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -36,6 +37,9 @@
         }
     },
     "scripts": {
+        "files": [
+            "app/helpers.php"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
