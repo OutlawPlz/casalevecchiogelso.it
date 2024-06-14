@@ -5,6 +5,12 @@ namespace App\Services;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Cashier\Cashier;
+use Money\Currencies\ISOCurrencies;
+use Money\Currency;
+use Money\Formatter\IntlMoneyFormatter;
+use Money\Money;
+use Money\MoneyFormatter;
+use NumberFormatter;
 use Stripe\Exception\ApiErrorException;
 
 class Price
@@ -70,5 +76,21 @@ class Price
         $this->prices = Cashier::stripe()->prices->all()['data'];
 
         return Storage::put('prices.json', json_encode($this->prices, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * @param int $price
+     * @return string
+     */
+    public static function format(int $price): string
+    {
+        $money = new Money($price, new Currency('EUR'));
+
+        $formatter = new IntlMoneyFormatter(
+            new NumberFormatter('it_IT', NumberFormatter::CURRENCY),
+            new ISOCurrencies()
+        );
+
+        return $formatter->format($money);
     }
 }
