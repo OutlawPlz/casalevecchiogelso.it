@@ -104,7 +104,7 @@ class Reservation extends Model
      */
     public static function fromSession(): static
     {
-        $attributes = Session::get("reservation");
+        $attributes = Session::get("reservation", []);
 
         return new static($attributes);
     }

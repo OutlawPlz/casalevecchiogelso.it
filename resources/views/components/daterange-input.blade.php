@@ -8,7 +8,7 @@
     init() {
         const calendarColumns = (window.innerWidth < 1024) ? 1 : 2;
 
-        this.picker = new window.easepick.create({
+        this.picker = new easepick.create({
             element: this.$refs.checkIn,
             grid: calendarColumns,
             calendars: calendarColumns,
