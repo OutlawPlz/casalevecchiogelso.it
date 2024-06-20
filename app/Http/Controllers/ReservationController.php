@@ -31,15 +31,17 @@ class ReservationController extends Controller
             'preparation_time' => new \DateInterval(config('reservation.preparation_time')),
             'user_id' => $authUser->id,
             'price_list' => [
-                config('reservation.overnight_stay') => $reservation->nights,
-                config('reservation.cleaning_fee') => 1,
+                'overnight_stay' => config('reservation.overnight_stay'),
+                'cleaning_fee' => config('reservation.cleaning_fee'),
             ]
         ]);
 
         // Updates calendar events
         // before creating a reservation.
-        $calendar->syncFromServices();
+        $calendar->sync();
 
+        // TODO: Il component x-reservation-quote dovrebbe ricevere
+        // questo errore come parametro e gestirlo attraverso Alpine...
         if ($calendar->isNotAvailable(...$reservation->reservedPeriod)) {
             throw ValidationException::withMessages([
                 'unavailable_dates' => __('The selected dates are not available.')
@@ -47,6 +49,8 @@ class ReservationController extends Controller
         }
 
         $reservation->save();
+
+        session()->forget('reservation');
 
         return redirect()->route('reservation.show', [$reservation]);
     }
@@ -57,6 +61,6 @@ class ReservationController extends Controller
      */
     public function show(Reservation $reservation): View
     {
-        return view('reservation.show', [$reservation]);
+        return view('reservation.show', ['reservation' => $reservation]);
     }
 }

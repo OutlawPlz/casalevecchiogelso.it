@@ -34,6 +34,7 @@ class Reservation extends Model
 
     protected $fillable = [
         'ulid',
+        'user_id',
         'name',
         'email',
         'phone',
@@ -81,16 +82,20 @@ class Reservation extends Model
     }
 
     /**
-     * @return Attribute
+     * @return array
      */
-    protected function order(): Attribute
+    public function order(): array
     {
-        return Attribute::make(
-            get: fn () => [
-                config('reservation.overnight_stay') => $this->nights,
-                config('reservation.cleaning_fee'),
-            ]
-        );
+        $order = [];
+
+        foreach ($this->price_list as $key => $stripePriceId) {
+            $order[] = [
+                'price' => $stripePriceId,
+                'quantity' => $key === 'overnight_stay' ? $this->nights : 1,
+            ];
+        }
+
+        return $order;
     }
 
     /**

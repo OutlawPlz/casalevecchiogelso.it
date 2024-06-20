@@ -55,23 +55,23 @@
 
                     <main class="mt-6 space-y-6 lg:space-y-24">
                         <section class="grid gap-6 lg:grid-cols-5 lg:grid-rows-5 lg:gap-8">
-                            <div class="border rounded-xl bg-white lg:col-span-3 lg:row-span-3">
+                            <div class="border rounded-xl bg-white lg:col-span-3 lg:row-span-3 mt-4">
                                 <!-- // -->
                             </div>
 
-                            <div class="border rounded-xl bg-white lg:row-span-2 aspect-square">
+                            <div class="border rounded-xl bg-white lg:row-span-2 aspect-square ml-12">
                                 <!-- // -->
                             </div>
 
-                            <div class="border rounded-xl bg-white lg:row-span-2 aspect-square">
+                            <div class="border rounded-xl bg-white lg:row-span-2 aspect-square mt-8">
                                 <!-- // -->
                             </div>
 
-                            <div class="border rounded-xl bg-white lg:col-span-2 lg:row-span-3">
+                            <div class="border rounded-xl bg-white lg:col-span-2 lg:row-span-3 mr-12">
                                 <!-- // -->
                             </div>
 
-                            <div class="border rounded-xl bg-white lg:col-span-2 row-span-2">
+                            <div class="border rounded-xl bg-white lg:col-span-2 row-span-2 ml-24">
                                 <!-- // -->
                             </div>
                         </section>
@@ -79,7 +79,9 @@
                         <section class="grid gap-16 mx-auto lg:grid-cols-5 lg:max-w-5xl">
                             <div class="lg:col-span-3">
                                 <h1 class="text-balance text-6xl">Casale al Vecchio Gelso</h1>
-                                <p class="text-lg leading-8 mt-8">{{ __('Antico casale di fine ‘800 situato nelle campagne del Monferrato, è stato ristrutturato completamente nel 2018. Dispone di un ampio salone, cucina attrezzata, due bagni, tavernetta e cinque camere da letto. Il casale è in una posizione strategica per visitare le Langhe e il Monferrato. Asti è a soli 15 km di distanza; mentre Alba, Acqui Terme e Barolo sono rispettivamente a 35, 40 e 45 min. di macchina. Anche Torino non è lontana, potrete raggiungerla in un’ora di macchina.') }}</p>
+                                <p class="text-lg leading-8 mt-8">
+                                    {{ __('Antico casale di fine \'800 situato nelle campagne del Monferrato, è stato ristrutturato completamente nel 2018. Dispone di un ampio salone, cucina attrezzata, due bagni, tavernetta e cinque camere da letto. Il casale è in una posizione strategica per visitare le Langhe e il Monferrato. Asti è a soli 15 km di distanza; mentre Alba, Acqui Terme e Barolo sono rispettivamente a 35, 40 e 45 minuti di macchina. Anche Torino non è lontana, potrete raggiungerla in un’ora di macchina.') }}
+                                </p>
                             </div>
 
                             <div class="lg:col-span-2">
