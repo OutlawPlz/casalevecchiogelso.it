@@ -65,6 +65,7 @@
                     type="number"
                     name="guest_count"
                     min="1"
+                    max="10"
                     x-bind:disabled="loading"
                     x-model="guestCount"
                 />
@@ -93,18 +94,31 @@
             <span>Tot.</span>
             <span x-text="$(tot)"></span>
         </div>
+    </form>
 
-        <div>
-            <x-primary-button
-                type="button"
-                class="w-full justify-center !text-sm"
-                x-on:click.prevent="$dispatch('open-modal', 'token-login')"
-            >
+    <div class="mt-4">
+        @guest()
+        <x-primary-button
+            x-data=""
+            type="button"
+            class="w-full justify-center !text-sm"
+            x-on:click.prevent="$dispatch('open-modal', 'token-login')"
+        >
+            {{ __('Request to book') }}
+        </x-primary-button>
+        @endguest
+
+        @auth()
+        <form action="{{ route('reservation.store') }}" method="POST">
+            <x-primary-button class="w-full justify-center !text-sm">
+                @csrf
                 {{ __('Request to book') }}
             </x-primary-button>
-            <p class="text-sm mt-2 text-center">{{ __('You won\'t be charged yet') }}</p>
-        </div>
-    </form>
+        </form>
+        @endauth
+
+        <p class="text-sm mt-2 text-center">{{ __('You won\'t be charged yet') }}</p>
+    </div>
 
     @guest()
     <x-modal name="token-login" max-width="sm">
@@ -134,7 +148,7 @@
 
                 <div class="mt-2">
                     <x-primary-button
-                        class="w-full justify-center">{{ __('Log-in') }}</x-primary-button>
+                        class="w-full justify-center">{{ __('Sign-in') }}</x-primary-button>
                 </div>
 
                 <div class="relative mt-4">

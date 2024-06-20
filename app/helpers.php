@@ -81,16 +81,16 @@ if (! function_exists('iso8601_decode')) {
 
 if (! function_exists('dates_in_range')) {
     /**
-     * @param DateTimeImmutable $start
-     * @param DateTimeImmutable $end
+     * @param DateTimeInterface $start
+     * @param DateTimeInterface $end
      * @param string|DateInterval $interval
      * @param string $format
      * @return string[]
      * @throws Exception
      */
     function dates_in_range(
-        DateTimeImmutable $start,
-        DateTimeImmutable $end,
+        DateTimeInterface $start,
+        DateTimeInterface $end,
         string|DateInterval $interval = 'P1D',
         string $format = 'Y-m-d'
     ): array

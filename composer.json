@@ -25,6 +25,9 @@
         "pestphp/pest-plugin-laravel": "^2.0"
     },
     "autoload": {
+        "files": [
+            "app/helpers.php"
+        ],
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
@@ -37,9 +40,6 @@
         }
     },
     "scripts": {
-        "files": [
-            "app/helpers.php"
-        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

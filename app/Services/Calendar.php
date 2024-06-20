@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Reservation;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -33,8 +34,8 @@ class Calendar
 
         foreach ($this->events as $event) {
             $eventPeriod = new Period(
-                new \DateTimeImmutable($event['start_at']['date']),
-                new \DateTimeImmutable($event['end_at']['date']),
+                new CarbonImmutable($event['start_at']),
+                new CarbonImmutable($event['end_at']),
                 Precision::DAY(),
                 Boundaries::EXCLUDE_END()
             );
@@ -55,6 +56,14 @@ class Calendar
     public function isNotAvailable(\DateTimeImmutable $checkIn, \DateTimeImmutable $checkOut): bool
     {
         return ! $this->isAvailable($checkIn, $checkOut);
+    }
+
+    /**
+     * @return void
+     */
+    public function sync(): void
+    {
+        $this->syncFromServices();
     }
 
     /**
@@ -91,21 +100,22 @@ class Calendar
         foreach ($reservations as $reservation) {
             $events[] = [
                 'uid' => $reservation->uid,
-                'start_at' => $reservation->check_in,
-                'end_at' => $reservation->check_out,
+                'start_at' => $reservation->check_in->toISOString(),
+                'end_at' => $reservation->check_out->toISOString(),
                 'unavailable_dates' => dates_in_range($reservation->check_in, $reservation->check_out),
                 'summary' => $reservation->summary
             ];
 
             if (! $reservation->preparation_time) continue;
 
-            foreach (['check_in_preparation_time', 'check_out_preparation_time'] as $preparationTime) {
-                [$startAt, $endAt] = $reservation->$preparationTime;
+            /** @var CarbonImmutable[] $preparationTime */
+            foreach ([$reservation->checkInPreparationTime, $reservation->checkOutPreparationTime] as $preparationTime) {
+                [$startAt, $endAt] = $preparationTime;
 
                 $events[] = [
                     'uid' => $reservation->uid,
-                    'start_at' => $startAt,
-                    'end_at' => $endAt,
+                    'start_at' => $startAt->toISOString(),
+                    'end_at' => $endAt->toISOString(),
                     'unavailable_dates' => dates_in_range($startAt, $endAt),
                     'summary' => 'Preparation time'
                 ];
@@ -144,13 +154,13 @@ class Calendar
                 $event[$key] = $value;
             }
 
-            $startAt = new \DateTimeImmutable($event['DTSTART;VALUE=DATE']);
-            $endAt = new \DateTimeImmutable($event['DTEND;VALUE=DATE']);
+            $startAt = new CarbonImmutable($event['DTSTART;VALUE=DATE']);
+            $endAt = new CarbonImmutable($event['DTEND;VALUE=DATE']);
 
             $reservations[] = [
                 'uid' => $event['UID'],
-                'start_at' => $startAt,
-                'end_at' => $endAt,
+                'start_at' => $startAt->toISOString(),
+                'end_at' => $endAt->toISOString(),
                 'unavailable_dates' => dates_in_range($startAt, $endAt),
                 'summary' => $event['DESCRIPTION'] ?? $event['SUMMARY']
             ];
