@@ -5,7 +5,6 @@ namespace App\View\Components;
 use App\Models\Reservation;
 use App\Services\Calendar;
 use App\Services\Price;
-use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 

@@ -9,7 +9,7 @@
             period: ['{{ $reservation->check_in }}', '{{ $reservation->check_out }}'],
             guestCount: {{ $reservation->guest_count}},
             loading: false,
-            errors: {},
+            errors: {{ json_encode($errors->messages()) }},
 
             get nights() {
                 if (! this.period[1] || ! this.period[0]) return 0;
@@ -65,7 +65,7 @@
                     type="number"
                     name="guest_count"
                     min="1"
-                    max="10"
+{{--                    max="10"--}}
                     x-bind:disabled="loading"
                     x-model="guestCount"
                 />

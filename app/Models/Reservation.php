@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\AsDateInterval;
+use App\Enums\ReservationStatus;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Session;
 
 /**
  * @property-read int $id
- * @property string $uid
+ * @property string $ulid
  * @property string $first_name
  * @property string $last_name
  * @property string $email
@@ -43,14 +44,8 @@ class Reservation extends Model
         'check_out',
         'preparation_time',
         'price_list',
-        'summary'
-    ];
-
-    protected $casts = [
-        'check_in' => 'immutable_date',
-        'check_out' => 'immutable_date',
-        'preparation_time' => AsDateInterval::class,
-        'price_list' => 'array',
+        'summary',
+        'status',
     ];
 
     protected $attributes = [
@@ -69,6 +64,20 @@ class Reservation extends Model
                 return date_diff($this->check_in, $this->check_out)->d;
             }
         );
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function casts(): array
+    {
+        return [
+            'check_in' => 'immutable_date',
+            'check_out' => 'immutable_date',
+            'preparation_time' => AsDateInterval::class,
+            'price_list' => 'array',
+            'status' => ReservationStatus::class,
+        ];
     }
 
     /**

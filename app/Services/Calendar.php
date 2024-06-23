@@ -2,8 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\ReservationStatus;
 use App\Models\Reservation;
 use Carbon\CarbonImmutable;
+use DateTimeImmutable;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,11 +28,11 @@ class Calendar
     }
 
     /**
-     * @param \DateTimeImmutable $checkIn
-     * @param \DateTimeImmutable $checkOut
+     * @param DateTimeImmutable $checkIn
+     * @param DateTimeImmutable $checkOut
      * @return bool
      */
-    public function isAvailable(\DateTimeImmutable $checkIn, \DateTimeImmutable $checkOut): bool
+    public function isAvailable(DateTimeImmutable $checkIn, DateTimeImmutable $checkOut): bool
     {
         $reservedPeriod = new Period($checkIn, $checkOut, Precision::DAY(), Boundaries::EXCLUDE_END());
 
@@ -49,11 +53,11 @@ class Calendar
     }
 
     /**
-     * @param \DateTimeImmutable $checkIn
-     * @param \DateTimeImmutable $checkOut
+     * @param DateTimeImmutable $checkIn
+     * @param DateTimeImmutable $checkOut
      * @return bool
      */
-    public function isNotAvailable(\DateTimeImmutable $checkIn, \DateTimeImmutable $checkOut): bool
+    public function isNotAvailable(DateTimeImmutable $checkIn, DateTimeImmutable $checkOut): bool
     {
         return ! $this->isAvailable($checkIn, $checkOut);
     }
@@ -89,11 +93,17 @@ class Calendar
 
     /**
      * @return array
+     * @throws Exception
      */
     public function fromDatabase(): array
     {
-        /** @var \Illuminate\Database\Eloquent\Collection<Reservation> $reservations */
-        $reservations = Reservation::query()->where('check_in', '>', today())->get();
+        /** @var Collection<Reservation> $reservations */
+        $reservations = Reservation::query()
+            ->where([
+                ['check_in', '>', today()],
+                ['status', '=', ReservationStatus::CONFIRMED]
+            ])
+            ->get();
 
         $events = [];
 
@@ -128,7 +138,7 @@ class Calendar
     /**
      * @param string|null $ics
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function fromAirbnb(?string $ics = null): array
     {

@@ -6,6 +6,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationQuoteController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\StripeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,6 +34,9 @@ Route::group([
     /* ----- Checkout ----- */
     Route::post('/checkout', CheckoutController::class)->name('checkout');
 });
+
+/* ----- Stripe Webhook ----- */
+Route::post('/stripe/webhook', StripeController::class);
 
 require __DIR__.'/auth.php';
 

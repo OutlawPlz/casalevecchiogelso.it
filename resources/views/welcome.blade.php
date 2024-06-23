@@ -86,7 +86,7 @@
 
                             <div class="lg:col-span-2">
                                 <div class="bg-white shadow-xl rounded-xl min-h-24 p-6">
-                                    <x-reservation-quote />
+                                    <x-reservation-quote :errors="$errors" />
                                 </div>
                             </div>
                         </section>

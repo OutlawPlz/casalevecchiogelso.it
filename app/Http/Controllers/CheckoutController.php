@@ -35,12 +35,25 @@ class CheckoutController extends Controller
             'line_items' => $reservation->order(),
             'customer_email' => $authUser->email,
             'mode' => 'payment',
-            'success_url' => route('reservation.show', [$reservation]),
-            'cancel_url' => route('reservation.show', [$reservation]),
+            'success_url' => route('reservation.show', [$reservation, 'success']),
+            'cancel_url' => route('reservation.show', [$reservation, 'cancel']),
             'automatic_tax' => [
                 'enabled' => true,
             ],
+            'metadata' => [
+                'reservation' => $reservation->ulid,
+            ],
         ]);
+
+        activity()
+            ->performedOn($reservation)
+            ->causedBy($authUser)
+            ->withProperties([
+                'checkout_session' => $checkoutSession->id,
+                'email' => $authUser->email,
+                'reservation' => $reservation->ulid,
+            ])
+            ->log("The user :properties.email initiated a checkout session.");
 
         return redirect($checkoutSession->url);
     }
