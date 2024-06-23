@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Session;
  * @property CarbonImmutable $check_out
  * @property \DateInterval|null $preparation_time
  * @property string $summary
+ * @property array $messages
  * @property array $price_list
  * @property-read int $nights
  * @property-read CarbonImmutable[] $reservedPeriod
@@ -46,6 +47,7 @@ class Reservation extends Model
         'price_list',
         'summary',
         'status',
+        'messages',
     ];
 
     protected $attributes = [
@@ -76,6 +78,7 @@ class Reservation extends Model
             'check_out' => 'immutable_date',
             'preparation_time' => AsDateInterval::class,
             'price_list' => 'array',
+            'messages' => 'array',
             'status' => ReservationStatus::class,
         ];
     }

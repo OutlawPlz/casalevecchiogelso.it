@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationQuoteController;
 use App\Http\Controllers\ReservationController;
@@ -33,6 +34,9 @@ Route::group([
 
     /* ----- Checkout ----- */
     Route::post('/checkout', CheckoutController::class)->name('checkout');
+
+    /* ----- Message ----- */
+    Route::post('/reservation/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store');
 });
 
 /* ----- Stripe Webhook ----- */
