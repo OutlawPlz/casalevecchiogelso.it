@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Message;
 use App\Models\Reservation;
 use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -61,6 +63,17 @@ class ReservationController extends Controller
      */
     public function show(Reservation $reservation): View
     {
-        return view('reservation.show', ['reservation' => $reservation]);
+        $chat = $reservation
+            ->messages()
+            ->limit(30)
+            ->get()
+            ->groupBy(
+                fn (Message $message) => $message->created_at->format('Y-m-d')
+            );
+
+        return view('reservation.show', [
+            'reservation' => $reservation,
+            'chat' => $chat,
+        ]);
     }
 }

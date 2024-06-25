@@ -11,12 +11,30 @@
     </x-slot>
 
     <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        @foreach($chat as $date => $messages)
+            <div class="text-center text-sm my-6">{{ date('d M', strtotime($date)) }}</div>
+
+            @foreach($messages as $message)
+                <div class="space-y-4">
+                    <div class="flex items-start gap-2.5">
+                        <div class="bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
+                        <div class="bg-white shadow flex flex-col max-w-[90%] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-lg rounded-es-lg">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <span class="text-sm font-semibold text-gray-900">{{ $message->author['name'] }}</span>
+                                <span class="text-sm font-normal text-gray-500">{{ $message->created_at->format('H:i') }}</span>
+                            </div>
+                            <div class="prose">{{ $message->data['content'] }}</div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @endforeach
+
         <div
             class="p-2"
             x-data="{
                 loading: false,
                 errors: {{ json_encode($errors->messages()) }},
-                messages: {{ $reservation->getRawOriginal('messages') }},
 
                 async submit() {
                     this.loading = true;
@@ -26,8 +44,8 @@
                     await axios.post('{{ route('message.store', [$reservation]) }}', formData)
                         .then((response) => {
                             this.errors = {};
+
                             this.$refs.form.reset();
-                            this.messages.push(response.data);
                         })
                         .catch((error) => {
                             if (error.response.status === 422) {
@@ -39,25 +57,10 @@
                 },
             }"
         >
-            <div class="space-y-4">
-                <template x-for="{ message, name, created_at } in messages">
-                    <div class="flex items-start gap-2.5">
-                        <div class="bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
-                        <div class="bg-white shadow flex flex-col max-w-[90%] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-lg rounded-es-lg">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                                <span class="text-sm font-semibold text-gray-900" x-text="name"></span>
-                                <span class="text-sm font-normal text-gray-500" x-text="format(created_at, 'H:m')"></span>
-                            </div>
-                            <div class="prose" x-html="message"></div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
             <form
                 x-on:submit.prevent="submit"
                 x-ref="form"
-                class="mt-6 flex space-x-2 sticky bottom-2"
+                class="flex space-x-2 sticky bottom-2"
             >
                 <div class="flex w-full items-center px-3 py-2 rounded-lg bg-white shadow">
                     <!--

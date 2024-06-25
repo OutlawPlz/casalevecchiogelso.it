@@ -2,36 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Message;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
     /**
      * @param Request $request
      * @param Reservation $reservation
-     * @return array
+     * @return Message
      */
-    public function store(Request $request, Reservation $reservation): array
+    public function store(Request $request, Reservation $reservation): Message
     {
-        $messages = $reservation->messages ?? [];
-
-        $message = $request->validate(self::rules());
+        $content = $request->validate(self::rules())['message'];
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $message += [
-            'ulid' => Str::ulid(),
-            'name' => $authUser->name,
-            'email' => $authUser->email,
-            'created_at' => now(),
-        ];
+        /** @var Message $message */
+        $message = $reservation->messages()->create([
+            'user_id' => $authUser->id,
+            'channel' => $reservation->ulid,
+            'author' => [
+                'name' => $authUser->name,
+                'email' => $authUser->email
+            ],
+            'data' => ['content' => $content],
+        ]);
 
-        $messages[] = $message;
-
-        $reservation->update(['messages' => $messages]);
+        // TODO: Send notifications...
 
         return $message;
     }

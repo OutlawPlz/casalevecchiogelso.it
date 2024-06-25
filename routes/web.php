@@ -29,14 +29,14 @@ Route::group([
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     /* ----- Reservation ----- */
-    Route::post('/reservation', [ReservationController::class, 'store'])->name('reservation.store');
-    Route::get('/reservation/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');
+    Route::post('/reservations', [ReservationController::class, 'store'])->name('reservation.store');
+    Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');
 
     /* ----- Checkout ----- */
     Route::post('/checkout', CheckoutController::class)->name('checkout');
 
     /* ----- Message ----- */
-    Route::post('/reservation/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store');
+    Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store');
 });
 
 /* ----- Stripe Webhook ----- */
