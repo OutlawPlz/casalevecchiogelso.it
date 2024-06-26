@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TokenLogin extends Notification
+class TokenLogin extends Notification implements ShouldQueue
 {
     use Queueable;
 

@@ -28,7 +28,7 @@ class TokenAuthenticationController extends Controller
 
         $signedUrl = URL::temporarySignedRoute('auth.token', now()->addHour(), $attributes);
 
-        Notification::send(new User($attributes), new TokenLogin($signedUrl));
+        Notification::route('mail', $attributes['email'])->notify(new TokenLogin($signedUrl));
     }
 
     /**

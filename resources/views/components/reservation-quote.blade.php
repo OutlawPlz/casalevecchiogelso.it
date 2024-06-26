@@ -65,7 +65,7 @@
                     type="number"
                     name="guest_count"
                     min="1"
-{{--                    max="10"--}}
+                    max="10"
                     x-bind:disabled="loading"
                     x-model="guestCount"
                 />
@@ -131,7 +131,31 @@
                 </p>
             </div>
 
-            <form action="/auth/token" method="POST" class="mt-8">
+            {{-- TODO: Handle errors and move the code to new component. --}}
+
+            <form
+                class="mt-8"
+                x-on:submit.prevent="submit"
+                x-data="{
+                    errors: {},
+
+                    async submit() {
+                        this.loading = true;
+
+                        const formData = new FormData(this.$root);
+
+                        await axios.post('/auth/token', formData)
+                            .then((response) => this.errors = {})
+                            .catch((error) => {
+                                if (error.response.status === 422) {
+                                    return this.errors = error.response.data.errors;
+                                }
+                            });
+
+                        this.loading = false;
+                    },
+                }"
+            >
                 @csrf
 
                 <div>
