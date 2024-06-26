@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ChatReply;
 use App\Models\Message;
 use App\Models\Reservation;
 use App\Models\User;
@@ -31,7 +32,7 @@ class MessageController extends Controller
             'data' => ['content' => $content],
         ]);
 
-        // TODO: Send notifications...
+        ChatReply::dispatch($message);
 
         return $message;
     }
