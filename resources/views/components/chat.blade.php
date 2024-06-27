@@ -24,9 +24,9 @@
                 Echo
                     .private('Reservations.{{ $channel }}')
                     .listen('ChatReply', (event) => {
-                        console.log(event);
-
-                        this.chat[event.date].push(event.message);
+                        event.date in this.chat
+                            ? this.chat[event.date].push(event.message)
+                            : this.chat[event.date] = event.message
                     });
             },
         }"
