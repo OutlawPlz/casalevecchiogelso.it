@@ -1,35 +1,55 @@
-<div>
-    @foreach($chat as $date => $messages)
-    <div class="text-center text-sm my-6 grow">{{ date('d M', strtotime($date)) }}</div>
+<div class="relative h-full">
+    <div
+        x-data="{
+            chat: {},
+            loading: false,
 
-    <div class="space-y-2">
-        @foreach($messages as $message)
-        <div class="flex items-start gap-2.5">
-            <div class="bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
-            <div class="bg-white shadow flex flex-col max-w-[90%] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-lg rounded-es-lg">
-                <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span class="text-sm font-semibold text-gray-900">{{ $message->author['name'] }}</span>
-                    <span class="text-sm font-normal text-gray-500">{{ $message->created_at->format('H:i') }}</span>
-                </div>
-                <div class="prose">{{ $message->data['content'] }}</div>
+            async index() {
+                this.loading = true;
+
+                await axios.get('{{ route('message.index', ['reservation' => $channel]) }}')
+                    .then((response) => this.chat = response.data);
+
+                this.loading = false;
+            },
+
+            init() {
+                this.index();
+
+                Echo
+                    .private('Reservations.{{ $channel }}')
+                    .listen('ChatReply', (event) => {
+                        console.log(event);
+
+                        this.chat[event.date].push(event.message);
+                    });
+            },
+        }"
+    >
+        <template x-for="(messages, date) in chat" :key="date">
+            <div>
+                <div class="text-center text-sm my-6 grow" x-text="format(date, 'd MMM')"></div>
+
+                <template x-for="message of messages">
+                    <div class="flex items-start gap-2.5 mt-2">
+                        <div class="bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
+                        <div class="bg-white shadow flex flex-col max-w-[90%] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-lg rounded-es-lg">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
+                                <span class="text-sm font-normal text-gray-500" x-text="format(message.created_at, 'H:m')"></span>
+                            </div>
+                            <div class="prose" x-html="message.data.content"></div>
+                        </div>
+                    </div>
+                </template>
             </div>
-        </div>
-        @endforeach
+        </template>
     </div>
-    @endforeach
 
     <form
         x-data="{
             loading: false,
             errors: {{ json_encode($errors->messages()) }},
-
-            init() {
-                Echo
-                    .private('Reservations.{{ $channel }}')
-                    .listen('ChatReply', (event) => {
-                        console.log(event);
-                    });
-            },
 
             async submit() {
                 this.loading = true;
@@ -52,7 +72,7 @@
             },
         }"
         x-on:submit.prevent="submit"
-        class="flex space-x-2 mt-6"
+        class="flex space-x-2 mt-6 sticky bottom-2"
     >
         <div class="flex w-full items-center px-3 py-2 rounded-lg bg-white shadow">
             <!--

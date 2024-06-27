@@ -36,6 +36,7 @@ Route::group([
     Route::post('/checkout', CheckoutController::class)->name('checkout');
 
     /* ----- Message ----- */
+    Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index');
     Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store');
 });
 
