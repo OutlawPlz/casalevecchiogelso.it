@@ -26,7 +26,9 @@
                     .listen('ChatReply', (event) => {
                         event.date in this.chat
                             ? this.chat[event.date].push(event.message)
-                            : this.chat[event.date] = event.message
+                            : this.chat[event.date] = event.message;
+
+                        $nextTick(() => location.href = `#message-${event.message.id}`);
                     });
             },
         }"
@@ -37,6 +39,7 @@
 
                 <template x-for="message of messages" :key="message.id">
                     <div
+                        :id="`message-${message.id}`"
                         class="flex items-start gap-2.5 mt-2"
                         :class="isOwner(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
                     >
@@ -113,4 +116,4 @@
             </button>
         </div>
     </form>
-</div">
+</div>
