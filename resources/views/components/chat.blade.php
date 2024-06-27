@@ -1,4 +1,4 @@
-<div class="relative h-full">
+<div class="relative h-full px-2">
     <div
         x-data="{
             chat: {},
@@ -40,10 +40,10 @@
                         class="flex items-start gap-2.5 mt-2"
                         :class="isOwner(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
                     >
-                        <div class="bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
+                        <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
                         <div
-                            class="bg-white shadow flex flex-col max-w-[70%] leading-1.5 p-4 border-gray-200 rounded-lg"
-                            :class="isOwner(message.user_id) ? 'rounded-tr-none' : 'rounded-tl-none'"
+                            class="shadow flex flex-col max-w-[95%] leading-1.5 p-4 border-gray-200 rounded-lg"
+                            :class="isOwner(message.user_id) ? 'bg-gray-200' : 'bg-white'"
                         >
                             <div class="flex items-center space-x-2">
                                 <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
