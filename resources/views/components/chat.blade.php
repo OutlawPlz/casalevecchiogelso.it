@@ -3,6 +3,7 @@
         x-data="{
             chat: {},
             loading: false,
+            authUserId: {{ Auth::id() }},
 
             async index() {
                 this.loading = true;
@@ -11,6 +12,10 @@
                     .then((response) => this.chat = response.data);
 
                 this.loading = false;
+            },
+
+            isOwner(userId) {
+                return this.authUserId === userId;
             },
 
             init() {
@@ -30,13 +35,22 @@
             <div>
                 <div class="text-center text-sm my-6 grow" x-text="format(date, 'd MMM')"></div>
 
-                <template x-for="message of messages">
-                    <div class="flex items-start gap-2.5 mt-2">
+                <template x-for="message of messages" :key="message.id">
+                    <div
+                        class="flex items-start gap-2.5 mt-2"
+                        :class="isOwner(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
+                    >
                         <div class="bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
-                        <div class="bg-white shadow flex flex-col max-w-[90%] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-lg rounded-es-lg">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                        <div
+                            class="bg-white shadow flex flex-col max-w-[70%] leading-1.5 p-4 border-gray-200 rounded-lg"
+                            :class="isOwner(message.user_id) ? 'rounded-tr-none' : 'rounded-tl-none'"
+                        >
+                            <div class="flex items-center space-x-2">
                                 <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
-                                <span class="text-sm font-normal text-gray-500" x-text="format(message.created_at, 'H:m')"></span>
+                                <span
+                                    class="text-sm font-normal text-gray-500"
+                                    x-text="format(message.created_at, 'H:m')"
+                                ></span>
                             </div>
                             <div class="prose" x-html="message.data.content"></div>
                         </div>
@@ -92,7 +106,10 @@
                 placeholder="{{ __('Your message') }}..."></textarea>
 
             <button class="inline-flex justify-center p-2 rounded-full cursor-pointer hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5"><path d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                    <path
+                        d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z"/>
+                </svg>
             </button>
         </div>
     </form>
