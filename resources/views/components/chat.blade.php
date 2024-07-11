@@ -1,108 +1,99 @@
-<div class="relative h-full px-2">
-    <div
-        x-data="{
-            chat: {},
-            loading: false,
-            authUserId: {{ Auth::id() }},
+<div
+    class="max-w-3xl mx-auto w-full h-full"
+    x-data="{
+        chat: {},
+        loading: false,
+        authUserId: {{ Auth::id() }},
+        errors: {{ json_encode($errors->messages()) }},
 
-            async index() {
-                this.loading = true;
+        async index() {
+            this.loading = true;
 
-                await axios.get('{{ route('message.index', ['reservation' => $channel]) }}')
-                    .then((response) => this.chat = response.data);
+            await axios
+                .get('{{ route('message.index', ['reservation' => $channel]) }}')
+                .then((response) => this.chat = response.data);
 
-                this.loading = false;
-            },
+            this.loading = false;
+        },
 
-            isOwner(userId) {
-                return this.authUserId === userId;
-            },
+        isOwner(userId) {
+            return this.authUserId === userId;
+        },
 
-            init() {
-                this.index();
+        async submit() {
+            this.loading = true;
 
-                Echo
-                    .private('Reservations.{{ $channel }}')
-                    .listen('ChatReply', (event) => {
-                        event.date in this.chat
-                            ? this.chat[event.date].push(event.message)
-                            : this.chat[event.date] = event.message;
+            const formData = new FormData(this.$refs.form);
 
-                        $nextTick(() => location.href = `#message-${event.message.id}`);
-                    });
-            },
-        }"
-    >
-        <template x-for="(messages, date) in chat" :key="date">
-            <div>
-                <div class="text-center text-sm my-6 grow" x-text="format(date, 'd MMM')"></div>
+            await axios
+                .post('{{ route('message.store', ['reservation' => $channel]) }}', formData)
+                .then((response) => {
+                    this.errors = {};
 
-                <template x-for="message of messages" :key="message.id">
+                    this.$refs.form.reset();
+                })
+                .catch((error) => {
+                    if (error.response.status === 422) {
+                        return this.errors = error.response.data.errors;
+                    }
+                });
+
+            this.loading = false;
+        },
+
+        init() {
+            this.index();
+
+            Echo
+                .private('Reservations.{{ $channel }}')
+                .listen('ChatReply', (event) => {
+                    event.date in this.chat
+                        ? this.chat[event.date].push(event.message)
+                        : this.chat[event.date] = event.message;
+
+                    $nextTick(() => location.href = `#message-${event.message.id}`);
+                });
+        },
+    }"
+>
+    <template x-for="(messages, date) in chat" :key="date">
+        <div>
+            <div class="text-center text-sm my-6 grow" x-text="format(date, 'd MMM')"></div>
+
+            <template x-for="message of messages" :key="message.id">
+                <div
+                    :id="`message-${message.id}`"
+                    class="flex items-start gap-2.5 mt-2"
+                    :class="isOwner(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
+                >
+                    <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
                     <div
-                        :id="`message-${message.id}`"
-                        class="flex items-start gap-2.5 mt-2"
-                        :class="isOwner(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
+                        class="shadow flex flex-col max-w-[95%] leading-1.5 p-4 border-gray-200 rounded-lg"
+                        :class="isOwner(message.user_id) ? 'bg-gray-200' : 'bg-white'"
                     >
-                        <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
-                        <div
-                            class="shadow flex flex-col max-w-[95%] leading-1.5 p-4 border-gray-200 rounded-lg"
-                            :class="isOwner(message.user_id) ? 'bg-gray-200' : 'bg-white'"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
-                                <span
-                                    class="text-sm font-normal text-gray-500"
-                                    x-text="format(message.created_at, 'H:m')"
-                                ></span>
-                            </div>
-                            <div class="prose" x-html="message.data.content"></div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
+                            <span
+                                :title="format(message.created_at, 'd MMM y, H:m')"
+                                class="text-sm font-normal text-gray-500"
+                                x-text="format(message.created_at, 'H:m')"
+                            ></span>
                         </div>
+                        <div class="prose" x-html="message.data.content"></div>
                     </div>
-                </template>
-            </div>
-        </template>
-    </div>
+                </div>
+            </template>
+        </div>
+    </template>
 
     <form
-        x-data="{
-            loading: false,
-            errors: {{ json_encode($errors->messages()) }},
-
-            async submit() {
-                this.loading = true;
-
-                const formData = new FormData(this.$root);
-
-                await axios.post('{{ route('message.store', ['reservation' => $channel]) }}', formData)
-                    .then((response) => {
-                        this.errors = {};
-
-                        this.$root.reset();
-                    })
-                    .catch((error) => {
-                        if (error.response.status === 422) {
-                            return this.errors = error.response.data.errors;
-                        }
-                    });
-
-                this.loading = false;
-            },
-        }"
+        x-ref="form"
         x-on:submit.prevent="submit"
         class="flex space-x-2 mt-6 sticky bottom-2"
     >
         <div class="flex w-full items-center px-3 py-2 rounded-lg bg-white shadow">
-            <!--
-            <button type="button" class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
-                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18"><path fill="currentColor" d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 1H2a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"/></svg>
-            </button>
-
-            <button type="button" class="p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
-                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.408 7.5h.01m-6.876 0h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM4.6 11a5.5 5.5 0 0 0 10.81 0H4.6Z"/></svg>
-            </button>
-            -->
-
             <textarea
+                x-on:keydown.enter.prevent="submit"
                 rows="1"
                 name="message"
                 class="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"

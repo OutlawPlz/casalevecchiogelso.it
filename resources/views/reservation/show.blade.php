@@ -10,7 +10,7 @@
         </form>
     </x-slot>
 
-    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="mx-auto sm:px-6 lg:px-8 space-y-6">
         <x-chat :channel="$reservation->ulid" />
     </div>
 </x-app-layout>
