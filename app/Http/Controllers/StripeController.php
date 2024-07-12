@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReservationStatus;
 use App\Models\Reservation;
-use Illuminate\Http\JsonResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
@@ -22,9 +23,9 @@ class StripeController extends Controller
 
     /**
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request): Response
     {
         $signature = $_SERVER['HTTP_STRIPE_SIGNATURE'];
 
@@ -46,7 +47,7 @@ class StripeController extends Controller
             $this->$method($event);
         }
 
-        return response()->json();
+        return new Response('Webhook Handled', 200);
     }
 
     /**
@@ -72,5 +73,16 @@ class StripeController extends Controller
                 'email' => $event->data->object->customer_email,
             ])
             ->log('The user :properties.email completed a checkout session. Reservation confirmed.');
+    }
+
+    /**
+     * @param Event $event
+     * @return void
+     */
+    protected function handleCustomerDeleted(Event $event): void
+    {
+        $user = User::query()->where('stripe_id', $event->data->object->id)->firstOrFail();
+
+        $user->update(['stripe_id' => null]);
     }
 }
