@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Stripe\Exception\ApiErrorException;
+use Stripe\StripeClient;
 
 /**
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property ?string $stripe_id
  */
 class User extends Authenticatable
 {
@@ -57,5 +60,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * @return string
+     * @throws ApiErrorException
+     */
+    public function createAsStripeCustomer(): string
+    {
+        if ($this->hasStripeId()) {
+            return $this->stripe_id;
+        }
+
+        $stripe = new StripeClient(config('services.stripe.secret'));
+
+        $customer = $stripe->customers->create([
+            'name' => $this->name,
+            'email' => $this->email,
+        ]);
+
+        $this->stripe_id = $customer->id;
+
+        $this->save();
+
+        return $this->stripe_id;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasStripeId(): bool
+    {
+        return ! is_null($this->stripe_id);
     }
 }

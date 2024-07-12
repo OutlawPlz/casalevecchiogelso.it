@@ -33,13 +33,10 @@ class CheckoutController extends Controller
 
         $checkoutSession = Session::create([
             'line_items' => $reservation->order(),
-            'customer_email' => $authUser->email,
+            'customer' => $authUser->createAsStripeCustomer(),
             'mode' => 'payment',
             'success_url' => route('reservation.show', [$reservation, 'success']),
             'cancel_url' => route('reservation.show', [$reservation, 'cancel']),
-            'automatic_tax' => [
-                'enabled' => true,
-            ],
             'metadata' => [
                 'reservation' => $reservation->ulid,
             ],

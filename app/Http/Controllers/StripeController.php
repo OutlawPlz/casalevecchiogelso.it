@@ -69,8 +69,8 @@ class StripeController extends Controller
             ->withProperties([
                 'reservation' => $ulid,
                 'checkout_session' => $event->data->object->id,
-                'email' => $event->data->object->customer_email
+                'email' => $event->data->object->customer_email,
             ])
-            ->log('The user :properties.email completed a checkout session.');
+            ->log('The user :properties.email completed a checkout session. Reservation confirmed.');
     }
 }

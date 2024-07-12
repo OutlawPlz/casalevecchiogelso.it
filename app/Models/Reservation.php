@@ -48,7 +48,6 @@ class Reservation extends Model
         'price_list',
         'summary',
         'status',
-        'messages',
     ];
 
     protected $attributes = [
