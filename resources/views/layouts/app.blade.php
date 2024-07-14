@@ -20,16 +20,24 @@
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
+            <header class="bg-white shadow">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    {{ $header }}
+                </div>
+            </header>
             @endisset
 
             <!-- Page Content -->
-            <main class="grow">
-                {{ $slot }}
+            <main class="grow flex">
+                @isset($sidebar)
+                <div class="bg-white shadow w-1/3 shrink-0 p-6">
+                    {{ $sidebar }}
+                </div>
+                @endisset
+
+                <div class="w-full">
+                    {{ $slot }}
+                </div>
             </main>
         </div>
     </body>

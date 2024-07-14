@@ -7,7 +7,6 @@ use App\Models\Reservation;
 use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -75,5 +74,14 @@ class ReservationController extends Controller
             'reservation' => $reservation,
             'chat' => $chat,
         ]);
+    }
+
+    /**
+     * @param Reservation $reservation
+     * @return void
+     */
+    public function update(Reservation $reservation)
+    {
+        //
     }
 }

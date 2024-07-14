@@ -92,12 +92,11 @@
         class="flex space-x-2 mt-6 sticky bottom-2"
     >
         <div class="flex w-full items-center px-3 py-2 rounded-lg bg-white shadow">
-            <textarea
-                x-on:keydown.enter.prevent="submit"
-                rows="1"
-                name="message"
+            <span
+                id="input-message"
+                contenteditable=""
                 class="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="{{ __('Your message') }}..."></textarea>
+                placeholder="{{ __('Your message') }}..."></span>
 
             <button class="inline-flex justify-center p-2 rounded-full cursor-pointer hover:bg-gray-200">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">

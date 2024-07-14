@@ -18,13 +18,18 @@ class ReservationQuote extends Component
 
     public Reservation $reservation;
 
+    /**
+     * @param Price $price
+     * @param Calendar $calendar
+     * @throws \Exception
+     */
     public function __construct(Price $price, Calendar $calendar)
     {
         $this->unavailable_dates = $calendar->unavailableDates();
 
-        foreach (['overnight_stay', 'cleaning_fee'] as $key) {
-            $this->$key = $price->get(config("reservation.$key"))['unit_amount'];
-        }
+        $this->overnight_stay = $price->get(config("reservation.overnight_stay"))['unit_amount'];
+
+        $this->cleaning_fee = $price->get(config("reservation.cleaning_fee"))['unit_amount'];
 
         $this->reservation = Reservation::fromSession();
     }

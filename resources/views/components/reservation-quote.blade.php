@@ -110,8 +110,8 @@
 
         @auth()
         <form action="{{ route('reservation.store') }}" method="POST">
+            @csrf
             <x-primary-button class="w-full justify-center !text-sm">
-                @csrf
                 {{ __('Request to book') }}
             </x-primary-button>
         </form>

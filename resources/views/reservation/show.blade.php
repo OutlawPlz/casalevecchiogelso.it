@@ -1,16 +1,17 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Reservation') }}
-        </h2>
+    <x-slot name="sidebar">
+        <x-reservation-quote :reservation="$reservation" />
 
         <form action="{{ route('checkout') }}" method="POST">
             @csrf
-            <x-primary-button name="reservation" value="{{ $reservation->ulid }}">{{ __('Checkout') }}</x-primary-button>
+            <x-primary-button
+                class="w-full justify-center !text-sm"
+                name="reservation"
+                value="{{ $reservation->ulid }}">
+                {{ __('Ask to pay') }}
+            </x-primary-button>
         </form>
     </x-slot>
 
-    <div class="mx-auto sm:px-6 lg:px-8 space-y-6">
-        <x-chat :channel="$reservation->ulid" />
-    </div>
+    <x-chat :channel="$reservation->ulid" />
 </x-app-layout>
