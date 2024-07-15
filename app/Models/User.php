@@ -15,6 +15,7 @@ use Stripe\StripeClient;
  * @property string $name
  * @property string $email
  * @property ?string $stripe_id
+ * @property string $role
  */
 class User extends Authenticatable
 {
@@ -92,5 +93,13 @@ class User extends Authenticatable
     public function hasStripeId(): bool
     {
         return ! is_null($this->stripe_id);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHost(): bool
+    {
+        return $this->role === 'host';
     }
 }

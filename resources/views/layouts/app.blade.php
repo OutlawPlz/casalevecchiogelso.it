@@ -30,9 +30,9 @@
             <!-- Page Content -->
             <main class="grow flex">
                 @isset($sidebar)
-                <div class="bg-white shadow w-1/3 shrink-0 p-6">
+                <aside class="w-1/3 shrink-0">
                     {{ $sidebar }}
-                </div>
+                </aside>
                 @endisset
 
                 <div class="w-full">

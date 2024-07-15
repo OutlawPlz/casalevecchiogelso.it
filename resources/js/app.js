@@ -1,6 +1,7 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
+import focus from '@alpinejs/focus';
 import { format, addDays, addYears, differenceInDays } from 'date-fns';
 
 window.Alpine = Alpine;
@@ -20,5 +21,7 @@ const moneyFormatter = new Intl.NumberFormat(
  * @returns {string}
  */
 window.$ = (cents) => moneyFormatter.format(cents / 100);
+
+Alpine.plugin(focus);
 
 Alpine.start();
