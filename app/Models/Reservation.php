@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Session;
  * @property string $summary
  * @property array $messages
  * @property array $price_list
+ * @property ReservationStatus $status
  * @property-read int $nights
  * @property-read CarbonImmutable[] $reservedPeriod
  * @property-read CarbonImmutable[] $checkInPreparationTime
@@ -178,5 +179,18 @@ class Reservation extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    /**
+     * @param  string|ReservationStatus  $status
+     * @return bool
+     */
+    public function inStatus(string|ReservationStatus $status): bool
+    {
+        if (is_string($status)) {
+            $status = ReservationStatus::from($status);
+        }
+
+        return $this->status === $status;
     }
 }

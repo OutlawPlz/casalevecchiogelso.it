@@ -21,7 +21,7 @@
             <!-- Page Heading -->
             @isset($header)
             <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div class="py-6 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
@@ -29,15 +29,7 @@
 
             <!-- Page Content -->
             <main class="grow flex">
-                @isset($sidebar)
-                <aside class="w-1/3 shrink-0">
-                    {{ $sidebar }}
-                </aside>
-                @endisset
-
-                <div class="w-full">
-                    {{ $slot }}
-                </div>
+                {{ $slot }}
             </main>
         </div>
     </body>
