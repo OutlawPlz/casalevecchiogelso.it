@@ -6,13 +6,14 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * @property ?int $user_id
  * @property ?int $reservation_id
  * @property string $channel ULID
  * @property ?array $author
- * @property ?array $data
+ * @property ?array{content: string} $data
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read ?User $user
@@ -29,6 +30,13 @@ class Message extends Model
         'author',
         'data',
     ];
+
+    protected array $messageActions = [];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+    }
 
     /**
      * @return array
@@ -55,5 +63,29 @@ class Message extends Model
     public function reservation(): BelongsTo
     {
         return $this->belongsTo(Reservation::class);
+    }
+
+    /**
+     * @param  array  $data
+     * @return string
+     */
+    public function renderContent(array $data): string
+    {
+        $content = $this->data['content'];
+
+        $isTemplate = str_starts_with($content, '/blade');
+
+        if (! $isTemplate) {
+            return Str::markdown($content, [
+                'html_input' => 'strip',
+                'allow_unsafe_links' => false,
+            ]);
+        }
+
+        $template = explode(':', $content, 2)[1] ?? '';
+
+        if (! $template) return '';
+
+        return view("messages.$template", $data)->render();
     }
 }

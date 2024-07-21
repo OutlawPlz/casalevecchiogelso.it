@@ -102,4 +102,12 @@ class User extends Authenticatable
     {
         return $this->role === 'host';
     }
+
+    /**
+     * @return bool
+     */
+    public function isGuest(): bool
+    {
+        return $this->role === 'guest';
+    }
 }

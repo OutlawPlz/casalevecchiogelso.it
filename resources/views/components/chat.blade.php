@@ -5,6 +5,7 @@
         loading: false,
         authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
+        message: '',
 
         async index() {
             this.loading = true;
@@ -56,35 +57,37 @@
         },
     }"
 >
-    <template x-for="(messages, date) in chat" :key="date">
-        <div class="overflow-scroll">
-            <div class="text-center text-sm py-6 grow" x-text="format(date, 'd MMM')"></div>
+    <div class="grow">
+        <template x-for="(messages, date) in chat" :key="date">
+            <div>
+                <div class="text-center text-sm py-6" x-text="format(date, 'd MMM')"></div>
 
-            <template x-for="message of messages" :key="message.id">
-                <div
-                    :id="`message-${message.id}`"
-                    class="flex items-start gap-2.5 mt-2"
-                    :class="isOwner(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
-                >
-                    <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
+                <template x-for="message of messages" :key="message.id">
                     <div
-                        class="shadow flex flex-col max-w-[95%] leading-1.5 p-4 border-gray-200 rounded-lg"
-                        :class="isOwner(message.user_id) ? 'bg-gray-200' : 'bg-white'"
+                        :id="`message-${message.id}`"
+                        class="flex items-start gap-2.5 mt-2"
+                        :class="isOwner(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
                     >
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
-                            <span
-                                :title="format(message.created_at, 'd MMM y, H:m')"
-                                class="text-sm font-normal text-gray-500"
-                                x-text="format(message.created_at, 'H:m')"
-                            ></span>
+                        <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
+                        <div
+                            class="shadow flex flex-col max-w-[95%] leading-1.5 p-4 border-gray-200 rounded-lg"
+                            :class="isOwner(message.user_id) ? 'bg-gray-200' : 'bg-white'"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
+                                <span
+                                    :title="format(message.created_at, 'd MMM y, H:m')"
+                                    class="text-sm font-normal text-gray-500"
+                                    x-text="format(message.created_at, 'H:m')"
+                                ></span>
+                            </div>
+                            <div class="prose" x-html="message.content"></div>
                         </div>
-                        <div class="prose" x-html="message.data.content"></div>
                     </div>
-                </div>
-            </template>
-        </div>
-    </template>
+                </template>
+            </div>
+        </template>
+    </div>
 
     <form
         x-ref="form"
@@ -93,11 +96,32 @@
     >
         <div class="flex w-full items-center px-3 py-2 rounded-lg bg-white shadow">
             @host
-            <button type="button" class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-                    <path fill-rule="evenodd" d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902 1.168.188 2.352.327 3.55.414.28.02.521.18.642.413l1.713 3.293a.75.75 0 0 0 1.33 0l1.713-3.293a.783.783 0 0 1 .642-.413 41.102 41.102 0 0 0 3.55-.414c1.437-.231 2.43-1.49 2.43-2.902V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0 0 10 2ZM6.75 6a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 2.5a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5h-3.5Z" clip-rule="evenodd" />
-                </svg>
-            </button>
+            <x-dropdown align="top" class="mb-4 w-48">
+                <x-slot name="trigger">
+                    <button
+                        type="button"
+                        class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                            <path fill-rule="evenodd" d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902 1.168.188 2.352.327 3.55.414.28.02.521.18.642.413l1.713 3.293a.75.75 0 0 0 1.33 0l1.713-3.293a.783.783 0 0 1 .642-.413 41.102 41.102 0 0 0 3.55-.414c1.437-.231 2.43-1.49 2.43-2.902V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0 0 10 2ZM6.75 6a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 2.5a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5h-3.5Z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </x-slot>
+
+                <x-slot name="content">
+                    <div x-on:click="message = `/blade:${$event.target.dataset.template}`">
+                        @foreach($templates as $template)
+                            <button
+                                type="button"
+                                data-template="{{ $template['template'] }}"
+                                class="px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 w-full"
+                            >
+                                {{ $template['label'] }}
+                            </button>
+                        @endforeach
+                    </div>
+                </x-slot>
+            </x-dropdown>
             @endhost
 
             <!--
@@ -110,9 +134,10 @@
                 name="message"
                 x-ref="textarea"
                 rows="1"
-                x-on:keydown.enter.prevent="submit"
+                x-model="message"
                 class="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="{{ __('Your message') }}..."></textarea>
+                placeholder="{{ __('Your message') }}..."
+            ></textarea>
 
             <button class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">

@@ -62,18 +62,7 @@ class ReservationController extends Controller
      */
     public function show(Reservation $reservation): View
     {
-        $chat = $reservation
-            ->messages()
-            ->limit(30)
-            ->get()
-            ->groupBy(
-                fn (Message $message) => $message->created_at->format('Y-m-d')
-            );
-
-        return view('reservation.show', [
-            'reservation' => $reservation,
-            'chat' => $chat,
-        ]);
+        return view('reservation.show', ['reservation' => $reservation]);
     }
 
     /**

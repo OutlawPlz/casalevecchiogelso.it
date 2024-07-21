@@ -2,13 +2,18 @@
 
 namespace App\View\Components;
 
-use App\Models\Message;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 
 class Chat extends Component
 {
+    public array $templates = [
+        [
+            'label' => 'Ask to pay',
+            'template' => 'ask-to-pay',
+        ]
+    ];
+
     /**
      * @param string $channel
      */

@@ -43,18 +43,6 @@
                 <span class="font-bold">{{ __('Cancellation policy') }}</span> <br>
                 <span class="text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at blandit sem. Nullam lobortis enim sit amet sem hendrerit, ut elementum lectus bibendum. Mauris quis lorem laoreet, porttitor arcu eu, pulvinar augue.</span>
             </div>
-
-            <hr class="my-6">
-
-            <form action="{{ route('checkout') }}" method="POST">
-                @csrf
-                <x-primary-button
-                    class="w-full justify-center !text-sm"
-                    name="reservation"
-                    value="{{ $reservation->ulid }}">
-                    {{ __('Ask to pay') }}
-                </x-primary-button>
-            </form>
         </div>
     </x-slot>
 

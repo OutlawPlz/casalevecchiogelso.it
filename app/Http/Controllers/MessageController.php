@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class MessageController extends Controller
 {
@@ -18,10 +19,15 @@ class MessageController extends Controller
      */
     public function index(Request $request, Reservation $reservation): Collection
     {
+        /** @var Collection<Message> $messages */
         $messages = Message::query()
             ->where('channel', $reservation->ulid)
             ->limit(30)
             ->get();
+
+        foreach ($messages as $message) {
+            $message->content = $message->renderContent(['reservation' => $reservation]);
+        }
 
         return $messages->groupBy(
             fn (Message $message) => $message->created_at->format('Y-m-d')
@@ -29,15 +35,25 @@ class MessageController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param Reservation $reservation
+     * @param  Request  $request
+     * @param  Reservation  $reservation
      * @return Message
+     * @throws ValidationException
      */
     public function store(Request $request, Reservation $reservation): Message
     {
         $content = $request->validate(self::rules())['message'];
         /** @var User $authUser */
         $authUser = $request->user();
+
+        // Prevents guest from using templates
+        if (str_starts_with($content, '/') && $authUser->isGuest()) {
+            throw ValidationException::withMessages([
+                'illegal_character' => __('Content cannot begin with the character /'),
+            ]);
+        }
+
+        // TODO: Should I strip the # headings?
 
         /** @var Message $message */
         $message = $reservation->messages()->create([
