@@ -1,5 +1,5 @@
 <div
-    class="max-w-3xl mx-auto w-full h-full max-h-full px-4 flex flex-col justify-between"
+    class="h-full flex flex-col max-w-3xl mx-auto px-4 sm:px-6"
     x-data="{
         chat: {},
         loading: false,
@@ -92,7 +92,7 @@
     <form
         x-ref="form"
         x-on:submit.prevent="submit"
-        class="flex space-x-2 mt-6 sticky bottom-2"
+        class="flex space-x-2 mt-6"
     >
         <div class="flex w-full items-center px-3 py-2 rounded-lg bg-white shadow">
             @host
