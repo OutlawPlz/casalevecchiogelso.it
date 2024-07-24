@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Spatie\Translatable\HasTranslations;
 
 /**
  * @property ?int $user_id
@@ -21,7 +22,7 @@ use Illuminate\Support\Str;
  */
 class Message extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
 
     protected $fillable = [
         'user_id',
@@ -29,6 +30,10 @@ class Message extends Model
         'channel',
         'author',
         'data',
+    ];
+
+    public array $translatable = [
+        'content',
     ];
 
     protected array $messageActions = [];

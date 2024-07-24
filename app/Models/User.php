@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,8 +17,9 @@ use Stripe\StripeClient;
  * @property string $email
  * @property ?string $stripe_id
  * @property string $role
+ * @property string $locale
  */
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     use HasFactory, Notifiable;
 
@@ -109,5 +111,13 @@ class User extends Authenticatable
     public function isGuest(): bool
     {
         return $this->role === 'guest';
+    }
+
+    /**
+     * @return string|null
+     */
+    public function preferredLocale(): ?string
+    {
+        return $this->locale;
     }
 }

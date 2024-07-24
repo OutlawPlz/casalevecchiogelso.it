@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->ulid('channel')->index();
             $table->json('author')->nullable();
-            $table->json('data')->nullable();
+            $table->json('content')->nullable();
+            $table->json('media')->nullable();
             $table->timestamps();
         });
     }
