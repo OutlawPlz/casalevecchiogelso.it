@@ -1,4 +1,4 @@
-<x-dropdown align="right">
+<x-dropdown align="right" class="w-32">
     <x-slot name="trigger">
         <button type="button" class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
@@ -13,7 +13,11 @@
             @csrf
 
             @foreach($availableLocales as $langcode => $locale)
-                <button value="{{ $langcode }}" name="locale">{{ $locale }}</button>
+                <button
+                    class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
+                    value="{{ $langcode }}"
+                    name="locale"
+                >{{ $locale }}</button>
             @endforeach
         </form>
     </x-slot>
