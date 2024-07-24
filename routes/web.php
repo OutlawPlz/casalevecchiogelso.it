@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationQuoteController;
@@ -53,3 +54,6 @@ Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback']
 /* ----- Email token ----- */
 Route::post('auth/token', [TokenAuthenticationController::class, 'create']);
 Route::get('auth/token', [TokenAuthenticationController::class, 'store'])->name('auth.token');
+
+/* ----- Locale preference ----- */
+Route::post('/locale-preference', LocalePreferenceController::class)->name('locale-preference');

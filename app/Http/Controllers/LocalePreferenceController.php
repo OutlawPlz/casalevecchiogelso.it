@@ -13,7 +13,7 @@ class LocalePreferenceController extends Controller
      * @param  Request  $request
      * @return RedirectResponse
      */
-    public function store(Request $request): RedirectResponse
+    public function __invoke(Request $request): RedirectResponse
     {
         /** @var ?User $authUser */
         $authUser = $request->user();
@@ -32,7 +32,7 @@ class LocalePreferenceController extends Controller
      */
     public static function rules(): array
     {
-        $availableLocales = config('app.available_locales');
+        $availableLocales = array_keys(config('app.available_locales'));
 
         return [
             'locale' => ['required', Rule::in($availableLocales)],
