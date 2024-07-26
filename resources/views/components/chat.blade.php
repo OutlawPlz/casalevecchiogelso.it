@@ -6,7 +6,7 @@
         authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
         message: '',
-        locale: 'en-BG',
+        locale: navigator.language,
 
         async index() {
             this.loading = true;
@@ -46,6 +46,12 @@
         init() {
             this.index();
 
+            $watch('locale', (value, oldValue) => {
+                if (value === oldValue) return;
+
+                this.index();
+            });
+
             Echo
                 .private('Reservations.{{ $channel }}')
                 .listen('ChatReply', (event) => {
@@ -57,12 +63,12 @@
                 });
         },
     }"
-    x-on:translate-chat.window=""
+    x-on:translate-chat.window="locale = $event.detail"
 >
     <div class="grow">
         <template x-for="(messages, date) in chat" :key="date">
             <div>
-                <div class="text-center text-sm py-6" x-text="format(date, 'd MMM')"></div>
+                <div class="text-center text-sm py-4" x-text="format(date, 'd MMM')"></div>
 
                 <template x-for="message of messages" :key="message.id">
                     <div

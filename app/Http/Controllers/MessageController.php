@@ -25,8 +25,15 @@ class MessageController extends Controller
             ->limit(30)
             ->get();
 
+        $authId = $request->user()->id;
+
         foreach ($messages as $message) {
-            $message->rendered_content = $message->renderContent(['reservation' => $reservation], $request->get('locale'));
+            // Translate only other user's messages.
+            $locale = $message->user_id === $authId ? 'raw' : $request->get('locale');
+
+            $message->rendered_content = $message->renderContent(
+                ['reservation' => $reservation], $locale
+            );
         }
 
         return $messages->groupBy(
