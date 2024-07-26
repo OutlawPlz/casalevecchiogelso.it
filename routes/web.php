@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationQuoteController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StripeController;
+use Google\Cloud\Translate\V2\TranslateClient;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {

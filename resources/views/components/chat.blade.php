@@ -6,12 +6,13 @@
         authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
         message: '',
+        locale: 'en-BG',
 
         async index() {
             this.loading = true;
 
             await axios
-                .get('{{ route('message.index', ['reservation' => $channel]) }}')
+                .get('{{ route('message.index', ['reservation' => $channel]) }}' + `?locale=${this.locale}`)
                 .then((response) => this.chat = response.data);
 
             this.loading = false;
@@ -56,6 +57,7 @@
                 });
         },
     }"
+    x-on:translate-chat.window=""
 >
     <div class="grow">
         <template x-for="(messages, date) in chat" :key="date">
@@ -81,7 +83,7 @@
                                     x-text="format(message.created_at, 'H:m')"
                                 ></span>
                             </div>
-                            <div class="prose" x-html="message.content"></div>
+                            <div class="prose" x-html="message.rendered_content"></div>
                         </div>
                     </div>
                 </template>

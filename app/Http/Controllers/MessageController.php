@@ -26,7 +26,7 @@ class MessageController extends Controller
             ->get();
 
         foreach ($messages as $message) {
-            $message->content = $message->renderContent(['reservation' => $reservation]);
+            $message->rendered_content = $message->renderContent(['reservation' => $reservation], $request->get('locale'));
         }
 
         return $messages->groupBy(
@@ -46,8 +46,10 @@ class MessageController extends Controller
         /** @var User $authUser */
         $authUser = $request->user();
 
+        $isTemplate = str_starts_with($content, '/blade');
+
         // Prevents guest from using templates
-        if (str_starts_with($content, '/') && $authUser->isGuest()) {
+        if ($isTemplate && $authUser->isGuest()) {
             throw ValidationException::withMessages([
                 'illegal_character' => __('Content cannot begin with the character /'),
             ]);
@@ -63,7 +65,7 @@ class MessageController extends Controller
                 'name' => $authUser->name,
                 'email' => $authUser->email
             ],
-            'data' => ['content' => $content],
+            'content' => ['raw' => $content],
         ]);
 
         ChatReply::dispatch($message);
