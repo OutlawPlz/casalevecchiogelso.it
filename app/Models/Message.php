@@ -37,17 +37,6 @@ class Message extends Model
         'locale',
     ];
 
-    public array $translatable = [
-        'content',
-    ];
-
-    protected array $messageActions = [];
-
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-    }
-
     /**
      * @return array
      */
@@ -83,38 +72,42 @@ class Message extends Model
      */
     public function renderContent(array $data = [], string $language = ''): string
     {
-        $rawContent = $this->content['raw'];
+        $content = $this->content;
 
-        $isTemplate = str_starts_with($rawContent, '/blade');
+        $isTemplate = str_starts_with($content['raw'], '/blade');
 
         if ($isTemplate) {
-            $template = explode(':', $rawContent, 2)[1] ?? '';
+            $template = explode(':', $content['raw'], 2)[1] ?? '';
 
             if (! $template) return '';
 
             return view("messages.$template", $data)->render();
         }
 
-        $content = Str::markdown($rawContent, [
+        if (array_key_exists($language, $this->content)) {
+            return $this->content[$language];
+        }
+
+        $renderedContent = Str::markdown($content['raw'], [
             'html_input' => 'strip',
             'allow_unsafe_links' => false,
         ]);
 
-        if ($language && ! array_key_exists($language, $this->content)) {
-            /** @var GoogleTranslate $translator */
-            $translator = App::make(GoogleTranslate::class);
+        if (! $language) return $renderedContent;
 
-            try {
-                $translation = $translator->translate($rawContent, ['target' => $language])[0]['text'];
+        /** @var GoogleTranslate $translator */
+        $translator = App::make(GoogleTranslate::class);
 
-//                $this->update(["content->$language" => $translation]);
+        try {
+            $content[$language] = $translator->translate($renderedContent, ['target' => $language])[0]['text'];
 
-                $content = $translation;
-            } catch (ServiceException $exception) {
-                report($exception);
-            }
+            $this->update(['content' => $content]);
+
+            $renderedContent = $content[$language];
+        } catch (ServiceException $exception) {
+            report($exception);
         }
 
-        return $content;
+        return $renderedContent;
     }
 }
