@@ -60,7 +60,7 @@
                 <button
                     x-on:click="isVisible = ! isVisible"
                     type="button"
-                    class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+                    class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                         <path d="M5.75 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM7.25 8.25A.75.75 0 0 1 8 7.5h2.25a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75ZM5.75 9.5a.75.75 0 0 0 0 1.5H8a.75.75 0 0 0 0-1.5H5.75Z" />
@@ -71,9 +71,9 @@
                 </button>
 
                 <button
-                    x-on:click.prevent="$dispatch('translate-chat', navigator.language)"
+                    x-on:click.prevent="$dispatch('open-modal', 'chat-language')"
                     type="button"
-                    class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+                    class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                         <path fill-rule="evenodd" d="M11 5a.75.75 0 0 1 .688.452l3.25 7.5a.75.75 0 1 1-1.376.596L12.89 12H9.109l-.67 1.548a.75.75 0 1 1-1.377-.596l3.25-7.5A.75.75 0 0 1 11 5Zm-1.24 5.5h2.48L11 7.636 9.76 10.5ZM5 1a.75.75 0 0 1 .75.75v1.261a25.27 25.27 0 0 1 2.598.211.75.75 0 1 1-.2 1.487c-.22-.03-.44-.056-.662-.08A12.939 12.939 0 0 1 5.92 8.058c.237.304.488.595.752.873a.75.75 0 0 1-1.086 1.035A13.075 13.075 0 0 1 5 9.307a13.068 13.068 0 0 1-2.841 2.546.75.75 0 0 1-.827-1.252A11.566 11.566 0 0 0 4.08 8.057a12.991 12.991 0 0 1-.554-.938.75.75 0 1 1 1.323-.707c.049.09.099.181.15.271.388-.68.708-1.405.952-2.164a23.941 23.941 0 0 0-4.1.19.75.75 0 0 1-.2-1.487c.853-.114 1.72-.185 2.598-.211V1.75A.75.75 0 0 1 5 1Z" clip-rule="evenodd" />
@@ -86,6 +86,24 @@
             <div class="absolute inset-0 mt-16 pb-2">
                 <x-chat :channel="$reservation->ulid" />
             </div>
+
+            <x-modal name="chat-language">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold">{{ __('Choose a language') }}</h3>
+
+                    <div
+                        class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
+                        x-on:change="$dispatch('translate-chat', $event.target.value)"
+                    >
+                        @foreach(App\Services\GoogleTranslate::languages() as $language)
+                            <label class="has-[:checked]:ring-gray-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-gray-100">
+                                <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
+                                <span>{{ $language['name'] }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            </x-modal>
         </div>
     </div>
 </x-app-layout>

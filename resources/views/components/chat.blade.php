@@ -6,7 +6,7 @@
         authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
         message: '',
-        locale: navigator.language,
+        locale: '',
 
         async index() {
             this.loading = true;
@@ -44,13 +44,13 @@
         },
 
         init() {
-            this.index();
-
             $watch('locale', (value, oldValue) => {
                 if (value === oldValue) return;
 
                 this.index();
             });
+
+            this.locale = navigator.language.split('-')[0];
 
             Echo
                 .private('Reservations.{{ $channel }}')
