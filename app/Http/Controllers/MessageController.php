@@ -52,6 +52,8 @@ class MessageController extends Controller
     public function store(Request $request, Reservation $reservation): Message
     {
         $attributes = $request->validate(self::rules());
+        // Having an empty string instead of NULL makes the code easier.
+        if (is_null($attributes['message'])) $attributes['message'] = '';
 
         /** @var User $authUser */
         $authUser = $request->user();
@@ -72,7 +74,7 @@ class MessageController extends Controller
         if (array_key_exists('media', $attributes)) {
             /** @var UploadedFile $image */
             foreach ($attributes['media'] as $image) {
-                $media[] = $image->store($reservation->ulid);
+                $media[] = $image->store($reservation->ulid, 'public');
             }
         }
 

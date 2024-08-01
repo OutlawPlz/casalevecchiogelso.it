@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -19,7 +20,8 @@ use Illuminate\Support\Str;
  * @property ?array{content: string} $data
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
- * @property array $content
+ * @property ?array $content
+ * @property ?array $media
  * @property-read ?User $user
  * @property-read ?Reservation $reservation
  */
