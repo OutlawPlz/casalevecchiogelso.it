@@ -7,7 +7,9 @@ use App\Models\Message;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
 
 class MessageController extends Controller
@@ -49,11 +51,12 @@ class MessageController extends Controller
      */
     public function store(Request $request, Reservation $reservation): Message
     {
-        $content = $request->validate(self::rules())['message'];
+        $attributes = $request->validate(self::rules());
+
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $isTemplate = str_starts_with($content, '/blade');
+        $isTemplate = str_starts_with($attributes['message'], '/blade');
 
         // Prevents guest from using templates
         if ($isTemplate && $authUser->isGuest()) {
@@ -64,6 +67,15 @@ class MessageController extends Controller
 
         // TODO: Should I strip the # headings?
 
+        $media = [];
+
+        if (array_key_exists('media', $attributes)) {
+            /** @var UploadedFile $image */
+            foreach ($attributes['media'] as $image) {
+                $media[] = $image->store($reservation->ulid);
+            }
+        }
+
         /** @var Message $message */
         $message = $reservation->messages()->create([
             'user_id' => $authUser->id,
@@ -72,7 +84,8 @@ class MessageController extends Controller
                 'name' => $authUser->name,
                 'email' => $authUser->email
             ],
-            'content' => ['raw' => $content],
+            'content' => ['raw' => $attributes['message']],
+            'media' => $media,
         ]);
 
         ChatReply::dispatch($message);
@@ -86,7 +99,8 @@ class MessageController extends Controller
     public static function rules(): array
     {
         return [
-            'message' => ['required', 'string'],
+            'message' => ['required_without:media'],
+            'media.*' => [File::image()->max('7mb')],
         ];
     }
 }
