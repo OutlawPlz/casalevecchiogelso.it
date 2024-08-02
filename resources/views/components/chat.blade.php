@@ -7,6 +7,7 @@
         errors: {{ json_encode($errors->messages()) }},
         message: '',
         locale: '',
+        publicPath: '{{ public_path() }}',
 
         async index() {
             this.loading = true;
@@ -119,6 +120,14 @@
                                 ></span>
                             </div>
                             <div class="prose" x-html="message.rendered_content"></div>
+
+                            <div class="flex flex-wrap space-x-2">
+                                <template x-for="path in message.media" :key="path">
+                                    <a :href="`/storage/${path}`" target="_blank">
+                                        <img class="mt-1 rounded-lg w-24 h-24 object-cover" :src="`/storage/${path}`" alt=media"">
+                                    </a>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </template>
