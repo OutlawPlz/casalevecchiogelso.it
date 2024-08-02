@@ -1,5 +1,5 @@
 <div
-    class="h-full flex flex-col max-w-3xl mx-auto px-4 sm:px-6"
+    {{ $attributes }}
     x-data="{
         chat: {},
         loading: false,
@@ -65,7 +65,36 @@
     }"
     x-on:translate-chat.window="locale = $event.detail"
 >
-    <div class="grow">
+    <div class="sticky top-16 py-4 bg-white flex space-x-4 px-4 sm:px-6 border-l shadow-sm">
+        <h3 class="text-xl font-bold">{{ __('Chat') }}</h3>
+
+        <button
+            x-on:click="isVisible = ! isVisible"
+            type="button"
+            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                <path d="M5.75 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM7.25 8.25A.75.75 0 0 1 8 7.5h2.25a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75ZM5.75 9.5a.75.75 0 0 0 0 1.5H8a.75.75 0 0 0 0-1.5H5.75Z" />
+                <path fill-rule="evenodd" d="M4.75 1a.75.75 0 0 0-.75.75V3a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2V1.75a.75.75 0 0 0-1.5 0V3h-5V1.75A.75.75 0 0 0 4.75 1ZM3.5 7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V7Z" clip-rule="evenodd" />
+            </svg>
+
+            <span class="whitespace-nowrap">{{ __('Reservation details') }}</span>
+        </button>
+
+        <button
+            x-on:click.prevent="$dispatch('open-modal', 'chat-language')"
+            type="button"
+            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                <path fill-rule="evenodd" d="M11 5a.75.75 0 0 1 .688.452l3.25 7.5a.75.75 0 1 1-1.376.596L12.89 12H9.109l-.67 1.548a.75.75 0 1 1-1.377-.596l3.25-7.5A.75.75 0 0 1 11 5Zm-1.24 5.5h2.48L11 7.636 9.76 10.5ZM5 1a.75.75 0 0 1 .75.75v1.261a25.27 25.27 0 0 1 2.598.211.75.75 0 1 1-.2 1.487c-.22-.03-.44-.056-.662-.08A12.939 12.939 0 0 1 5.92 8.058c.237.304.488.595.752.873a.75.75 0 0 1-1.086 1.035A13.075 13.075 0 0 1 5 9.307a13.068 13.068 0 0 1-2.841 2.546.75.75 0 0 1-.827-1.252A11.566 11.566 0 0 0 4.08 8.057a12.991 12.991 0 0 1-.554-.938.75.75 0 1 1 1.323-.707c.049.09.099.181.15.271.388-.68.708-1.405.952-2.164a23.941 23.941 0 0 0-4.1.19.75.75 0 0 1-.2-1.487c.853-.114 1.72-.185 2.598-.211V1.75A.75.75 0 0 1 5 1Z" clip-rule="evenodd" />
+            </svg>
+
+            <span class="whitespace-nowrap">{{ __('Translate chat') }}</span>
+        </button>
+    </div>
+
+    <div class="grow overflow-y-auto px-4 md:px-6">
         <template x-for="(messages, date) in chat" :key="date">
             <div>
                 <div class="text-center text-sm py-4" x-text="format(date, 'd MMM')"></div>
@@ -101,7 +130,7 @@
         enctype="multipart/form-data"
         x-ref="form"
         x-on:submit.prevent="submit"
-        class="flex space-x-2 mt-6"
+        class="sticky bottom-2 flex space-x-2 mx-4 md:mx-6 mt-6"
     >
         <div class="flex w-full items-center px-3 py-2 rounded-lg bg-white shadow">
             @host
