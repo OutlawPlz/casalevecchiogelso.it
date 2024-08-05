@@ -1,4 +1,14 @@
-@php $isOwner = $message->user()->is($authUser); @endphp
+@php
+/**
+ * @var \App\Models\User $authUser
+ * @var \App\Models\Message $message
+ * @var string $locale
+ */
+
+$isOwner = $message->user()->is($authUser);
+$locale = $isOwner ? '' : $locale;
+@endphp
+
 <div
     id="{{ "message-$message->id" }}"
     @class([
@@ -22,16 +32,15 @@
             >{{ $message->created_at->format('H:m') }}</span>
         </div>
         <div class="prose">
-            @php $locale = $isOwner ? '' : $locale; @endphp
             {!! $message->renderContent(['reservation' => $reservation], $locale) !!}
         </div>
 
         <div class="flex flex-wrap space-x-2">
-            @foreach($message->media as $media)
-                <a href="{{ "/storage/$media" }}" target="_blank">
-                    <img class="mt-1 rounded-lg w-24 h-24 object-cover" src="{{ "/storage/$media" }}" alt="Media">
-                </a>
-            @endforeach
+        @foreach($message->media as $media)
+            <a href="{{ "/storage/$media" }}" target="_blank">
+                <img class="mt-1 rounded-lg w-24 h-24 object-cover" src="{{ "/storage/$media" }}" alt="Media">
+            </a>
+        @endforeach
         </div>
     </div>
 </div>
