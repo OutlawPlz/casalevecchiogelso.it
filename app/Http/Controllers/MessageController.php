@@ -17,7 +17,7 @@ class MessageController extends Controller
     /**
      * @param Request $request
      * @param Reservation $reservation
-     * @return Collection
+     * @return string
      */
     public function index(Request $request, Reservation $reservation): string
     {
@@ -27,21 +27,12 @@ class MessageController extends Controller
             ->limit(30)
             ->get();
 
-        $authId = $request->user()->id;
-
         /** @var User $authUser */
         $authUser = $request->user();
 
-//        foreach ($messages as $message) {
-//            // Translate only other user's messages.
-//            $locale = $message->user_id === $authId ? 'raw' : $request->get('locale');
-//
-//            $message->rendered_content = $message->renderContent(
-//                ['reservation' => $reservation], $locale
-//            );
-//        }
-
-        $chat = $messages->groupBy(fn (Message $message) => $message->created_at->format('d M'));
+        $chat = $messages->groupBy(
+            fn (Message $message) => $message->created_at->format('d M')
+        );
 
         return view('messages.index', [
             'reservation' => $reservation,
@@ -54,10 +45,10 @@ class MessageController extends Controller
     /**
      * @param  Request  $request
      * @param  Reservation  $reservation
-     * @return Message
+     * @return string
      * @throws ValidationException
      */
-    public function store(Request $request, Reservation $reservation): Message
+    public function store(Request $request, Reservation $reservation): string
     {
         $attributes = $request->validate(self::rules());
         // Having an empty string instead of NULL makes the code easier.
@@ -98,9 +89,16 @@ class MessageController extends Controller
             'media' => $media,
         ]);
 
-        ChatReply::dispatch($message);
+        $content = view('messages.show', [
+            'message' => $message,
+            'reservation' => $reservation,
+            'authUser' => $authUser,
+            'locale' => $request->get('locale'),
+        ])->render();
 
-        return $message;
+        ChatReply::dispatch($content, $message);
+
+        return $content;
     }
 
     /**

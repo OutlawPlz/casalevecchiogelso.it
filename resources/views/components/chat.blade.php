@@ -1,28 +1,20 @@
 <div
     {{ $attributes }}
     x-data="{
-        chat: {},
+        messages: document.getElementById('messages'),
         loading: false,
-        authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
         message: '',
         locale: '',
-        publicPath: '{{ public_path() }}',
 
         async index() {
             this.loading = true;
 
-            const el = document.getElementById('messages');
-
             await axios
                 .get('{{ route('message.index', ['reservation' => $channel]) }}' + `?locale=${this.locale}`)
-                .then((response) => Alpine.morph(el, response.data));
+                .then((response) => Alpine.morph(this.messages, response.data));
 
             this.loading = false;
-        },
-
-        isOwner(userId) {
-            return this.authUserId === userId;
         },
 
         async submit() {
@@ -58,9 +50,7 @@
             Echo
                 .private('Reservations.{{ $channel }}')
                 .listen('ChatReply', (event) => {
-                    event.date in this.chat
-                        ? this.chat[event.date].push(event.message)
-                        : this.chat[event.date] = event.message;
+                    this.messages.innerHTML += event.content;
 
                     $nextTick(() => location.href = `#message-${event.message.id}`);
                 });
