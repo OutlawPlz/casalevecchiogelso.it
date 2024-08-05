@@ -7,6 +7,7 @@
     },
     "devDependencies": {
         "@alpinejs/focus": "^3.14.1",
+        "@alpinejs/morph": "^3.14.1",
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/typography": "^0.5.13",
         "alpinejs": "^3.4.2",

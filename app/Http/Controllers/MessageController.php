@@ -19,7 +19,7 @@ class MessageController extends Controller
      * @param Reservation $reservation
      * @return Collection
      */
-    public function index(Request $request, Reservation $reservation): Collection
+    public function index(Request $request, Reservation $reservation): string
     {
         /** @var Collection<Message> $messages */
         $messages = Message::query()
@@ -29,18 +29,26 @@ class MessageController extends Controller
 
         $authId = $request->user()->id;
 
-        foreach ($messages as $message) {
-            // Translate only other user's messages.
-            $locale = $message->user_id === $authId ? 'raw' : $request->get('locale');
+        /** @var User $authUser */
+        $authUser = $request->user();
 
-            $message->rendered_content = $message->renderContent(
-                ['reservation' => $reservation], $locale
-            );
-        }
+//        foreach ($messages as $message) {
+//            // Translate only other user's messages.
+//            $locale = $message->user_id === $authId ? 'raw' : $request->get('locale');
+//
+//            $message->rendered_content = $message->renderContent(
+//                ['reservation' => $reservation], $locale
+//            );
+//        }
 
-        return $messages->groupBy(
-            fn (Message $message) => $message->created_at->format('Y-m-d')
-        );
+        $chat = $messages->groupBy(fn (Message $message) => $message->created_at->format('d M'));
+
+        return view('messages.index', [
+            'reservation' => $reservation,
+            'chat' => $chat,
+            'authUser' => $authUser,
+            'locale' => $request->get('locale'),
+        ])->render();
     }
 
     /**
