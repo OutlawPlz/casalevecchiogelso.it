@@ -23,22 +23,56 @@ class MessageController extends Controller
     /**
      * @param Request $request
      * @param Reservation $reservation
-     * @return string
+     * @return Collection
      */
-    public function index(Request $request, Reservation $reservation): string
+    public function index(Request $request, Reservation $reservation): Collection
     {
+        /** @var User $authUser */
+        $authUser = $request->user();
+
         /** @var Collection<Message> $messages */
         $messages = Message::query()
             ->where('channel', $reservation->ulid)
             ->limit(30)
             ->get();
 
+        foreach ($messages as $message) {
+            $language = $message->user()->is($authUser) ? '' : $request->get('locale');
+
+            $data = [
+                'language' => $language,
+                'reservation' => $reservation,
+            ];
+
+            $message->rendered_content = $this->messageRenderer->render($message, $data);
+        }
+
+        return $messages->groupBy(
+            fn (Message $message) => $message->created_at->format('Y-m-d')
+        );
+    }
+
+    /**
+     * @param  Request  $request
+     * @param  Reservation  $reservation
+     * @param  Message  $message
+     * @return Message
+     */
+    public function show(Request $request, Reservation $reservation, Message $message): Message
+    {
+        /** @var User $authUser */
+        $authUser = $request->user();
+
+        $language = $message->user()->is($authUser) ? '' : $request->get('locale');
+
         $data = [
-            'language' => $request->get('locale'),
+            'language' => $language,
             'reservation' => $reservation,
         ];
 
-        return $this->messageRenderer->renderMany($messages, $data);
+        $message->rendered_content = $this->messageRenderer->render($message, $data);
+
+        return $message;
     }
 
     /**

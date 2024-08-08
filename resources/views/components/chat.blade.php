@@ -1,20 +1,26 @@
 <div
     {{ $attributes }}
     x-data="{
-        messages: document.getElementById('messages'),
+        chat: {},
         loading: false,
+        authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
         message: '',
         locale: '',
+        publicPath: '{{ public_path() }}',
 
         async index() {
             this.loading = true;
 
             await axios
                 .get('{{ route('message.index', ['reservation' => $channel]) }}' + `?locale=${this.locale}`)
-                .then((response) => Alpine.morph(this.messages, response.data));
+                .then((response) => this.chat = response.data);
 
             this.loading = false;
+        },
+
+        isAuthUser(userId) {
+            return this.authUserId === userId;
         },
 
         async submit() {
@@ -50,7 +56,9 @@
             Echo
                 .private('Reservations.{{ $channel }}')
                 .listen('ChatReply', (event) => {
-                    this.messages.innerHTML += event.content;
+                    event.date in this.chat
+                        ? this.chat[event.date].push(event.message)
+                        : this.chat[event.date] = event.message;
 
                     $nextTick(() => location.href = `#message-${event.message.id}`);
                 });
@@ -87,8 +95,44 @@
         </button>
     </div>
 
-    <div id="messages" class="grow overflow-y-auto max-w-3xl w-full mx-auto px-4 md:px-6">
-        <!-- Messages placeholder -->
+    <div class="grow overflow-y-auto max-w-3xl w-full mx-auto px-4 md:px-6">
+        <template x-for="(messages, date) in chat" :key="date">
+            <div>
+                <div class="text-center text-sm py-4" x-text="format(date, 'd MMM')"></div>
+
+                <template x-for="message of messages" :key="message.id">
+                    <div
+                        :id="`message-${message.id}`"
+                        class="flex items-start gap-2.5 mt-2"
+                        :class="isAuthUser(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
+                    >
+                        <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
+                        <div
+                            class="shadow flex flex-col max-w-[95%] leading-1.5 p-4 border-gray-200 rounded-lg"
+                            :class="isAuthUser(message.user_id) ? 'bg-gray-200' : 'bg-white'"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
+                                <span
+                                    :title="format(message.created_at, 'd MMM y, H:m')"
+                                    class="text-sm font-normal text-gray-500"
+                                    x-text="format(message.created_at, 'H:m')"
+                                ></span>
+                            </div>
+                            <div class="prose" x-html="message.rendered_content"></div>
+
+                            <div class="flex flex-wrap space-x-2">
+                                <template x-for="path in message.media" :key="path">
+                                    <a :href="`/storage/${path}`" target="_blank">
+                                        <img class="mt-1 rounded-lg w-24 h-24 object-cover" :src="`/storage/${path}`" alt=media"">
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
     </div>
 
     <div class="sticky bottom-0 py-2 px-4 md:px-6 mt-2 max-w-3xl w-full mx-auto">
