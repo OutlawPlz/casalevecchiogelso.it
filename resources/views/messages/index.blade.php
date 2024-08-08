@@ -3,7 +3,7 @@
         <div class="text-center text-sm py-4">{{ $date }}</div>
 
         @foreach($messages as $message)
-            @include('messages.show', ['message' => $message])
+            {!! $renderer->render($message, $data) !!}
         @endforeach
     @endforeach
 </div>

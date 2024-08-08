@@ -7,12 +7,7 @@ use Illuminate\View\Component;
 
 class Chat extends Component
 {
-    public array $templates = [
-        [
-            'label' => 'Ask to pay',
-            'template' => 'ask-to-pay',
-        ]
-    ];
+    public array $templates = [];
 
     /**
      * @param string $channel
@@ -20,7 +15,7 @@ class Chat extends Component
     public function __construct(public string $channel) {}
 
     /**
-     * Get the view / contents that represent the component.
+     * @return View
      */
     public function render(): View
     {

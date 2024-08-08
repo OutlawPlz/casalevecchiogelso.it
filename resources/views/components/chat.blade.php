@@ -45,7 +45,7 @@
                 this.index();
             });
 
-            this.locale = navigator.language.split('-')[0];
+            this.index();
 
             Echo
                 .private('Reservations.{{ $channel }}')
@@ -88,7 +88,7 @@
     </div>
 
     <div id="messages" class="grow overflow-y-auto max-w-3xl w-full mx-auto px-4 md:px-6">
-        <!-- Chat placeholder -->
+        <!-- Messages placeholder -->
     </div>
 
     <div class="sticky bottom-0 py-2 px-4 md:px-6 mt-2 max-w-3xl w-full mx-auto">

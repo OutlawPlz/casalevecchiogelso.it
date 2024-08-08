@@ -1,14 +1,3 @@
-@php
-/**
- * @var \App\Models\User $authUser
- * @var \App\Models\Message $message
- * @var string $locale
- */
-
-$isOwner = $message->user()->is($authUser);
-$locale = $isOwner ? '' : $locale;
-@endphp
-
 <div
     id="{{ "message-$message->id" }}"
     @class([
@@ -31,9 +20,8 @@ $locale = $isOwner ? '' : $locale;
                 class="text-sm font-normal text-gray-500"
             >{{ $message->created_at->format('H:m') }}</span>
         </div>
-        <div class="prose">
-            {!! $message->renderContent(['reservation' => $reservation], $locale) !!}
-        </div>
+
+        <div class="prose">{!! $content !!}</div>
 
         <div class="flex flex-wrap space-x-2">
         @foreach($message->media as $media)

@@ -6,6 +6,7 @@ use App\Events\ChatReply;
 use App\Models\Message;
 use App\Models\Reservation;
 use App\Models\User;
+use App\Services\MessageRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -14,6 +15,11 @@ use Illuminate\Validation\ValidationException;
 
 class MessageController extends Controller
 {
+    /**
+     * @param  MessageRenderer  $messageRenderer
+     */
+    public function __construct(protected MessageRenderer $messageRenderer) {}
+
     /**
      * @param Request $request
      * @param Reservation $reservation
@@ -27,19 +33,12 @@ class MessageController extends Controller
             ->limit(30)
             ->get();
 
-        /** @var User $authUser */
-        $authUser = $request->user();
-
-        $chat = $messages->groupBy(
-            fn (Message $message) => $message->created_at->format('d M')
-        );
-
-        return view('messages.index', [
+        $data = [
+            'language' => $request->get('locale'),
             'reservation' => $reservation,
-            'chat' => $chat,
-            'authUser' => $authUser,
-            'locale' => $request->get('locale'),
-        ])->render();
+        ];
+
+        return $this->messageRenderer->renderMany($messages, $data);
     }
 
     /**
@@ -89,12 +88,10 @@ class MessageController extends Controller
             'media' => $media,
         ]);
 
-        $content = view('messages.show', [
-            'message' => $message,
+        $content = $this->messageRenderer->render($message, [
             'reservation' => $reservation,
-            'authUser' => $authUser,
             'locale' => $request->get('locale'),
-        ])->render();
+        ]);
 
         ChatReply::dispatch($content, $message);
 
