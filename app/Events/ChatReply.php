@@ -16,10 +16,7 @@ class ChatReply implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(
-        public string $content,
-        public Message $message
-    ) {}
+    public function __construct(public Message $message) {}
 
     /**
      * Get the channels the event should broadcast on.

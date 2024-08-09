@@ -40,7 +40,7 @@ Route::group([
     /* ----- Message ----- */
     Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index');
     Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store');
-    Route::get('/reservations/reservation:ulid/messages/{message}', [MessageController::class, 'show'])->name('message.show');
+    Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])->name('message.show');
 });
 
 /* ----- Stripe Webhook ----- */

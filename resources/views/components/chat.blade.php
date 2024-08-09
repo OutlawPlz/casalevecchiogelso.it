@@ -16,6 +16,28 @@
                 .get('{{ route('message.index', ['reservation' => $channel]) }}' + `?locale=${this.locale}`)
                 .then((response) => this.chat = response.data);
 
+            $nextTick(() => location.href = '#end');
+
+            this.loading = false;
+        },
+
+        async show(messageId) {
+            this.loading = true;
+
+            await axios
+                .get(`/reservations/{{ $channel }}/messages/${messageId}?locale=${this.locale}`)
+                .then((response) => {
+                    const date = format(response.data.created_at, 'Y-MM-dd');
+
+                    console.log(this.chat, date);
+
+                    date in this.chat
+                        ? this.chat[date].push(response.data)
+                        : this.chat[date] = response.data;
+
+                    $nextTick(() => location.href = '#end');
+                })
+
             this.loading = false;
         },
 
@@ -55,13 +77,7 @@
 
             Echo
                 .private('Reservations.{{ $channel }}')
-                .listen('ChatReply', (event) => {
-                    event.date in this.chat
-                        ? this.chat[event.date].push(event.message)
-                        : this.chat[event.date] = event.message;
-
-                    $nextTick(() => location.href = `#message-${event.message.id}`);
-                });
+                .listen('ChatReply', (event) => this.show(event.message.id));
         },
     }"
     x-on:translate-chat.window="locale = $event.detail"
@@ -96,6 +112,8 @@
     </div>
 
     <div class="grow overflow-y-auto max-w-3xl w-full mx-auto px-4 md:px-6">
+        <div id="start"></div>
+
         <template x-for="(messages, date) in chat" :key="date">
             <div>
                 <div class="text-center text-sm py-4" x-text="format(date, 'd MMM')"></div>
@@ -133,6 +151,8 @@
                 </template>
             </div>
         </template>
+
+        <div id="end"></div>
     </div>
 
     <div class="sticky bottom-0 py-2 px-4 md:px-6 mt-2 max-w-3xl w-full mx-auto">

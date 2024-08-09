@@ -28,7 +28,10 @@ class MessageRenderer
 
         $isTemplate = str_starts_with($message->content['raw'], '/blade');
 
+        /** @uses MessageRenderer::renderContent() */
+        /** @uses MessageRenderer::renderTemplate() */
         $render = $isTemplate ? 'renderTemplate' : 'renderContent';
+
         /** @var string $renderedContent */
         $renderedContent =  $this->$render($message, $data);
 
@@ -73,13 +76,6 @@ class MessageRenderer
 
         if (! $template) return 'Not found';
 
-        // TODO: Translate content in user language.
-
         return view("messages.$template", $data)->render();
-    }
-
-    protected function translateMessage(string $message, string $language): string
-    {
-
     }
 }

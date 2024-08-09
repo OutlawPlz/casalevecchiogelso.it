@@ -78,10 +78,10 @@ class MessageController extends Controller
     /**
      * @param  Request  $request
      * @param  Reservation  $reservation
-     * @return string
+     * @return Message
      * @throws ValidationException
      */
-    public function store(Request $request, Reservation $reservation): string
+    public function store(Request $request, Reservation $reservation): Message
     {
         $attributes = $request->validate(self::rules());
         // Having an empty string instead of NULL makes the code easier.
@@ -122,14 +122,9 @@ class MessageController extends Controller
             'media' => $media,
         ]);
 
-        $content = $this->messageRenderer->render($message, [
-            'reservation' => $reservation,
-            'locale' => $request->get('locale'),
-        ]);
+        ChatReply::dispatch($message);
 
-        ChatReply::dispatch($content, $message);
-
-        return $content;
+        return $message;
     }
 
     /**
