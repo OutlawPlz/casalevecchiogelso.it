@@ -33,7 +33,7 @@ class MessageController extends Controller
         /** @var Collection<Message> $messages */
         $messages = Message::query()
             ->where('channel', $reservation->ulid)
-            ->get();
+            ->simplePaginate();
 
         foreach ($messages as $message) {
             $language = $message->user()->is($authUser) ? '' : $request->get('locale');

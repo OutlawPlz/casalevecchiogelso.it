@@ -139,7 +139,7 @@
                                 <span
                                     :title="format(message.created_at, 'd MMM y, H:m')"
                                     class="text-sm font-normal text-gray-500"
-                                    x-text="format(message.created_at, 'H:m')"
+                                    x-text="format(message.created_at, 'HH:mm')"
                                 ></span>
                             </div>
                             <div class="prose" x-html="message.rendered_content"></div>
