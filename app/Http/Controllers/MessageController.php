@@ -33,7 +33,6 @@ class MessageController extends Controller
         /** @var Collection<Message> $messages */
         $messages = Message::query()
             ->where('channel', $reservation->ulid)
-            ->limit(30)
             ->get();
 
         foreach ($messages as $message) {
