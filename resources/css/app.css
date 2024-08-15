@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.autogrow {
+    display: grid;
+}
+
+.autogrow::after {
+    content: attr(data-replicated-value) " ";
+    white-space: pre-wrap;
+    visibility: hidden;
+}
+
+.autogrow > textarea {
+    resize: none;
+}
+
+.autogrow > textarea,
+.autogrow::after {
+    @apply form-textarea focus:ring-0;
+    padding: .25rem .5rem;
+    display: block;
+    width: 100%;
+    border: 0;
+    max-height: 9rem;
+    overflow-y: auto;
+    grid-area: 1 / 1 / 2 / 2;
+}

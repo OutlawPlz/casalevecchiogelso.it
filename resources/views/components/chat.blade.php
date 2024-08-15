@@ -167,13 +167,14 @@
             x-on:submit.prevent="submit"
             class="p-3 rounded-lg bg-white shadow space-y-2"
         >
-            <textarea
-                name="message"
-                rows="1"
-                x-model="message"
-                class="block w-full py-1 px-2 border-0 focus:ring-0"
-                placeholder="{{ __('Your message') }}..."
-            ></textarea>
+            <div class="autogrow" :data-replicated-value="message">
+                <textarea
+                    name="message"
+                    rows="1"
+                    x-model="message"
+                    placeholder="{{ __('Your message') }}..."
+                ></textarea>
+            </div>
 
             <template x-if="previews.length">
                 <div class="flex space-x-2">
