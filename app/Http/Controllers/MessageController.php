@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\MessageRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
@@ -23,18 +24,18 @@ class MessageController extends Controller
     /**
      * @param Request $request
      * @param Reservation $reservation
-     * @return Collection
+     * @return Paginator
      */
-    public function index(Request $request, Reservation $reservation): Collection
+    public function index(Request $request, Reservation $reservation): Paginator
     {
         /** @var User $authUser */
         $authUser = $request->user();
 
-        /** @var Collection<Message> $messages */
         $messages = Message::query()
             ->where('channel', $reservation->ulid)
             ->simplePaginate();
 
+        /** @var Message $message */
         foreach ($messages as $message) {
             $language = $message->user()->is($authUser) ? '' : $request->get('locale');
 
@@ -46,9 +47,7 @@ class MessageController extends Controller
             $message->rendered_content = $this->messageRenderer->render($message, $data);
         }
 
-        return $messages->groupBy(
-            fn (Message $message) => $message->created_at->format('Y-m-d')
-        );
+        return $messages;
     }
 
     /**

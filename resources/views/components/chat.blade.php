@@ -14,7 +14,15 @@
 
             await axios
                 .get('{{ route('message.index', ['reservation' => $channel]) }}' + `?locale=${this.locale}`)
-                .then((response) => this.chat = response.data);
+                .then((response) => {
+                    const chat = Object.groupBy(response.data.data, (message) => {
+                        return format(message.created_at, 'd MMM');
+                    });
+
+                    Object.setPrototypeOf(chat, {});
+
+                    this.chat = chat;
+                });
 
             $nextTick(() => location.href = '#end');
 
@@ -27,7 +35,7 @@
             await axios
                 .get(`/reservations/{{ $channel }}/messages/${messageId}?locale=${this.locale}`)
                 .then((response) => {
-                    const date = format(response.data.created_at, 'Y-MM-dd');
+                    const date = format(response.data.created_at, 'd MMM');
 
                     date in this.chat
                         ? this.chat[date].push(response.data)
@@ -121,7 +129,7 @@
 
         <template x-for="(messages, date) in chat" :key="date">
             <div>
-                <div class="text-center text-sm py-4" x-text="format(date, 'd MMM')"></div>
+                <div class="text-center text-sm py-4" x-text="date"></div>
 
                 <template x-for="message of messages" :key="message.id">
                     <div
