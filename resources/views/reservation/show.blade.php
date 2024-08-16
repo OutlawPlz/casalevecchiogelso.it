@@ -1,6 +1,6 @@
 <x-app-layout>
     <div
-        class="flex"
+        class="absolute inset-0 flex"
         x-data="{
             isVisible: false,
 
@@ -12,9 +12,9 @@
         <aside
             x-show="isVisible"
             :class="{ 'block': isVisible, 'hidden': ! isVisible }"
-            class="hidden w-11/12 md:static md:w-1/3 shrink-0 bg-white shadow-lg"
+            class="absolute z-10 inset-y-0 md:static overflow-y-scroll hidden w-11/12 md:w-1/3 shrink-0 bg-white shadow-lg"
         >
-            <div class="sticky top-16 bg-white flex items-center justify-between p-4 border-b">
+            <div class="sticky top-0 bg-white flex items-center justify-between p-4 border-b">
                 <h3 class="text-xl font-bold">{{ __('Details') }}</h3>
 
                 <button x-on:click="isVisible = false" class="p-1 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
@@ -54,26 +54,24 @@
             </div>
         </aside>
 
-        <div class="grow flex flex-col">
-            <x-chat class="grow w-full flex flex-col mx-auto" :channel="$reservation->ulid" />
-
-            <x-modal name="chat-language">
-                <div class="p-6">
-                    <h3 class="text-2xl font-bold">{{ __('Choose a language') }}</h3>
-
-                    <div
-                        class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
-                        x-on:change="$dispatch('translate-chat', $event.target.value)"
-                    >
-                        @foreach(App\Services\GoogleTranslate::languages() as $language)
-                            <label class="has-[:checked]:ring-gray-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-gray-100">
-                                <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
-                                <span>{{ $language['name'] }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
-            </x-modal>
-        </div>
+        <x-chat :channel="$reservation->ulid" />
     </div>
+
+    <x-modal name="chat-language">
+        <div class="p-6">
+            <h3 class="text-2xl font-bold">{{ __('Choose a language') }}</h3>
+
+            <div
+                class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
+                x-on:change="$dispatch('translate-chat', $event.target.value)"
+            >
+                @foreach(App\Services\GoogleTranslate::languages() as $language)
+                    <label class="has-[:checked]:ring-gray-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-gray-100">
+                        <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
+                        <span>{{ $language['name'] }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+    </x-modal>
 </x-app-layout>

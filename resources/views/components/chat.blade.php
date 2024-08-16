@@ -1,5 +1,5 @@
 <div
-    {{ $attributes }}
+    {{ $attributes->merge(['class' => 'w-full flex flex-col overflow-y-scroll']) }}
     x-data="{
         loading: false,
         authUserId: {{ Auth::id() }},
@@ -95,7 +95,7 @@
     }"
     x-on:translate-chat.window="locale = $event.detail"
 >
-    <div class="sticky top-16 py-4 bg-white flex space-x-4 px-4 sm:px-6 border-l shadow-sm">
+    <div class="sticky top-0 py-4 bg-white flex space-x-4 px-4 sm:px-6 border-l shadow-sm">
         <h3 class="text-xl font-bold">{{ __('Chat') }}</h3>
 
         <button
@@ -124,7 +124,7 @@
         </button>
     </div>
 
-    <div class="grow overflow-y-auto max-w-3xl w-full mx-auto px-4 md:px-6">
+    <div class="w-full max-w-3xl mx-auto grow px-4 md:px-6">
         <div id="start"></div>
 
         <template x-for="(messages, date) in chat" :key="date">
@@ -168,7 +168,7 @@
         <div id="end"></div>
     </div>
 
-    <div class="sticky bottom-0 py-2 px-4 md:px-6 mt-2 max-w-3xl w-full mx-auto">
+    <div class="w-full max-w-3xl mx-auto sticky bottom-0 py-2 px-4 md:px-6 mt-2">
         <form
             enctype="multipart/form-data"
             x-ref="form"
