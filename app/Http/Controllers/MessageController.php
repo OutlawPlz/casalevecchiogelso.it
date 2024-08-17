@@ -7,10 +7,9 @@ use App\Models\Message;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Services\MessageRenderer;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Collection;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
 
@@ -33,6 +32,7 @@ class MessageController extends Controller
 
         $messages = Message::query()
             ->where('channel', $reservation->ulid)
+            ->latest()
             ->simplePaginate();
 
         /** @var Message $message */

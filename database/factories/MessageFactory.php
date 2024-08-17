@@ -17,8 +17,42 @@ class MessageFactory extends Factory
      */
     public function definition(): array
     {
+        $message = $this->faker->sentence();
+
         return [
-            //
+            'user_id' => null,
+            'reservation_id' => null,
+            'channel' => '01J3JCD85NEBYG538WKEEJCYP9',
+            'author' => [
+                'name' => 'John Doe',
+                'email' => 'john@doe.com',
+            ],
+            'content' => [
+                'raw' => $message,
+                'it' => $message,
+                'en' => $message,
+            ],
+            'media' => [],
         ];
+    }
+
+    /**
+     * @return $this
+     */
+    public function reply(): static
+    {
+        $message = $this->faker->sentence();
+
+        return $this->state(fn (array $attributes) => [
+            'author' => [
+                'name' => 'Jane Doe',
+                'email' => 'jane@doe.com',
+            ],
+            'content' => [
+                'raw' => $message,
+                'it' => $message,
+                'en' => $message,
+            ],
+        ]);
     }
 }

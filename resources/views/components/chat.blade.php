@@ -4,27 +4,34 @@
         loading: false,
         authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
+        messages: [],
         chat: {},
         message: '',
         previews: [],
         locale: '',
+        nextPageUrl: '{{ route('message.index', ['reservation' => $channel]) }}?page=1',
 
         async index() {
+            if (this.loading || ! this.nextPageUrl) return;
+
             this.loading = true;
 
             await axios
-                .get('{{ route('message.index', ['reservation' => $channel]) }}' + `?locale=${this.locale}`)
+                .get(this.nextPageUrl + `&locale=${this.locale}`)
                 .then((response) => {
-                    const chat = Object.groupBy(response.data.data, (message) => {
-                        return format(message.created_at, 'd MMM');
-                    });
+                    this.messages.push(...response.data.data);
+
+                    const chat = Object.groupBy(
+                        this.messages.toReversed(),
+                        (message) => format(message.created_at, 'd MMM')
+                    );
 
                     Object.setPrototypeOf(chat, {});
 
+                    this.nextPageUrl = response.data.next_page_url;
+
                     this.chat = chat;
                 });
-
-            $nextTick(() => location.href = '#end');
 
             this.loading = false;
         },
@@ -83,10 +90,10 @@
             $watch('locale', (value, oldValue) => {
                 if (value === oldValue) return;
 
-                this.index();
+                this.index().then(() => $nextTick(() => location.href = '#end'));
             });
 
-            this.index();
+            this.index().then(() => $nextTick(() => location.href = '#end'));
 
             Echo
                 .private('Reservations.{{ $channel }}')
@@ -125,7 +132,7 @@
     </div>
 
     <div class="w-full max-w-3xl mx-auto grow px-4 md:px-6">
-        <div id="start"></div>
+        <div id="start"x-intersect:enter="index"></div>
 
         <template x-for="(messages, date) in chat" :key="date">
             <div>
