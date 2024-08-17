@@ -146,7 +146,7 @@
                     >
                         <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
                         <div
-                            class="shadow flex flex-col max-w-[95%] leading-1.5 p-3 border-gray-200 rounded-lg"
+                            class="shadow flex flex-col max-w-[95%] leading-1.5 p-3 rounded-lg"
                             :class="isAuthUser(message.user_id) ? 'bg-gray-200' : 'bg-white'"
                         >
                             <div class="flex items-center space-x-2">

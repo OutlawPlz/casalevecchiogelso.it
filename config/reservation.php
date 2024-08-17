@@ -7,13 +7,13 @@ return [
     | Pricing
     |--------------------------------------------------------------------------
     |
-    | Prices refers to Stripe prices ids. You should create those prices
-    | upfront in Stripe, then reference those prices by the id.
+    | Prices refers to Stripe product metadata. You should create those products
+    | upfront in Stripe, then reference those products by the metadata "code".
     */
 
-    'overnight_stay' => env('OVERNIGHT_STAY'),
+    'overnight_stay' => env('OVERNIGHT_STAY', 'overnight_stay'),
 
-    'cleaning_fee' => env('CLEANING_FEE'),
+    'cleaning_fee' => env('CLEANING_FEE', 'cleaning_fee'),
 
     /*
     |--------------------------------------------------------------------------

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Message;
 use App\Models\Reservation;
 use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
@@ -63,14 +62,5 @@ class ReservationController extends Controller
     public function show(Reservation $reservation): View
     {
         return view('reservation.show', ['reservation' => $reservation]);
-    }
-
-    /**
-     * @param Reservation $reservation
-     * @return void
-     */
-    public function update(Reservation $reservation)
-    {
-        //
     }
 }
