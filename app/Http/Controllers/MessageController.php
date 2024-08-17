@@ -83,12 +83,12 @@ class MessageController extends Controller
     {
         $attributes = $request->validate(self::rules());
         // Having an empty string instead of NULL makes the code easier.
-        if (is_null($attributes['message'])) $attributes['message'] = '';
+        if (is_null($attributes['content'])) $attributes['content'] = '';
 
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $isTemplate = str_starts_with($attributes['message'], '/blade');
+        $isTemplate = str_starts_with($attributes['content'], '/blade');
 
         // Prevents guest from using templates
         if ($isTemplate && $authUser->isGuest()) {
@@ -116,7 +116,7 @@ class MessageController extends Controller
                 'name' => $authUser->name,
                 'email' => $authUser->email
             ],
-            'content' => ['raw' => $attributes['message']],
+            'content' => ['raw' => $attributes['content']],
             'media' => $media,
         ]);
 
@@ -131,7 +131,7 @@ class MessageController extends Controller
     public static function rules(): array
     {
         return [
-            'message' => ['required_without:media'],
+            'content' => ['required_without:media'],
             'media.*' => [File::image()->max('7mb')],
         ];
     }

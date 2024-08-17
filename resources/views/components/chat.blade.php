@@ -6,7 +6,7 @@
         errors: {{ json_encode($errors->messages()) }},
         messages: [],
         chat: {},
-        message: '',
+        content: '',
         previews: [],
         locale: '',
         nextPageUrl: '{{ route('message.index', ['reservation' => $channel]) }}?page=1',
@@ -182,11 +182,11 @@
             x-on:submit.prevent="submit"
             class="p-3 rounded-lg bg-white shadow space-y-2"
         >
-            <div class="autogrow" :data-replicated-value="message">
+            <div class="autogrow" :data-replicated-value="content">
                 <textarea
-                    name="message"
+                    name="content"
                     rows="1"
-                    x-model="message"
+                    x-model="content"
                     placeholder="{{ __('Your message') }}..."
                 ></textarea>
             </div>
