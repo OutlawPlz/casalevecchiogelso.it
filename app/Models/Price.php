@@ -4,10 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\App;
 use Stripe\StripeClient;
 
+/**
+ * @property int $id
+ * @property string $currency
+ * @property int $unit_amount
+ * @property string $product
+ */
 class Price extends Model
 {
     use HasFactory;
@@ -16,16 +21,8 @@ class Price extends Model
         'stripe_id',
         'currency',
         'unit_amount',
-        'product_id',
+        'product',
     ];
-
-    /**
-     * @return BelongsTo
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class, 'product_id', 'stripe_id');
-    }
 
     /**
      * @return int
@@ -43,13 +40,13 @@ class Price extends Model
             'stripe_id' => $price->id,
             'currency' => $price->currency,
             'unit_amount' => $price->unit_amount,
-            'product_id' => $price->product,
+            'product' => $price->product,
         ], $prices);
 
         return static::query()->upsert(
             $attributes,
             ['stripe_id'],
-            ['currency', 'unit_amount', 'product_id']
+            ['currency', 'unit_amount', 'product']
         );
     }
 }

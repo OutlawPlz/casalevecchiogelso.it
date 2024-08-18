@@ -4,12 +4,12 @@
         x-ref="form"
         class="space-y-6"
         x-data="{
-            overnightStay: {{ $overnight_stay }},
-            cleaningFee: {{ $cleaning_fee }},
+            overnightStay: {{ $overnightStay->defaultPrice->unit_amount }},
+            cleaningFee: {{ $cleaningFee->defaultPrice->unit_amount }},
             period: ['{{ $reservation->check_in }}', '{{ $reservation->check_out }}'],
             guestCount: {{ $reservation->guest_count}},
             loading: false,
-            errors: {{ json_encode($errors->messages()) }},
+            errors: {{ Js::from($errors->messages()) }},
 
             get nights() {
                 if (! this.period[1] || ! this.period[0]) return 0;

@@ -108,3 +108,14 @@ if (! function_exists('dates_in_range')) {
         return $dates;
     }
 }
+
+if (! function_exists('is_overnight_stay')) {
+    /**
+     * @param  string  $stripeId
+     * @return bool
+     */
+    function is_overnight_stay(string $stripeId): bool
+    {
+        return config('reservation.overnight_stay') === $stripeId;
+    }
+}

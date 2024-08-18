@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Session;
  * @property \DateInterval|null $preparation_time
  * @property string $summary
  * @property array $messages
- * @property array $price_list
+ * @property array<string, string> $price_list
  * @property ReservationStatus $status
  * @property-read int $nights
  * @property-read CarbonImmutable[] $reservedPeriod
@@ -101,10 +101,10 @@ class Reservation extends Model
     {
         $order = [];
 
-        foreach ($this->price_list as $key => $stripePriceId) {
+        foreach ($this->price_list as $productId => $priceId) {
             $order[] = [
-                'price' => $stripePriceId,
-                'quantity' => $key === 'overnight_stay' ? $this->nights : 1,
+                'price' => $priceId,
+                'quantity' => is_overnight_stay($productId) ? $this->nights : 1
             ];
         }
 

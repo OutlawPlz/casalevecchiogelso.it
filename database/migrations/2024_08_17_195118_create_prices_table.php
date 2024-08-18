@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('stripe_id')->unique();
             $table->string('currency');
             $table->unsignedInteger('unit_amount')->nullable();
-            $table->string('product_id');
+            $table->string('product');
             $table->timestamps();
         });
     }

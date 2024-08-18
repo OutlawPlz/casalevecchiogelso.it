@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('stripe_id')->unique();
             $table->string('name');
             $table->string('description')->nullable();
-            $table->string('default_price_id')->nullable()->index();
+            $table->string('default_price')->nullable()->index();
             $table->timestamps();
         });
     }
