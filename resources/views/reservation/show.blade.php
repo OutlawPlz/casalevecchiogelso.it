@@ -28,16 +28,16 @@
                 <div class="py-6 border-b">
                     <div class="font-bold">{{ __('Price') }}</div>
 
-                    <div class="mt-1 space-y-6 p-6 bg-gray-50 rounded-lg">
+                    <div class="mt-2 space-y-6 p-6 bg-gray-50 rounded-lg">
                         <div class="space-y-2">
                             @foreach($priceList as $line)
-                                <div class="flex justify-between">
+                            <div class="flex justify-between">
                                 <span class="underline">
                                     {{ __($line['product']->name) }}
                                     @if($line['quantity'] > 1) x {{ $line['quantity'] }} @endif
                                 </span>
-                                    <span x-text="$({{ $line['price']->unit_amount * $line['quantity'] }})"></span>
-                                </div>
+                                <span x-text="$({{ $line['price']->unit_amount * $line['quantity'] }})"></span>
+                            </div>
                             @endforeach
                         </div>
 
@@ -48,6 +48,8 @@
                             <span x-text="$({{ array_reduce($priceList, fn ($tot, $line) => $tot += $line['price']->unit_amount * $line['quantity'], 0) }})"></span>
                         </div>
                     </div>
+
+                    <x-reservation-actions class="mt-4" :$reservation :$authUser />
                 </div>
 
                 <div class="grid grid-cols-2 divide-x py-6 border-b">

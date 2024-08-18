@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Price;
 use App\Models\Product;
 use App\Models\Reservation;
+use App\Models\User;
 use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -65,23 +66,21 @@ class ReservationController extends Controller
     }
 
     /**
-     * @param Reservation $reservation
+     * @param  Request  $request
+     * @param  Reservation  $reservation
      * @return View
      */
-    public function show(Reservation $reservation): View
+    public function show(Request $request, Reservation $reservation): View
     {
+        /** @var User $authUser */
+        $authUser = $request->user();
+
         $products = Product::query()
-            ->whereIn(
-                'stripe_id',
-                array_keys($reservation->price_list)
-            )
+            ->whereIn('stripe_id', array_keys($reservation->price_list))
             ->get();
 
         $prices = Price::query()
-            ->whereIn(
-                'stripe_id',
-                array_values($reservation->price_list)
-            )
+            ->whereIn('stripe_id', array_values($reservation->price_list))
             ->get();
 
         $priceList = [];
@@ -95,6 +94,7 @@ class ReservationController extends Controller
         }
 
         return view('reservation.show', [
+            'authUser' => $authUser,
             'reservation' => $reservation,
             'priceList' => $priceList,
         ]);
