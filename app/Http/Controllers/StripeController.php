@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReservationStatus;
+use App\Models\Price;
+use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -84,5 +86,75 @@ class StripeController extends Controller
         $user = User::query()->where('stripe_id', $event->data->object->id)->firstOrFail();
 
         $user->update(['stripe_id' => null]);
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handleProductUpdated(Event $event): void
+    {
+        /** @var \Stripe\Product $product */
+        $product = $event->data->object;
+
+        $attributes = Product::makeFromStripe($product)->toArray();
+
+        Product::query()->updateOrCreate(['stripe_id' => $product->id], $attributes);
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handleProductCreated(Event $event): void
+    {
+        $this->handleProductUpdated($event);
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handleProductDeleted(Event $event): void
+    {
+        /** @var \Stripe\Product $product */
+        $product = $event->data->object;
+
+        Product::query()->where('stripe_id', $product->id)->delete();
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePriceUpdated(Event $event): void
+    {
+        /** @var \Stripe\Price $price */
+        $price = $event->data->object;
+
+        $attributes = Price::makeFromStripe($price)->toArray();
+
+        Price::query()->updateOrCreate(['stripe_id' => $price->id], $attributes);
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePriceCreated(Event $event): void
+    {
+        $this->handlePriceUpdated($event);
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePriceDeleted(Event $event): void
+    {
+        /** @var \Stripe\Price $price */
+        $price = $event->data->object;
+
+        Price::query()->where('stripe_id', $price->id)->delete();
     }
 }

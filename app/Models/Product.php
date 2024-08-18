@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\App;
+    use Illuminate\Support\Facades\App;
+use Stripe\Product as StripeProduct;
 use Stripe\StripeClient;
 
 /**
@@ -47,25 +48,37 @@ class Product extends Model
      * @return int
      * @throws \Stripe\Exception\ApiErrorException
      */
-    protected static function syncFromStripe(): int
+    public static function syncFromStripe(): int
     {
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
         $products = $stripe->products->all()['data'];
 
-        /** @var \Stripe\Product $product */
-        $attributes = array_map(fn ($product) => [
-            'stripe_id' => $product->id,
-            'name' => $product->name,
-            'description' => $product->description,
-            'default_price' => $product->default_price
-        ], $products);
+        /** @var StripeProduct $product */
+        $attributes = array_map(
+            fn ($product) => static::makeFromStripe($product)->toArray(),
+            $products
+        );
 
         return static::query()->upsert(
             $attributes,
             ['stripe_id'],
             ['name', 'description', 'default_price']
         );
+    }
+
+    /**
+     * @param  StripeProduct  $product
+     * @return static
+     */
+    public static function makeFromStripe(StripeProduct $product): static
+    {
+        return new static([
+            'stripe_id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'default_price' => $product->default_price
+        ]);
     }
 }

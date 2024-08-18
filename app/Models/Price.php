@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
+use Stripe\Price as StripePrice;
 use Stripe\StripeClient;
 
 /**
@@ -28,25 +29,37 @@ class Price extends Model
      * @return int
      * @throws \Stripe\Exception\ApiErrorException
      */
-    protected static function syncFromStripe(): int
+    public static function syncFromStripe(): int
     {
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
         $prices = $stripe->prices->all()['data'];
 
-        /** @var \Stripe\Price $price */
-        $attributes = array_map(fn ($price) => [
-            'stripe_id' => $price->id,
-            'currency' => $price->currency,
-            'unit_amount' => $price->unit_amount,
-            'product' => $price->product,
-        ], $prices);
+        /** @var StripePrice $price */
+        $attributes = array_map(
+            fn ($price) => static::makeFromStripe($price)->toArray(),
+            $prices
+        );
 
         return static::query()->upsert(
             $attributes,
             ['stripe_id'],
             ['currency', 'unit_amount', 'product']
         );
+    }
+
+    /**
+     * @param  StripePrice  $price
+     * @return Price
+     */
+    public static function makeFromStripe(StripePrice $price): static
+    {
+        return new static([
+            'stripe_id' => $price->id,
+            'currency' => $price->currency,
+            'unit_amount' => $price->unit_amount,
+            'product' => $price->product,
+        ]);
     }
 }
