@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Price;
 use App\Models\Product;
 use App\Models\Reservation;
 use App\Services\Calendar;
@@ -69,6 +70,33 @@ class ReservationController extends Controller
      */
     public function show(Reservation $reservation): View
     {
-        return view('reservation.show', ['reservation' => $reservation]);
+        $products = Product::query()
+            ->whereIn(
+                'stripe_id',
+                array_keys($reservation->price_list)
+            )
+            ->get();
+
+        $prices = Price::query()
+            ->whereIn(
+                'stripe_id',
+                array_values($reservation->price_list)
+            )
+            ->get();
+
+        $priceList = [];
+
+        foreach ($reservation->price_list as $productId => $priceId) {
+            $priceList[] = [
+                'product' => $products->first(fn ($product) => $product->stripe_id === $productId),
+                'price' => $prices->first(fn ($price) => $price->stripe_id === $priceId),
+                'quantity' => is_overnight_stay($productId) ? $reservation->nights : 1,
+            ];
+        }
+
+        return view('reservation.show', [
+            'reservation' => $reservation,
+            'priceList' => $priceList,
+        ]);
     }
 }
