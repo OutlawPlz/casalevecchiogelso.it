@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -28,15 +29,11 @@ class ReservationController extends Controller
 
         $reservation = Reservation::fromSession();
 
-        /** @var Product $overnightStay */
-        $overnightStay = Product::query()
-            ->where('stripe_id', config('reservation.overnight_stay'))
-            ->firstOrFail();
+        $priceList = Product::defaultPriceList();
 
-        /** @var Product $cleaningFee */
-        $cleaningFee = Product::query()
-            ->where('stripe_id', config('reservation.cleaning_fee'))
-            ->firstOrFail();
+        array_walk($priceList, function (&$line) use ($reservation) {
+            if (is_overnight_stay($line['product'])) $line['quantity'] = $reservation->nights;
+        });
 
         $reservation->fill([
             'ulid' => Str::ulid(),
@@ -44,10 +41,7 @@ class ReservationController extends Controller
             'email' => $authUser->email,
             'preparation_time' => new \DateInterval(config('reservation.preparation_time')),
             'user_id' => $authUser->id,
-            'price_list' => [
-                $overnightStay->stripe_id => $overnightStay->default_price,
-                $cleaningFee->stripe_id => $cleaningFee->default_price,
-            ]
+            'price_list' => $priceList
         ]);
 
         $calendar->sync();
@@ -75,28 +69,9 @@ class ReservationController extends Controller
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $products = Product::query()
-            ->whereIn('stripe_id', array_keys($reservation->price_list))
-            ->get();
-
-        $prices = Price::query()
-            ->whereIn('stripe_id', array_values($reservation->price_list))
-            ->get();
-
-        $priceList = [];
-
-        foreach ($reservation->price_list as $productId => $priceId) {
-            $priceList[] = [
-                'product' => $products->first(fn ($product) => $product->stripe_id === $productId),
-                'price' => $prices->first(fn ($price) => $price->stripe_id === $priceId),
-                'quantity' => is_overnight_stay($productId) ? $reservation->nights : 1,
-            ];
-        }
-
         return view('reservation.show', [
             'authUser' => $authUser,
             'reservation' => $reservation,
-            'priceList' => $priceList,
         ]);
     }
 }

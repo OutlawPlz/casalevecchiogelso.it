@@ -13,6 +13,7 @@ use Stripe\StripeClient;
  * @property string $currency
  * @property int $unit_amount
  * @property string $product
+ * @property bool $active
  */
 class Price extends Model
 {
@@ -23,6 +24,7 @@ class Price extends Model
         'currency',
         'unit_amount',
         'product',
+        'active',
     ];
 
     /**
@@ -45,7 +47,7 @@ class Price extends Model
         return static::query()->upsert(
             $attributes,
             ['stripe_id'],
-            ['currency', 'unit_amount', 'product']
+            ['currency', 'unit_amount', 'product', 'active']
         );
     }
 
@@ -60,6 +62,7 @@ class Price extends Model
             'currency' => $price->currency,
             'unit_amount' => $price->unit_amount,
             'product' => $price->product,
+            'active' => $price->active,
         ]);
     }
 }

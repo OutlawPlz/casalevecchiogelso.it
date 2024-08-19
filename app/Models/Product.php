@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-    use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\App;
 use Stripe\Product as StripeProduct;
 use Stripe\StripeClient;
 
@@ -16,6 +16,7 @@ use Stripe\StripeClient;
  * @property ?string $description
  * @property string default_price
  * @property-read ?Price defaultPrice
+ * @property bool $active
  */
 class Product extends Model
 {
@@ -25,7 +26,8 @@ class Product extends Model
         'stripe_id',
         'name',
         'description',
-        'default_price'
+        'default_price',
+        'active',
     ];
 
     /**
@@ -41,7 +43,7 @@ class Product extends Model
      */
     public function isOvernightStay(): bool
     {
-        return $this->stripe_id === config('reservation.overnight_stay');
+        return is_overnight_stay($this->stripe_id);
     }
 
     /**
@@ -64,7 +66,7 @@ class Product extends Model
         return static::query()->upsert(
             $attributes,
             ['stripe_id'],
-            ['name', 'description', 'default_price']
+            ['name', 'description', 'default_price', 'active']
         );
     }
 
@@ -78,7 +80,30 @@ class Product extends Model
             'stripe_id' => $product->id,
             'name' => $product->name,
             'description' => $product->description,
-            'default_price' => $product->default_price
+            'default_price' => $product->default_price,
+            'active' => $product->active,
         ]);
+    }
+
+    /**
+     * @return array<int, array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}>
+     */
+    public static function defaultPriceList(): array
+    {
+        $products = static::query()
+            ->where('active', true)
+            ->with('defaultPrice')
+            ->get();
+
+        return $products
+            ->map(fn (Product $product) => [
+                'product' => $product->stripe_id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->default_price,
+                'unit_amount' => $product->defaultPrice->unit_amount,
+                'quantity' => is_overnight_stay($product->stripe_id) ? 0 : 1,
+            ])
+            ->toArray();
     }
 }

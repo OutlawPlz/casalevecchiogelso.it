@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('currency');
             $table->unsignedInteger('unit_amount')->nullable();
             $table->string('product');
+            $table->boolean('active');
             $table->timestamps();
         });
     }

@@ -30,13 +30,13 @@
 
                     <div class="mt-2 space-y-6 p-6 bg-gray-50 rounded-lg">
                         <div class="space-y-2">
-                            @foreach($priceList as $line)
+                            @foreach($reservation->price_list as $line)
                             <div class="flex justify-between">
                                 <span class="underline">
-                                    {{ __($line['product']->name) }}
+                                    {{ __($line['name']) }}
                                     @if($line['quantity'] > 1) x {{ $line['quantity'] }} @endif
                                 </span>
-                                <span x-text="$({{ $line['price']->unit_amount * $line['quantity'] }})"></span>
+                                <span x-text="$({{ $line['unit_amount'] * $line['quantity'] }})"></span>
                             </div>
                             @endforeach
                         </div>
@@ -45,7 +45,7 @@
 
                         <div class="flex justify-between font-bold text-lg">
                             <span>Tot.</span>
-                            <span x-text="$({{ array_reduce($priceList, fn ($tot, $line) => $tot += $line['price']->unit_amount * $line['quantity'], 0) }})"></span>
+                            <span x-text="$({{ array_reduce($reservation->price_list, fn ($tot, $line) => $tot += $line['unit_amount'] * $line['quantity'], 0) }})"></span>
                         </div>
                     </div>
 
