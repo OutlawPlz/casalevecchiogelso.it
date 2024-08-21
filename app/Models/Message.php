@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property ?array $content
+ * @property ?string $rendered_content
  * @property ?array $media
  * @property-read ?User $user
  * @property-read ?Reservation $reservation

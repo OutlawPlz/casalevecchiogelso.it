@@ -15,7 +15,7 @@ use Stripe\StripeClient;
  * @property string $product
  * @property bool $active
  */
-class Price extends Model
+final class Price extends Model
 {
     use HasFactory;
 
@@ -38,9 +38,8 @@ class Price extends Model
 
         $prices = $stripe->prices->all()['data'];
 
-        /** @var StripePrice $price */
         $attributes = array_map(
-            fn ($price) => static::makeFromStripe($price)->toArray(),
+            fn (StripePrice $price) => static::makeFromStripe($price)->toArray(),
             $prices
         );
 
@@ -53,7 +52,7 @@ class Price extends Model
 
     /**
      * @param  StripePrice  $price
-     * @return Price
+     * @return static
      */
     public static function makeFromStripe(StripePrice $price): static
     {

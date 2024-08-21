@@ -28,7 +28,7 @@ class LocalePreferenceController extends Controller
     }
 
     /**
-     * @return string[]
+     * @return array
      */
     public static function rules(): array
     {

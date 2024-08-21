@@ -25,7 +25,7 @@ class AsDateInterval implements CastsAttributes
      * @param string $key
      * @param \DateInterval $value
      * @param array $attributes
-     * @return mixed
+     * @return string
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): string
     {

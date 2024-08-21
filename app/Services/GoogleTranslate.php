@@ -54,7 +54,7 @@ class GoogleTranslate
     }
 
     /**
-     * @return array{code: string, name: string}
+     * @return array{code: string, name: string}[]
      */
     public static function languages(): array
     {

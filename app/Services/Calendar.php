@@ -109,7 +109,7 @@ class Calendar
 
         foreach ($reservations as $reservation) {
             $events[] = [
-                'uid' => $reservation->uid,
+                'uid' => $reservation->ulid,
                 'start_at' => $reservation->check_in->toISOString(),
                 'end_at' => $reservation->check_out->toISOString(),
                 'unavailable_dates' => dates_in_range($reservation->check_in, $reservation->check_out),
@@ -123,7 +123,7 @@ class Calendar
                 [$startAt, $endAt] = $preparationTime;
 
                 $events[] = [
-                    'uid' => $reservation->uid,
+                    'uid' => $reservation->ulid,
                     'start_at' => $startAt->toISOString(),
                     'end_at' => $endAt->toISOString(),
                     'unavailable_dates' => dates_in_range($startAt, $endAt),
@@ -180,7 +180,7 @@ class Calendar
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function unavailableDates(): array
     {

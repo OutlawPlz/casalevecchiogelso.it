@@ -14,11 +14,11 @@ use Stripe\StripeClient;
  * @property string $stripe_id
  * @property string $name
  * @property ?string $description
- * @property string default_price
- * @property-read ?Price defaultPrice
+ * @property string $default_price
+ * @property-read ?Price $defaultPrice
  * @property bool $active
  */
-class Product extends Model
+final class Product extends Model
 {
     use HasFactory;
 
@@ -49,9 +49,9 @@ class Product extends Model
 
         $products = $stripe->products->all()['data'];
 
-        /** @var StripeProduct $product */
+
         $attributes = array_map(
-            fn ($product) => static::makeFromStripe($product)->toArray(),
+            fn (StripeProduct $product) => static::makeFromStripe($product)->toArray(),
             $products
         );
 
@@ -78,9 +78,9 @@ class Product extends Model
     }
 
     /**
-     * The first element MUST BE the overnightStay product.
+     * The first element is the overnightStay product.
      *
-     * @return array<int, array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}>
+     * @return array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}[]
      */
     public static function defaultPriceList(): array
     {

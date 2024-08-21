@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Session;
  * @property string $email
  * @property string $phone
  * @property int $guest_count
- * @property CarbonImmutable $check_in
- * @property CarbonImmutable $check_out
+ * @property ?CarbonImmutable $check_in
+ * @property ?CarbonImmutable $check_out
  * @property \DateInterval|null $preparation_time
  * @property string $summary
  * @property array $messages
@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Session;
  * @property-read CarbonImmutable[] $checkInPreparationTime
  * @property-read CarbonImmutable[] $checkOutPreparationTime
  */
-class Reservation extends Model
+final class Reservation extends Model
 {
     use HasFactory;
 
