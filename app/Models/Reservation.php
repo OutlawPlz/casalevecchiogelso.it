@@ -168,7 +168,11 @@ class Reservation extends Model
      */
     public static function fromSession(): static
     {
-        $attributes = Session::get("reservation", []);
+        $attributes = Session::get("reservation", [
+            'check_in' => today(),
+            'check_out' => today(),
+            'guest_count' => 1,
+        ]);
 
         return new static($attributes);
     }

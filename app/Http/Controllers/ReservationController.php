@@ -10,6 +10,7 @@ use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -25,15 +26,20 @@ class ReservationController extends Controller
      */
     public function store(Request $request, Calendar $calendar): RedirectResponse
     {
-        $authUser = $request->user();
-
         $reservation = Reservation::fromSession();
+
+        Validator::make(
+            $reservation->toArray(),
+            ReservationQuoteController::rules()
+        )->validate();
 
         $priceList = Product::defaultPriceList();
 
         array_walk($priceList, function (&$line) use ($reservation) {
             if (is_overnight_stay($line['product'])) $line['quantity'] = $reservation->nights;
         });
+
+        $authUser = $request->user();
 
         $reservation->fill([
             'ulid' => Str::ulid(),

@@ -39,14 +39,6 @@ class Product extends Model
     }
 
     /**
-     * @return bool
-     */
-    public function isOvernightStay(): bool
-    {
-        return is_overnight_stay($this->stripe_id);
-    }
-
-    /**
      * @return int
      * @throws \Stripe\Exception\ApiErrorException
      */
@@ -86,6 +78,8 @@ class Product extends Model
     }
 
     /**
+     * The first element MUST BE the overnightStay product.
+     *
      * @return array<int, array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}>
      */
     public static function defaultPriceList(): array
@@ -95,7 +89,7 @@ class Product extends Model
             ->with('defaultPrice')
             ->get();
 
-        return $products
+        $priceList = $products
             ->map(fn (Product $product) => [
                 'product' => $product->stripe_id,
                 'name' => $product->name,
@@ -105,5 +99,10 @@ class Product extends Model
                 'quantity' => is_overnight_stay($product->stripe_id) ? 0 : 1,
             ])
             ->toArray();
+
+        // Makes overnightStay the first element.
+        usort($priceList, fn ($line) => $line['quantity']);
+
+        return $priceList;
     }
 }

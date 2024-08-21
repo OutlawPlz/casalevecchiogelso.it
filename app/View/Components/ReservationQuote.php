@@ -12,9 +12,7 @@ class ReservationQuote extends Component
 {
     public array $unavailable_dates;
 
-    public Product $overnightStay;
-
-    public Product $cleaningFee;
+    public array $priceList;
 
     public Reservation $reservation;
 
@@ -28,15 +26,7 @@ class ReservationQuote extends Component
 
         $this->reservation = Reservation::fromSession();
 
-        $this->overnightStay = Product::query()
-            ->where('stripe_id', config('reservation.overnight_stay'))
-            ->with('defaultPrice')
-            ->firstOrFail();
-
-        $this->cleaningFee = Product::query()
-            ->where('stripe_id', config('reservation.cleaning_fee'))
-            ->with('defaultPrice')
-            ->firstOrFail();
+        $this->priceList = Product::defaultPriceList();
     }
 
     /**

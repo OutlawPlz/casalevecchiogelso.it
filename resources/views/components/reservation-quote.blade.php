@@ -4,8 +4,8 @@
         x-ref="form"
         class="space-y-6"
         x-data="{
-            overnightStay: {{ $overnightStay->defaultPrice->unit_amount }},
-            cleaningFee: {{ $cleaningFee->defaultPrice->unit_amount }},
+            defaultOvernightStay: {{ Js::from(array_shift($priceList)) }},
+            priceList: {{ Js::from($priceList) }},
             period: ['{{ $reservation->check_in }}', '{{ $reservation->check_out }}'],
             guestCount: {{ $reservation->guest_count}},
             loading: false,
@@ -18,7 +18,9 @@
             },
 
             get tot() {
-                return this.overnightStay * this.nights + this.cleaningFee
+                const tot = this.priceList.reduce((partial, line) => partial + (line.unit_amount * line.quantity), 0);
+
+                return this.defaultOvernightStay.unit_amount * this.nights + tot;
             },
 
             async submit() {
@@ -39,7 +41,7 @@
         }"
     >
         <div>
-            <span class="text-3xl" x-text="$(overnightStay)"></span>
+            <span class="text-3xl" x-text="$(defaultOvernightStay.unit_amount)"></span>
             <span> / {{ __('night') }}</span>
         </div>
 
@@ -61,6 +63,7 @@
 
             <div>
                 <x-input-label>{{ __('Guests') }}</x-input-label>
+
                 <x-text-input
                     type="number"
                     name="guest_count"
@@ -78,14 +81,16 @@
 
         <div class="space-y-2">
             <div class="flex justify-between">
-                <span class="underline" x-text="`${$(overnightStay)} x ${nights} {{ __('nights') }}`"></span>
-                <span x-text="$(nights * overnightStay)"></span>
+                <span class="underline" x-text="`${$(defaultOvernightStay.unit_amount)} x ${nights} {{ __('nights') }}`"></span>
+                <span x-text="$(nights * defaultOvernightStay.unit_amount)"></span>
             </div>
 
-            <div class="flex justify-between">
-                <span class="underline">{{ __('Cleaning fee') }}</span>
-                <span x-text="$(cleaningFee)"></span>
-            </div>
+            <template x-for="(line, index) of priceList" :key="index">
+                <div class="flex justify-between">
+                    <span class="underline" x-text="line.name"></span>
+                    <span x-text="$(line.unit_amount * line.quantity)"></span>
+                </div>
+            </template>
         </div>
 
         <hr>
