@@ -5,11 +5,21 @@
         authUserId: {{ Auth::id() }},
         errors: {{ json_encode($errors->messages()) }},
         messages: [],
-        chat: {},
         content: '',
         previews: [],
         locale: '',
         nextPageUrl: '{{ route('message.index', ['reservation' => $channel]) }}?page=1',
+
+        get chat() {
+            const chat = Object.groupBy(
+                this.messages.toReversed(),
+                (message) => format(message.created_at, 'd MMM')
+            );
+
+            Object.setPrototypeOf(chat, {});
+
+            return chat;
+        },
 
         async index() {
             if (this.loading || ! this.nextPageUrl) return;
@@ -21,16 +31,7 @@
                 .then((response) => {
                     this.messages.push(...response.data.data);
 
-                    const chat = Object.groupBy(
-                        this.messages.toReversed(),
-                        (message) => format(message.created_at, 'd MMM')
-                    );
-
-                    Object.setPrototypeOf(chat, {});
-
                     this.nextPageUrl = response.data.next_page_url;
-
-                    this.chat = chat;
                 });
 
             this.loading = false;
@@ -41,15 +42,9 @@
 
             await axios
                 .get(`/reservations/{{ $channel }}/messages/${messageId}?locale=${this.locale}`)
-                .then((response) => {
-                    const date = format(response.data.created_at, 'd MMM');
+                .then((response) => this.messages.unshift(response.data));
 
-                    date in this.chat
-                        ? this.chat[date].push(response.data)
-                        : this.chat[date] = [response.data];
-
-                    $nextTick(() => location.href = '#end');
-                })
+            $nextTick(() => location.href = '#end');
 
             this.loading = false;
         },
