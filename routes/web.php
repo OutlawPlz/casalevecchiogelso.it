@@ -8,6 +8,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationQuoteController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\ReservationStatusController;
 use App\Http\Controllers\StripeController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,7 @@ Route::group([
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservation.store');
     Route::post('/reservations/{reservation:ulid}', [ReservationController::class, 'update'])->name('reservation.update');
     Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');
+    Route::post('/reservations/{reservation:ulid}/status', ReservationStatusController::class)->name('reservation.status');
 
     /* ----- Checkout ----- */
     Route::post('/checkout', CheckoutController::class)->name('checkout');

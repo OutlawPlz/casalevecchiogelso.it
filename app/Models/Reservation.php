@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Session;
  * @property string $email
  * @property string $phone
  * @property int $guest_count
- * @property ?CarbonImmutable $check_in
- * @property ?CarbonImmutable $check_out
+ * @property CarbonImmutable $check_in
+ * @property CarbonImmutable $check_out
  * @property \DateInterval|null $preparation_time
  * @property string $summary
  * @property array $messages
@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Session;
  * @property-read CarbonImmutable[] $checkInPreparationTime
  * @property-read CarbonImmutable[] $checkOutPreparationTime
  */
-final class Reservation extends Model
+class Reservation extends Model
 {
     use HasFactory;
 
@@ -51,9 +51,21 @@ final class Reservation extends Model
         'status',
     ];
 
-    protected $attributes = [
-        'guest_count' => 1,
-    ];
+    /**
+     * @param  array  $attributes
+     */
+    final public function __construct(array $attributes = [])
+    {
+        $today = today()->format('Y-m-d');
+
+        $this->attributes = [
+            'check_in' => $today,
+            'check_out' => $today,
+            'guest_count' => 1,
+        ];
+
+        parent::__construct($attributes);
+    }
 
     /**
      * @return Attribute
@@ -62,8 +74,6 @@ final class Reservation extends Model
     {
         return Attribute::make(
             get: function () {
-                if (! $this->check_in || ! $this->check_out) return 0;
-
                 return date_diff($this->check_in, $this->check_out)->d;
             }
         );
@@ -168,13 +178,11 @@ final class Reservation extends Model
      */
     public static function fromSession(): static
     {
-        $attributes = Session::get("reservation", [
-            'check_in' => today(),
-            'check_out' => today(),
-            'guest_count' => 1,
-        ]);
+        $reservation = Session::get("reservation", new static());
 
-        return new static($attributes);
+        return is_array($reservation)
+            ? new static($reservation)
+            : $reservation;
     }
 
     /**

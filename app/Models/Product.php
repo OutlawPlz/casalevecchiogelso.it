@@ -18,7 +18,7 @@ use Stripe\StripeClient;
  * @property-read ?Price $defaultPrice
  * @property bool $active
  */
-final class Product extends Model
+class Product extends Model
 {
     use HasFactory;
 
@@ -29,6 +29,14 @@ final class Product extends Model
         'default_price',
         'active',
     ];
+
+    /**
+     * @param  array  $attributes
+     */
+    final public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+    }
 
     /**
      * @return BelongsTo
@@ -48,7 +56,6 @@ final class Product extends Model
         $stripe = App::make(StripeClient::class);
 
         $products = $stripe->products->all()['data'];
-
 
         $attributes = array_map(
             fn (StripeProduct $product) => static::makeFromStripe($product)->toArray(),

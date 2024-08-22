@@ -15,7 +15,7 @@ use Stripe\StripeClient;
  * @property string $product
  * @property bool $active
  */
-final class Price extends Model
+class Price extends Model
 {
     use HasFactory;
 
@@ -26,6 +26,11 @@ final class Price extends Model
         'product',
         'active',
     ];
+
+    final public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+    }
 
     /**
      * @return int

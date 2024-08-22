@@ -46,7 +46,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     ];
 
     /**
-     * @return HasMany
+     * @return HasMany<Reservation>
      */
     public function reservations(): HasMany
     {

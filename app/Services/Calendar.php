@@ -97,7 +97,7 @@ class Calendar
      */
     public function fromDatabase(): array
     {
-        /** @var Collection<Reservation> $reservations */
+        /** @var Collection<int, Reservation> $reservations */
         $reservations = Reservation::query()
             ->where([
                 ['check_in', '>', today()],
