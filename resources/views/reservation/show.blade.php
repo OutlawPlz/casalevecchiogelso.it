@@ -32,11 +32,16 @@
                         <div class="space-y-2">
                             @foreach($reservation->price_list as $line)
                             <div class="flex justify-between">
+                                @if($loop->first)
+                                <span class="underline" x-text="$({{ $line['unit_amount'] }}) + ' x {{ $line['quantity'] }} {{ __('nights') }}'"></span>
+                                <span x-text="$({{ $line['quantity'] * $line['unit_amount'] }})"></span>
+                                @else
                                 <span class="underline">
                                     {{ __($line['name']) }}
                                     @if($line['quantity'] > 1) x {{ $line['quantity'] }} @endif
                                 </span>
                                 <span x-text="$({{ $line['unit_amount'] * $line['quantity'] }})"></span>
+                                @endif
                             </div>
                             @endforeach
                         </div>

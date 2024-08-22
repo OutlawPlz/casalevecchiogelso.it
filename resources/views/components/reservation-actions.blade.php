@@ -42,7 +42,11 @@
                 </div>
 
                 <div class="mt-6 space-x-3 flex justify-end">
-                    <x-secondary-button type="button" class="!text-sm">
+                    <x-secondary-button
+                        x-on:click="$dispatch('close')"
+                        type="button"
+                        class="!text-sm"
+                    >
                         {{ __('Close') }}
                     </x-secondary-button>
 
@@ -70,7 +74,11 @@
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-3">
-                    <x-secondary-button type="button" class="!text-sm">
+                    <x-secondary-button
+                        x-on:click="$dispatch('close')"
+                        type="button"
+                        class="!text-sm"
+                    >
                         {{ __('Cancel') }}
                     </x-secondary-button>
 
@@ -176,7 +184,11 @@
                 </div>
 
                 <div class="mt-6 space-x-3 flex justify-end">
-                    <x-secondary-button type="button" class="!text-sm">
+                    <x-secondary-button
+                        x-on:click="$dispatch('close')"
+                        type="button"
+                        class="!text-sm"
+                    >
                         {{ __('Close') }}
                     </x-secondary-button>
 
