@@ -49,7 +49,7 @@ class StripeController extends Controller
             $this->$method($event);
         }
 
-        return new Response('Webhook Handled', 200);
+        return new Response('Webhook handled', 200);
     }
 
     /**

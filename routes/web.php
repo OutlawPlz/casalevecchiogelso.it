@@ -31,6 +31,7 @@ Route::group([
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     /* ----- Reservation ----- */
+    Route::get('/reservations', [ReservationController::class, 'index'])->name('reservation.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservation.store');
     Route::post('/reservations/{reservation:ulid}', [ReservationController::class, 'update'])->name('reservation.update');
     Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');

@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Price;
 use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -17,6 +15,29 @@ use Illuminate\View\View;
 
 class ReservationController extends Controller
 {
+    /**
+     * @param  Request  $request
+     * @return View
+     */
+    public function index(Request $request): View
+    {
+        /** @var User $authUser */
+        $authUser = $request->user();
+
+        $reservations = Reservation::query();
+
+        if ($authUser->isGuest()) {
+            $reservations->where('user_id', $authUser->id);
+        }
+
+        $reservations = $reservations->simplePaginate();
+
+        return view('reservation.index', [
+            'authUser' => $authUser,
+            'reservations' => $reservations,
+        ]);
+    }
+
     /**
      * @param  Request  $request
      * @param  Calendar  $calendar
