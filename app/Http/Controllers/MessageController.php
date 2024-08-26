@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\MarkAsReplied;
+use App\Actions\MarkAsVisited;
 use App\Events\ChatReply;
 use App\Models\Message;
 use App\Models\Reservation;
@@ -17,8 +19,14 @@ class MessageController extends Controller
 {
     /**
      * @param  MessageRenderer  $messageRenderer
+     * @param  MarkAsVisited  $markAsVisited
+     * @param  MarkAsReplied  $markAsReplied
      */
-    public function __construct(protected MessageRenderer $messageRenderer) {}
+    public function __construct(
+        protected MessageRenderer $messageRenderer,
+        protected MarkAsVisited $markAsVisited,
+        protected MarkAsReplied $markAsReplied,
+    ) {}
 
     /**
      * @param Request $request
@@ -47,6 +55,8 @@ class MessageController extends Controller
             $message->rendered_content = $this->messageRenderer->render($message, $data);
         }
 
+        ($this->markAsVisited)($reservation, $authUser);
+
         return $messages;
     }
 
@@ -69,6 +79,8 @@ class MessageController extends Controller
         ];
 
         $message->rendered_content = $this->messageRenderer->render($message, $data);
+
+        ($this->markAsVisited)($reservation, $authUser);
 
         return $message;
     }
@@ -121,6 +133,8 @@ class MessageController extends Controller
         ]);
 
         ChatReply::dispatch($message);
+
+        ($this->markAsReplied)($reservation, $message);
 
         return $message;
     }

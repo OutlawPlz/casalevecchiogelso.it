@@ -1,7 +1,8 @@
 @php
 /**
  * @var \App\Models\User $authUser
- * @var \Illuminate\Pagination\Paginator<\App\Models\Reservation> $reservations
+ * @var \Illuminate\Pagination\Paginator $reservations
+ * @var \App\Models\Reservation $reservation
  */
 @endphp
 
@@ -38,6 +39,12 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
+                    @if($reservation->hasNewMessageFor($authUser))
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-gray-500"></span>
+                    </span>
+                    @endif
                     <span class="capitalize rounded-full bg-gray-400/10 px-2 py-1 text-xs font-medium text-gray-500 ring-1 ring-gray-400/20">{{ $reservation->status }}</span>
                     <svg class="size-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
