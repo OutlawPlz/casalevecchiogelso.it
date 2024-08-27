@@ -12,23 +12,21 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Refund;
 use Stripe\Stripe;
 use Stripe\Webhook;
 use UnexpectedValueException;
 
 class StripeController extends Controller
 {
-    public function __construct()
-    {
-        Stripe::setApiKey(config('services.stripe.secret'));
-    }
-
     /**
      * @param Request $request
      * @return Response
      */
     public function __invoke(Request $request): Response
     {
+        Stripe::setApiKey(config('services.stripe.secret'));
+
         $signature = $_SERVER['HTTP_STRIPE_SIGNATURE'];
 
         try {
@@ -65,16 +63,22 @@ class StripeController extends Controller
             ->where('ulid', $ulid)
             ->firstOrFail();
 
-        $reservation->update(['status' => ReservationStatus::CONFIRMED]);
+        $reservation->update([
+            'status' => ReservationStatus::CONFIRMED,
+            'payment_intent' => $event->data->object->payment_intent,
+        ]);
 
         activity()
             ->performedOn($reservation)
             ->withProperties([
                 'reservation' => $ulid,
                 'checkout_session' => $event->data->object->id,
-                'email' => $event->data->object->customer_email,
+                'payment_intent' => $event->data->object->payment_intent,
+                'user' => $event->data->object->customer_details->email,
             ])
-            ->log('The user :properties.email completed a checkout session. Reservation confirmed.');
+            ->log('The guest :properties.user completed a checkout session.');
+
+        // TODO: Notify reservation confirmed.
     }
 
     /**
@@ -156,5 +160,29 @@ class StripeController extends Controller
         $price = $event->data->object;
 
         Price::query()->where('stripe_id', $price->id)->delete();
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handleChargeRefunded(Event $event): void
+    {
+        /** @var Refund $refund */
+        $refund = $event->data->object;
+
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()
+            ->where('ulid', $refund->metadata->reservation)
+            ->firstOrFail();
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'refund' => $refund->id,
+                'amount' => $refund->amount,
+            ])
+            ->log('The refund process is completed.');
     }
 }

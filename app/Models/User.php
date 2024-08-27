@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Stripe\Exception\ApiErrorException;
+ use Illuminate\Support\Facades\App;
+ use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 
 /**
@@ -76,7 +77,8 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             return $this->stripe_id;
         }
 
-        $stripe = new StripeClient(config('services.stripe.secret'));
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
 
         $customer = $stripe->customers->create([
             'name' => $this->name,

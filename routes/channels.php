@@ -8,5 +8,5 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('Reservations.{ulid}', function (User $user, $ulid) {
-    return $user->reservations()->where('ulid', $ulid)->exists();
+    return $user->isHost() || $user->reservations()->where('ulid', $ulid)->exists();
 });

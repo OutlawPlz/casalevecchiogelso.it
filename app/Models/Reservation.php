@@ -25,10 +25,11 @@ use Illuminate\Support\Facades\Session;
  * @property CarbonImmutable $check_out
  * @property \DateInterval|null $preparation_time
  * @property string $summary
- * @property array<string, string> $price_list
+ * @property array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}[] $price_list
  * @property ReservationStatus $status
- * @property array<string, string>|null $visited_at
+ * @property array<int, string>|null $visited_at
  * @property CarbonImmutable|null $replied_at
+ * @property string|null $payment_intent
  * @property-read Collection<Message> $messages
  * @property-read int $nights
  * @property-read CarbonImmutable[] $reservedPeriod
@@ -54,6 +55,7 @@ class Reservation extends Model
         'status',
         'visited_at',
         'replied_at',
+        'payment_intent',
     ];
 
     /**
@@ -117,10 +119,10 @@ class Reservation extends Model
     {
         $order = [];
 
-        foreach ($this->price_list as $productId => $priceId) {
+        foreach ($this->price_list as $line) {
             $order[] = [
-                'price' => $priceId,
-                'quantity' => is_overnight_stay($productId) ? $this->nights : 1
+                'price' => $line['price'],
+                'quantity' => is_overnight_stay($line['product']) ? $this->nights : 1
             ];
         }
 

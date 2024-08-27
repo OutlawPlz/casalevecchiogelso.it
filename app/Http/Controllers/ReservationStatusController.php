@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RefundGuest;
 use App\Enums\ReservationStatus;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Stripe\Exception\ApiErrorException;
+use Stripe\StripeClient;
 
 class ReservationStatusController extends Controller
 {
@@ -83,13 +87,13 @@ class ReservationStatusController extends Controller
     /**
      * @param  Reservation  $reservation
      * @return RedirectResponse
+     * @throws ApiErrorException
      */
     protected function markAsCancelled(Reservation $reservation): RedirectResponse
     {
         $reservation->update(['status' => ReservationStatus::CANCELLED]);
 
         // TODO: Notify the host and the guest.
-        // TODO: Refund the guest, if applicable.
 
         /** @var User $authUser */
         $authUser = Auth::user();
@@ -102,6 +106,8 @@ class ReservationStatusController extends Controller
                 'user' => $authUser->email,
             ])
             ->log("The $authUser->role :properties.user cancelled the reservation.");
+
+        (new RefundGuest)($reservation);
 
         return redirect()->back();
     }

@@ -35,8 +35,8 @@ class CheckoutController extends Controller
             'line_items' => $reservation->order(),
             'customer' => $authUser->createAsStripeCustomer(),
             'mode' => 'payment',
-            'success_url' => route('reservation.show', [$reservation, 'success']),
-            'cancel_url' => route('reservation.show', [$reservation, 'cancel']),
+            'success_url' => route('reservation.show', [$reservation]),
+            'cancel_url' => route('reservation.show', [$reservation]),
             'metadata' => [
                 'reservation' => $reservation->ulid,
             ],
