@@ -166,7 +166,7 @@ class StripeController extends Controller
      * @param  Event  $event
      * @return void
      */
-    protected function handleChargeRefunded(Event $event): void
+    protected function handleChargeRefundUpdated(Event $event): void
     {
         /** @var Refund $refund */
         $refund = $event->data->object;
@@ -176,6 +176,14 @@ class StripeController extends Controller
             ->where('ulid', $refund->metadata->reservation)
             ->firstOrFail();
 
+        $message = match ($refund->status) {
+            'pending' => 'The refund process is pending.',
+            'requires_action' => "The refund process requires action ({$refund->next_action->type}).",
+            'succeeded' => 'The refund process is completed.',
+            'failed' => "The refund failed due to $refund->failure_reason.",
+            'cancelled' => "The refund was canceled due to $refund->failure_reason.",
+        };
+
         activity()
             ->performedOn($reservation)
             ->withProperties([
@@ -183,6 +191,6 @@ class StripeController extends Controller
                 'refund' => $refund->id,
                 'amount' => $refund->amount,
             ])
-            ->log('The refund process is completed.');
+            ->log($message);
     }
 }

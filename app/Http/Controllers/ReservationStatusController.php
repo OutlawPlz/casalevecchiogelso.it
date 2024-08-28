@@ -32,7 +32,6 @@ class ReservationStatusController extends Controller
             ReservationStatus::PENDING => $this->markAsPending($reservation),
             ReservationStatus::REJECTED => $this->markAsRejected($reservation),
             ReservationStatus::CANCELLED => $this->markAsCancelled($reservation),
-            default => throw new \Exception('Unexpected reservation status.')
         };
     }
 
