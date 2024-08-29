@@ -18,7 +18,7 @@ class RequestPayout
      */
     public function __invoke(Reservation $reservation): void
     {
-        /** @var User $authUser */
+        /** @var User|null $authUser */
         $authUser = Auth::user();
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
