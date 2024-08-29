@@ -46,5 +46,6 @@ return [
         'key' => env('STRIPE_ID'),
         'secret' => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'min_payout_amount' => env('STRIPE_MIN_PAYOUT', 100),
     ],
 ];

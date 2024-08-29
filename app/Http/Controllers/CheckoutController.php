@@ -6,23 +6,18 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
-use Stripe\Stripe;
+use Stripe\StripeClient;
 
 class CheckoutController extends Controller
 {
-    public function __construct()
-    {
-        Stripe::setApiKey(config('services.stripe.secret'));
-    }
-
     /**
-     * @param Request $request
+     * @param  Request  $request
+     * @param  StripeClient  $stripe
      * @return RedirectResponse
      * @throws ApiErrorException
      */
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(Request $request, StripeClient $stripe): RedirectResponse
     {
         $ulid = $request->validate(self::rules())['reservation'];
 
@@ -31,7 +26,7 @@ class CheckoutController extends Controller
         /** @var Reservation $reservation */
         $reservation = $authUser->reservations()->where('ulid', $ulid)->firstOrFail();
 
-        $checkoutSession = Session::create([
+        $checkoutSession = $stripe->checkout->sessions->create([
             'line_items' => $reservation->order(),
             'customer' => $authUser->createAsStripeCustomer(),
             'mode' => 'payment',
@@ -40,6 +35,11 @@ class CheckoutController extends Controller
             'metadata' => [
                 'reservation' => $reservation->ulid,
             ],
+            'payment_intent_data' => [
+                'metadata' => [
+                    'reservation' => $reservation->ulid,
+                ]
+            ],
         ]);
 
         activity()
@@ -47,10 +47,10 @@ class CheckoutController extends Controller
             ->causedBy($authUser)
             ->withProperties([
                 'checkout_session' => $checkoutSession->id,
-                'email' => $authUser->email,
+                'user' => $authUser->email,
                 'reservation' => $reservation->ulid,
             ])
-            ->log("The user :properties.email initiated a checkout session.");
+            ->log("The $authUser->role :properties.user initiated a checkout session.");
 
         return redirect($checkoutSession->url);
     }

@@ -8,11 +8,9 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Stripe\Exception\ApiErrorException;
-use Stripe\StripeClient;
 
 class ReservationStatusController extends Controller
 {

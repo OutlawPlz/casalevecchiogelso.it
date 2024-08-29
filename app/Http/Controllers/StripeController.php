@@ -12,6 +12,8 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\PaymentIntent;
+use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
 use Stripe\Webhook;
@@ -63,10 +65,9 @@ class StripeController extends Controller
             ->where('ulid', $ulid)
             ->firstOrFail();
 
-        $reservation->update([
-            'status' => ReservationStatus::CONFIRMED,
-            'payment_intent' => $event->data->object->payment_intent,
-        ]);
+        $reservation->update(['status' => ReservationStatus::CONFIRMED]);
+
+        // TODO: Notify reservation confirmed.
 
         activity()
             ->performedOn($reservation)
@@ -77,8 +78,117 @@ class StripeController extends Controller
                 'user' => $event->data->object->customer_details->email,
             ])
             ->log('The guest :properties.user completed a checkout session.');
+    }
 
-        // TODO: Notify reservation confirmed.
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePaymentIntentPaymentFailed(Event $event): void
+    {
+        /** @var PaymentIntent $paymentIntent */
+        $paymentIntent = $event->data->object;
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()
+            ->where('ulid', $paymentIntent->metadata->reservation)
+            ->firstOrFail();
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'payment_intent' => $paymentIntent->id,
+                'message' => $paymentIntent->last_payment_error->message,
+                'doc_url' => $paymentIntent->last_payment_error->doc_url,
+            ])
+            ->log("Payment failed due to {$paymentIntent->last_payment_error->type}.");
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePaymentIntentCreated(Event $event): void
+    {
+        /** @var PaymentIntent $paymentIntent */
+        $paymentIntent = $event->data->object;
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()
+            ->where('ulid', $paymentIntent->metadata->reservation)
+            ->firstOrFail();
+
+        $reservation->update(['payment_intent' => $paymentIntent->id]);
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePayoutFailed(Event $event): void
+    {
+        /** @var Payout $payout */
+        $payout = $event->data->object;
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()
+            ->where('ulid', $payout->metadata->reservation)
+            ->firstOrFail();
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'payout' => $payout->id,
+                'failure_code' => $payout->failure_code,
+                'failure_message' => $payout->failure_message,
+            ])
+            ->log("The payout has failed due to $payout->failure_code.");
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePayoutPaid(Event $event): void
+    {
+        /** @var Payout $payout */
+        $payout = $event->data->object;
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()
+            ->where('ulid', $payout->metadata->reservation)
+            ->firstOrFail();
+
+        $amount = (new \NumberFormatter('it', \NumberFormatter::CURRENCY))
+            ->formatCurrency($balanceTransaction->net / 100, $balanceTransaction->currency);
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'payout' => $payout->id,
+            ])
+            ->log("The payout of $amount has been credited.");
+    }
+
+    /**
+     * @param  Event  $event
+     * @return void
+     */
+    protected function handlePayoutCanceled(Event $event): void
+    {
+        /** @var Payout $payout */
+        $payout = $event->data->object;
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()
+            ->where('ulid', $payout->metadata->reservation)
+            ->firstOrFail();
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'payout' => $payout->id,
+            ])
+            ->log('The payout has been cancelled.');
     }
 
     /**
