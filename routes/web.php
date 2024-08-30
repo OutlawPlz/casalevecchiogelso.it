@@ -6,6 +6,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\ReservationQuoteController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationStatusController;
@@ -36,6 +37,7 @@ Route::group([
     Route::post('/reservations/{reservation:ulid}', [ReservationController::class, 'update'])->name('reservation.update');
     Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');
     Route::post('/reservations/{reservation:ulid}/status', ReservationStatusController::class)->name('reservation.status');
+    Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed');
 
     /* ----- Checkout ----- */
     Route::post('/checkout', CheckoutController::class)->name('checkout');

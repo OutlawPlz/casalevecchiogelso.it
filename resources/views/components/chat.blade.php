@@ -97,11 +97,11 @@
     }"
     x-on:translate-chat.window="locale = $event.detail"
 >
-    <div class="sticky top-0 py-4 bg-white flex space-x-4 px-4 sm:px-6 border-l shadow-sm">
+    <div class="sticky top-0 py-4 bg-white flex overflow-x-scroll space-x-4 px-4 sm:px-6 border-l shadow-sm">
         <h3 class="text-xl font-bold">{{ __('Chat') }}</h3>
 
         <button
-            x-on:click="isVisible = ! isVisible"
+            x-on:click="isDetailsVisible = ! isDetailsVisible"
             type="button"
             class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
         >
@@ -124,6 +124,20 @@
 
             <span class="whitespace-nowrap">{{ __('Translate chat') }}</span>
         </button>
+
+        @host
+        <button
+            x-on:click="isFeedVisible = ! isFeedVisible"
+            type="button"
+            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                <path d="M8 2a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM8 6.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM9.5 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
+            </svg>
+
+            <span class="whitespace-nowrap">{{ __('Reservation feed') }}</span>
+        </button>
+        @endhost
     </div>
 
     <div class="w-full max-w-3xl mx-auto grow px-4 md:px-6">

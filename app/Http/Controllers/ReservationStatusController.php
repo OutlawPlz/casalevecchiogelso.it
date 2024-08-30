@@ -53,7 +53,7 @@ class ReservationStatusController extends Controller
                 'reservation' => $reservation->ulid,
                 'user' => $authUser->email,
             ])
-            ->log("The host :properties.user pre-approved the guest\'s request.");
+            ->log("The host :properties.user pre-approved the request.");
 
         return redirect()->back();
     }

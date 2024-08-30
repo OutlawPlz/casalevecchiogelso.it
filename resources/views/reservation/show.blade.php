@@ -2,22 +2,23 @@
     <div
         class="absolute inset-0 flex"
         x-data="{
-            isVisible: false,
+            isDetailsVisible: false,
+            isFeedVisible: false,
 
             init() {
-                this.isVisible = window.innerWidth > 768;
+                this.isDetailsVisible = window.innerWidth > 768;
             }
         }"
     >
         <aside
-            x-show="isVisible"
-            :class="{ 'block': isVisible, 'hidden': ! isVisible }"
-            class="absolute z-10 inset-y-0 md:static overflow-y-scroll hidden w-11/12 md:w-1/3 shrink-0 bg-white shadow-lg"
+            x-show="isDetailsVisible"
+            :class="{ 'block': isDetailsVisible, 'hidden': ! isDetailsVisible }"
+            class="absolute z-10 inset-y-0 md:static overflow-y-scroll hidden w-11/12 md:w-1/4 shrink-0 bg-white shadow-lg"
         >
             <div class="sticky top-0 bg-white flex items-center justify-between p-4 border-b">
                 <h3 class="text-xl font-bold">{{ __('Details') }}</h3>
 
-                <button x-on:click="isVisible = false" class="p-1 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
+                <button x-on:click="isDetailsVisible = false" class="p-1 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
                         <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>
                     </svg>
@@ -87,6 +88,16 @@
         </aside>
 
         <x-chat :channel="$reservation->ulid" />
+
+        @host
+        <aside
+            x-cloak
+            :class="{ 'block': isFeedVisible, 'hidden': ! isFeedVisible }"
+            class="absolute right-0 z-10 inset-y-0 md:static hidden overflow-y-scroll w-11/12 md:w-1/4 shrink-0 bg-white shadow-lg"
+        >
+            <x-reservation-feed :$reservation />
+        </aside>
+        @endhost
     </div>
 
     <x-modal name="chat-language">
