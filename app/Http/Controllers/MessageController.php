@@ -19,13 +19,9 @@ class MessageController extends Controller
 {
     /**
      * @param  MessageRenderer  $messageRenderer
-     * @param  MarkAsVisited  $markAsVisited
-     * @param  MarkAsReplied  $markAsReplied
      */
     public function __construct(
         protected MessageRenderer $messageRenderer,
-        protected MarkAsVisited $markAsVisited,
-        protected MarkAsReplied $markAsReplied,
     ) {}
 
     /**
@@ -55,7 +51,7 @@ class MessageController extends Controller
             $message->rendered_content = $this->messageRenderer->render($message, $data);
         }
 
-        ($this->markAsVisited)($reservation, $authUser);
+        (new MarkAsVisited)($reservation, $authUser);
 
         return $messages;
     }
@@ -80,7 +76,7 @@ class MessageController extends Controller
 
         $message->rendered_content = $this->messageRenderer->render($message, $data);
 
-        ($this->markAsVisited)($reservation, $authUser);
+        (new MarkAsVisited)($reservation, $authUser);
 
         return $message;
     }
@@ -134,7 +130,7 @@ class MessageController extends Controller
 
         ChatReply::dispatch($message);
 
-        ($this->markAsReplied)($reservation, $message);
+        (new MarkAsReplied)($reservation, $message);
 
         return $message;
     }

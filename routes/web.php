@@ -11,7 +11,9 @@ use App\Http\Controllers\ReservationQuoteController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationStatusController;
 use App\Http\Controllers\StripeController;
+use App\Models\Message;
 use Illuminate\Support\Facades\Route;
+use Spatie\Activitylog\Models\Activity;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,18 +36,22 @@ Route::group([
     /* ----- Reservation ----- */
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservation.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservation.store');
-    Route::post('/reservations/{reservation:ulid}', [ReservationController::class, 'update'])->name('reservation.update');
-    Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show');
+    Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show')
+        ->can('view', 'reservation');
     Route::post('/reservations/{reservation:ulid}/status', ReservationStatusController::class)->name('reservation.status');
-    Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed');
+    Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
+        ->can('viewAny', [Activity::class, 'reservation']);
 
     /* ----- Checkout ----- */
     Route::post('/checkout', CheckoutController::class)->name('checkout');
 
     /* ----- Message ----- */
-    Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index');
-    Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store');
-    Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])->name('message.show');
+    Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index')
+        ->can('viewAny', [Message::class, 'reservation']);
+    Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store')
+        ->can('create', [Message::class, 'reservation']);
+    Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])->name('message.show')
+        ->can('view', [Message::class, 'reservation']);
 });
 
 /* ----- Stripe Webhook ----- */

@@ -3,9 +3,12 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Policies\ActivityPolicy;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Activitylog\Models\Activity;
 use Stripe\StripeClient;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,11 +29,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Blade::if('host', function (): bool {
-            /** @var User $authUser */
-            $authUser = Auth::user() ?? new User();
+        Gate::policy(Activity::class, ActivityPolicy::class);
 
-            return $authUser->isHost();
+        Blade::if('host', function (): bool {
+            /** @var User|null $authUser */
+            $authUser = Auth::user();
+
+            return (bool) $authUser?->isHost();
         });
     }
 }
