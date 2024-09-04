@@ -1,11 +1,13 @@
 <div>
     <form
+        action="{{ route('reservation.store') }}"
+        method="POST"
         x-ref="form"
         class="space-y-6"
         x-data="{
             defaultOvernightStay: {{ Js::from(array_shift($priceList)) }},
             priceList: {{ Js::from($priceList) }},
-            period: $persist([new Date().toJSON().slice(0, 10), new Date().toJSON().slice(0, 10)]),
+            period: $persist([new Date().toJSON().slice(0, 10), new Date().toJSON().slice(0, 10)]).using(sessionStorage),
             guestCount: 1,
             loading: false,
             errors: {{ Js::from($errors->messages()) }},
@@ -23,6 +25,8 @@
             },
         }"
     >
+        @csrf
+
         <div>
             <span class="text-3xl" x-text="$(defaultOvernightStay.unit_amount)"></span>
             <span> / {{ __('night') }}</span>
@@ -82,31 +86,28 @@
             <span>Tot.</span>
             <span x-text="$(tot)"></span>
         </div>
-    </form>
 
-    <div class="mt-4">
-        @guest()
-        <x-primary-button
-            x-data=""
-            type="button"
-            class="w-full justify-center !text-sm"
-            x-on:click.prevent="$dispatch('open-modal', 'token-login')"
-        >
-            {{ __('Request to book') }}
-        </x-primary-button>
-        @endguest
+        <div class="mt-4">
+            @guest()
+            <x-primary-button
+                x-data=""
+                type="button"
+                class="w-full justify-center !text-sm"
+                x-on:click.prevent="$dispatch('open-modal', 'token-login')"
+            >
+                {{ __('Request to book') }}
+            </x-primary-button>
+            @endguest
 
-        @auth()
-        <form action="{{ route('reservation.store') }}" method="POST">
-            @csrf
+            @auth()
             <x-primary-button class="w-full justify-center !text-sm">
                 {{ __('Request to book') }}
             </x-primary-button>
-        </form>
-        @endauth
+            @endauth
 
-        <p class="text-sm mt-2 text-center">{{ __('You won\'t be charged yet') }}</p>
-    </div>
+            <p class="text-sm mt-2 text-center">{{ __('You won\'t be charged yet') }}</p>
+        </div>
+    </form>
 
     @guest()
     <x-modal name="token-login" max-width="sm">

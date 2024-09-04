@@ -1,5 +1,6 @@
 @props([
     'unavailable' => [],
+    'names' => ['check_in', 'check_out'],
 ])
 
 <div
@@ -13,7 +14,7 @@
             const calendarColumns = (window.innerWidth < 1024) ? 1 : 2;
 
             this.picker = new easepick.create({
-                element: this.$refs.checkIn,
+                element: this.$refs.startDate,
                 grid: calendarColumns,
                 calendars: calendarColumns,
                 css: [
@@ -24,7 +25,7 @@
                 plugins: ['RangePlugin', 'LockPlugin'],
                 RangePlugin: {
                     tooltipNumber: (days) => days - 1,
-                    elementEnd: this.$refs.checkOut,
+                    elementEnd: this.$refs.endDate,
                     locale: { one: '{{ __('night') }}', other: '{{ __('nights') }}' },
                 },
                 LockPlugin: {
@@ -59,8 +60,8 @@
         <x-input-label>{{ __('Check-in') }}</x-input-label>
         <x-text-input readonly=""
                       type="text"
-                      x-ref="checkIn"
-                      name="check_in"
+                      x-ref="startDate"
+                      name="{{ $names[0] }}"
                       x-model="_dates[0]"
                       x-on:click="picker.show()"/>
     </div>
@@ -69,8 +70,8 @@
         <x-input-label>{{ __('Check-out') }}</x-input-label>
         <x-text-input readonly=""
                       type="text"
-                      x-ref="checkOut"
-                      name="check_out"
+                      x-ref="endDate"
+                      name="{{ $names[1] }}"
                       x-model="_dates[1]"
                       x-on:click="picker.show()"/>
     </div>
