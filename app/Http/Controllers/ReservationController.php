@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Services\Calendar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -47,12 +46,9 @@ class ReservationController extends Controller
      */
     public function store(Request $request, Calendar $calendar): RedirectResponse
     {
-        $reservation = Reservation::fromSession();
+        $attributes = $request->validate(self::rules());
 
-        Validator::make(
-            $reservation->toArray(),
-            ReservationQuoteController::rules()
-        )->validate();
+        $reservation = new Reservation($attributes);
 
         $priceList = Product::defaultPriceList();
 
@@ -100,5 +96,19 @@ class ReservationController extends Controller
             'authUser' => $authUser,
             'reservation' => $reservation,
         ]);
+    }
+
+    /**
+     * @return array
+     */
+    public static function rules(): array
+    {
+        $date = now()->addDays(2)->format('Y-m-d');
+
+        return [
+            'check_in' => ['required', 'date', "after:$date"],
+            'check_out' => ['required', 'date', 'after:check_in'],
+            'guest_count' => ['required','numeric', 'min:1', 'max:10']
+        ];
     }
 }

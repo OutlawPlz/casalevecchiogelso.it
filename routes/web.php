@@ -7,7 +7,6 @@ use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationFeedController;
-use App\Http\Controllers\ReservationQuoteController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationStatusController;
 use App\Http\Controllers\StripeController;
@@ -22,8 +21,6 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::post('reservations/quote', ReservationQuoteController::class)->name('reservation.quote');
 
 Route::group([
     'middleware' => ['auth', 'verified']

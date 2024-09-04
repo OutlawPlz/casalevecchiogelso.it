@@ -1,13 +1,12 @@
 <div>
     <form
-        x-on:input.debounce="submit"
         x-ref="form"
         class="space-y-6"
         x-data="{
             defaultOvernightStay: {{ Js::from(array_shift($priceList)) }},
             priceList: {{ Js::from($priceList) }},
-            period: ['{{ $reservation->check_in }}', '{{ $reservation->check_out }}'],
-            guestCount: {{ $reservation->guest_count}},
+            period: $persist([new Date().toJSON().slice(0, 10), new Date().toJSON().slice(0, 10)]),
+            guestCount: 1,
             loading: false,
             errors: {{ Js::from($errors->messages()) }},
 
@@ -21,22 +20,6 @@
                 const tot = this.priceList.reduce((partial, line) => partial + (line.unit_amount * line.quantity), 0);
 
                 return this.defaultOvernightStay.unit_amount * this.nights + tot;
-            },
-
-            async submit() {
-                this.loading = true;
-
-                const formData = new FormData(this.$refs.form);
-
-                await axios.post('{{ route('reservation.quote') }}', formData)
-                    .then((response) => this.errors = {})
-                    .catch((error) => {
-                        if (error.response.status === 422) {
-                            return this.errors = error.response.data.errors;
-                        }
-                    });
-
-                this.loading = false;
             },
         }"
     >

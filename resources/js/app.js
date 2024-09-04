@@ -2,6 +2,7 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
+import persist from '@alpinejs/persist';
 import { format, addDays, addYears, differenceInDays } from 'date-fns';
 
 window.Alpine = Alpine;
@@ -22,6 +23,6 @@ const moneyFormatter = new Intl.NumberFormat(
  */
 window.$ = (cents) => moneyFormatter.format(cents / 100);
 
-Alpine.plugin(intersect);
+Alpine.plugin([intersect, persist]);
 
 Alpine.start();

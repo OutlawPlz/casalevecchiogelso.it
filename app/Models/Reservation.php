@@ -182,18 +182,6 @@ class Reservation extends Model
     }
 
     /**
-     * @return static
-     */
-    public static function fromSession(): static
-    {
-        $reservation = Session::get("reservation", new static());
-
-        return is_array($reservation)
-            ? new static($reservation)
-            : $reservation;
-    }
-
-    /**
      * @return HasMany
      */
     public function messages(): HasMany
