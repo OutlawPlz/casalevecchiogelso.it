@@ -25,8 +25,6 @@
             },
         }"
     >
-        @csrf
-
         <div>
             <span class="text-3xl" x-text="$(defaultOvernightStay.unit_amount)"></span>
             <span> / {{ __('night') }}</span>
@@ -88,6 +86,8 @@
         </div>
 
         <div class="mt-4">
+            @csrf
+
             @guest()
             <x-primary-button
                 x-data=""
