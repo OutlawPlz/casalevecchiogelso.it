@@ -30,8 +30,7 @@ class RequestPayout
 
         $balanceTransaction = $paymentIntent->latest_charge->balance_transaction;
 
-        $amount = (new \NumberFormatter('it', \NumberFormatter::CURRENCY))
-            ->formatCurrency($balanceTransaction->net / 100, $balanceTransaction->currency);
+        $amount = moneyFormatter($balanceTransaction->net);
 
         if ($balanceTransaction->net < config('stripe.min_payout_amount')) {
             activity()

@@ -30,8 +30,7 @@ class RefundGuest
         /** @var User|null $authUser */
         $authUser = Auth::user();
 
-        $amount = (new \NumberFormatter('it', \NumberFormatter::CURRENCY))
-            ->formatCurrency($refund->amount / 100, $refund->currency);
+        $amount = moneyFormatter($refund->amount);
 
         activity()
             ->causedBy($authUser)

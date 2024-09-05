@@ -9,6 +9,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
@@ -16,6 +17,7 @@ use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
+use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 
@@ -157,8 +159,7 @@ class StripeController extends Controller
             ->where('ulid', $payout->metadata->reservation)
             ->firstOrFail();
 
-        $amount = (new \NumberFormatter('it', \NumberFormatter::CURRENCY))
-            ->formatCurrency($balanceTransaction->net / 100, $balanceTransaction->currency);
+        $amount = moneyFormatter($payout->amount);
 
         activity()
             ->performedOn($reservation)

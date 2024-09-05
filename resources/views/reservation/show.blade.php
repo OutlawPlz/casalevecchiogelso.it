@@ -1,3 +1,10 @@
+@php
+/**
+ * @var \App\Models\Reservation $reservation
+ * @var \App\Models\User $authUser
+ */
+@endphp
+
 <x-app-layout>
     <div
         class="absolute inset-0 flex"
@@ -34,14 +41,16 @@
                             @foreach($reservation->price_list as $line)
                             <div class="flex justify-between">
                                 @if($loop->first)
-                                <span class="underline" x-text="$({{ $line['unit_amount'] }}) + ' x {{ $line['quantity'] }} {{ __('nights') }}'"></span>
-                                <span x-text="$({{ $line['quantity'] * $line['unit_amount'] }})"></span>
+                                <span class="underline">
+                                    @money($line['unit_amount']) x {{ $line['quantity'] }} {{ __('nights') }}
+                                </span>
+                                <span>@money($line['quantity'] * $line['unit_amount'])</span>
                                 @else
                                 <span class="underline">
                                     {{ __($line['name']) }}
                                     @if($line['quantity'] > 1) x {{ $line['quantity'] }} @endif
                                 </span>
-                                <span x-text="$({{ $line['unit_amount'] * $line['quantity'] }})"></span>
+                                <span>@money($line['unit_amount'] * $line['quantity'])</span>
                                 @endif
                             </div>
                             @endforeach
@@ -51,10 +60,14 @@
 
                         <div class="flex justify-between font-bold text-lg">
                             <span>Tot.</span>
-                            <span x-text="$({{ array_reduce($reservation->price_list, fn ($tot, $line) => $tot += $line['unit_amount'] * $line['quantity'], 0) }})"></span>
+                            <span x-text="$({{ $reservation->tot }})"></span>
                         </div>
                     </div>
 
+                    <x-reservation-status class="mt-4" :$reservation :$authUser />
+                </div>
+
+                <div class="py-6 border-b">
                     <x-reservation-actions class="mt-4" :$reservation :$authUser />
                 </div>
 

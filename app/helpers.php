@@ -119,3 +119,17 @@ if (! function_exists('is_overnight_stay')) {
         return config('reservation.overnight_stay') === $stripeId;
     }
 }
+
+if (! function_exists('moneyFormatter')) {
+    /**
+     * @param int $cents
+     * @param string $currency
+     * @return string
+     */
+    function moneyFormatter(int $cents, string $currency = 'eur'): string
+    {
+        $formatter = new NumberFormatter(config('app.locale'), NumberFormatter::CURRENCY);
+
+        return $formatter->formatCurrency($cents / 100, $currency);
+    }
+}

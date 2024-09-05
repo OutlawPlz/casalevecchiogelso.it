@@ -30,6 +30,8 @@ use Illuminate\Support\Facades\Session;
  * @property array<int, string>|null $visited_at
  * @property CarbonImmutable|null $replied_at
  * @property string|null $payment_intent
+ * @property-read int $tot
+ * @property-read User $user
  * @property-read Collection<Message> $messages
  * @property-read int $nights
  * @property-read CarbonImmutable[] $reservedPeriod
@@ -177,6 +179,22 @@ class Reservation extends Model
                     $this->check_out,
                     $this->check_out->add($this->preparation_time)
                 ];
+            }
+        );
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function tot(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                return array_reduce(
+                    $this->price_list,
+                    fn ($tot, $line) => $tot + ($line['unit_amount'] * $line['quantity']),
+                    0
+                );
             }
         );
     }
