@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use function App\Helpers\is_overnight_stay;
 
 class ReservationController extends Controller
 {

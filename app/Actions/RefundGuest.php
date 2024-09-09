@@ -6,22 +6,28 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
+use function App\Helpers\money_formatter;
 
 class RefundGuest
 {
     /**
-     * @param  Reservation  $reservation
+     * @param Reservation $reservation
+     * @param int $amount
      * @return void
-     * @throws \Stripe\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public function __invoke(Reservation $reservation): void
+    public function __invoke(Reservation $reservation, int $amount = 0): void
     {
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
+        if (! $amount) $amount = $this->calculateRefundAmount($reservation);
+
         $refund = $stripe->refunds->create([
             'payment_intent' => $reservation->payment_intent,
+            'amount' => $amount,
             'metadata' => [
                 'reservation' => $reservation->ulid,
             ],
@@ -30,7 +36,7 @@ class RefundGuest
         /** @var User|null $authUser */
         $authUser = Auth::user();
 
-        $amount = moneyFormatter($refund->amount);
+        $formattedAmount = money_formatter($refund->amount);
 
         activity()
             ->causedBy($authUser)
@@ -41,6 +47,15 @@ class RefundGuest
                 'refund' => $refund->id,
                 'amount' => $refund->amount,
             ])
-            ->log("A refund of $amount has been created.");
+            ->log("A refund of $formattedAmount has been created.");
+    }
+
+    /**
+     * @param Reservation $reservation
+     * @return int
+     */
+    protected function calculateRefundAmount(Reservation $reservation): int
+    {
+        return 0;
     }
 }

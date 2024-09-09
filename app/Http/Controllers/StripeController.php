@@ -159,7 +159,7 @@ class StripeController extends Controller
             ->where('ulid', $payout->metadata->reservation)
             ->firstOrFail();
 
-        $amount = moneyFormatter($payout->amount);
+        $amount = money_formatter($payout->amount);
 
         activity()
             ->performedOn($reservation)

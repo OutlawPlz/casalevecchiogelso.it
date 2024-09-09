@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Blade::directive('money', function (string $cents, string $currency = 'eur'): string {
-            return "<?php echo moneyFormatter($cents, '$currency'); ?>";
+            return "<?php echo money_formatter($cents, '$currency'); ?>";
         });
     }
 }

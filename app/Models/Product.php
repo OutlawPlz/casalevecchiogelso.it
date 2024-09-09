@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\App;
 use Stripe\Product as StripeProduct;
 use Stripe\StripeClient;
+use function App\Helpers\is_overnight_stay;
 
 /**
  * @property int $id

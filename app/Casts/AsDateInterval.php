@@ -4,6 +4,7 @@ namespace App\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
+use function App\Helpers\{iso8601_decode, iso8601_encode};
 
 class AsDateInterval implements CastsAttributes
 {
@@ -23,7 +24,7 @@ class AsDateInterval implements CastsAttributes
     /**
      * @param Model $model
      * @param string $key
-     * @param \DateInterval $value
+     * @param mixed $value
      * @param array $attributes
      * @return string
      */

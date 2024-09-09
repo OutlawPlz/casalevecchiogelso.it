@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Spatie\Period\Boundaries;
 use Spatie\Period\Period;
 use Spatie\Period\Precision;
+use function App\Helpers\dates_in_range;
 
 class Calendar
 {
