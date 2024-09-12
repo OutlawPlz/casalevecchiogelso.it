@@ -6,12 +6,15 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 use function App\Helpers\money_formatter;
 
 class RefundGuest
 {
+    protected StripeClient $stripe;
+
     /**
      * @param Reservation $reservation
      * @param int $amount
@@ -20,12 +23,11 @@ class RefundGuest
      */
     public function __invoke(Reservation $reservation, int $amount = 0): void
     {
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
+        $this->stripe = App::make(StripeClient::class);
 
         if (! $amount) $amount = $this->calculateRefundAmount($reservation);
 
-        $refund = $stripe->refunds->create([
+        $refund = $this->stripe->refunds->create([
             'payment_intent' => $reservation->payment_intent,
             'amount' => $amount,
             'metadata' => [
@@ -53,9 +55,22 @@ class RefundGuest
     /**
      * @param Reservation $reservation
      * @return int
+     * @throws ApiErrorException
      */
     protected function calculateRefundAmount(Reservation $reservation): int
     {
-        return 0;
+        $paymentIntent = $this->stripe->paymentIntents->retrieve($reservation->payment_intent);
+
+        if (now()->isAfter($reservation->check_in)) {
+            throw ValidationException::withMessages([
+                'refund' => __('This reservation is not eligible for a refund.'),
+            ]);
+        }
+
+        if (now()->isBetween(...$reservation->refundPeriod)) {
+            return $paymentIntent->amount * $reservation->cancellation_policy->refundFactor();
+        }
+
+        return $paymentIntent->amount;
     }
 }

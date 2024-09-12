@@ -25,6 +25,8 @@ return [
 
     'preparation_time' => env('PREPARATION_TIME', 'P1D'),
 
+    'cancellation_policy' => env('CANCELLATION_POLICY', 'moderate'),
+
     /*
     |--------------------------------------------------------------------------
     | Default Check-in/Check-out Time

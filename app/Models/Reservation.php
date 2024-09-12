@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\AsDateInterval;
+use App\Enums\CancellationPolicy;
 use App\Enums\ReservationStatus;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -11,11 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Session;
 use function App\Helpers\is_overnight_stay;
 
 /**
- * @property-read int $id
+ * @property int $id
  * @property string $ulid
  * @property string $first_name
  * @property string $last_name
@@ -28,6 +28,7 @@ use function App\Helpers\is_overnight_stay;
  * @property string $summary
  * @property array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}[] $price_list
  * @property ReservationStatus $status
+ * @property CancellationPolicy $cancellation_policy
  * @property array<int, string>|null $visited_at
  * @property CarbonImmutable|null $replied_at
  * @property string|null $payment_intent
@@ -38,6 +39,7 @@ use function App\Helpers\is_overnight_stay;
  * @property-read CarbonImmutable[] $reservedPeriod
  * @property-read CarbonImmutable[] $checkInPreparationTime
  * @property-read CarbonImmutable[] $checkOutPreparationTime
+ * @property-read CarbonImmutable[] $refundPeriod
  */
 class Reservation extends Model
 {
@@ -59,6 +61,7 @@ class Reservation extends Model
         'visited_at',
         'replied_at',
         'payment_intent',
+        'cancellation_policy',
     ];
 
     /**
@@ -102,6 +105,7 @@ class Reservation extends Model
             'status' => ReservationStatus::class,
             'visited_at' => 'array',
             'replied_at' => 'immutable_datetime',
+            'cancellation_policy' => CancellationPolicy::class,
         ];
     }
 
@@ -112,6 +116,21 @@ class Reservation extends Model
     {
         return Attribute::make(
             get: fn () => [$this->check_in, $this->check_out]
+        );
+    }
+
+    /**
+     * @return Attribute
+     */
+    protected function refundPeriod(): Attribute
+    {
+        $timeWindow = $this->cancellation_policy->timeWindow();
+
+        return Attribute::make(
+            get: fn () => [
+                $this->check_in->sub($timeWindow) ,
+                $this->check_in
+            ]
         );
     }
 
@@ -130,16 +149,6 @@ class Reservation extends Model
         }
 
         return $order;
-    }
-
-    /**
-     * @return void
-     */
-    public function toSession(): void
-    {
-        foreach (['check_in', 'check_out', 'guest_count'] as $attribute) {
-            Session::put("reservation.$attribute", $this->$attribute);
-        }
     }
 
     /**
@@ -235,4 +244,6 @@ class Reservation extends Model
 
         return $this->replied_at->greaterThan($visitedAt);
     }
+
+
 }
