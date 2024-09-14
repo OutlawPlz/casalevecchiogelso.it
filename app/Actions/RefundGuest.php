@@ -20,12 +20,37 @@ class RefundGuest
      * @param int $amount
      * @return void
      * @throws ApiErrorException
+     * @throws ValidationException
      */
     public function __invoke(Reservation $reservation, int $amount = 0): void
     {
         $this->stripe = App::make(StripeClient::class);
 
-        if (! $amount) $amount = $this->calculateRefundAmount($reservation);
+        /** @var User|null $authUser */
+        $authUser = Auth::user();
+
+        $paymentIntent = $this->stripe->paymentIntents->retrieve($reservation->payment_intent);
+
+        $amount |= $paymentIntent->amount * $reservation->refundFactor();
+
+        if (! $amount) {
+            $message = 'The reservation is not eligible for a refund.';
+
+            activity()
+                ->causedBy($authUser)
+                ->performedOn($reservation)
+                ->withProperties([
+                    'user' => $authUser?->email,
+                    'reservation' => $reservation->ulid,
+                ])
+                ->log($message);
+
+            throw ValidationException::withMessages([
+                'refund_denied' => __($message),
+            ]);
+        }
+
+        // TODO: Catch ApiError and show message to the user.
 
         $refund = $this->stripe->refunds->create([
             'payment_intent' => $reservation->payment_intent,
@@ -34,9 +59,6 @@ class RefundGuest
                 'reservation' => $reservation->ulid,
             ],
         ]);
-
-        /** @var User|null $authUser */
-        $authUser = Auth::user();
 
         $formattedAmount = money_formatter($refund->amount);
 
@@ -50,27 +72,5 @@ class RefundGuest
                 'amount' => $refund->amount,
             ])
             ->log("A refund of $formattedAmount has been created.");
-    }
-
-    /**
-     * @param Reservation $reservation
-     * @return int
-     * @throws ApiErrorException
-     */
-    protected function calculateRefundAmount(Reservation $reservation): int
-    {
-        $paymentIntent = $this->stripe->paymentIntents->retrieve($reservation->payment_intent);
-
-        if (now()->isAfter($reservation->check_in)) {
-            throw ValidationException::withMessages([
-                'refund' => __('This reservation is not eligible for a refund.'),
-            ]);
-        }
-
-        if (now()->isBetween(...$reservation->refundPeriod)) {
-            return $paymentIntent->amount * $reservation->cancellation_policy->refundFactor();
-        }
-
-        return $paymentIntent->amount;
     }
 }

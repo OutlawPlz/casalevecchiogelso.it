@@ -245,5 +245,17 @@ class Reservation extends Model
         return $this->replied_at->greaterThan($visitedAt);
     }
 
+    /**
+     * @return float
+     */
+    public function refundFactor(): float
+    {
+        if (now()->isAfter($this->check_in)) return 0;
 
+        if (now()->isBetween(...$this->refundPeriod)) {
+            return $this->cancellation_policy->refundFactor();
+        }
+
+        return 1;
+    }
 }
