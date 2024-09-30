@@ -14,18 +14,22 @@ window.differenceInDays = differenceInDays;
 
 Alpine.plugin([intersect, persist]);
 
+Alpine.store('locale', {
+    currencyFormatter: new Intl.NumberFormat(
+        document.documentElement.lang || undefined,
+        { style: 'currency', currency: 'EUR' }
+    ),
+});
+
 Alpine.directive(
     'currency',
     (el, { expression }, { evaluateLater, effect }) => {
         const getAmount = evaluateLater(expression);
 
+        const formatter = Alpine.store('locale').currencyFormatter;
+
         effect(() => {
             getAmount((cents) => {
-                const formatter = new Intl.NumberFormat(
-                    document.documentElement.lang,
-                    { style: 'currency', currency: 'EUR' }
-                );
-
                 el.textContent = formatter.format(cents / 100);
             })
         });
