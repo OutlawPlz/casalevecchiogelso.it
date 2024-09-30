@@ -6,10 +6,14 @@
 
 <div class="space-y-2">
     @foreach($reservation->price_list as $line)
-        <div class="flex justify-between">
+        <div class="flex justify-between" x-data>
             @if($loop->first)
-                <span class="underline">@money($line['unit_amount']) x {{ $line['quantity'] }} {{ __('nights') }}</span>
-                <span>@money($line['quantity'] * $line['unit_amount'])</span>
+                <div class="underline">
+                    <span x-currency="{{ $line['unit_amount'] }}"></span> x {{ $line['quantity'] }} {{ __('nights') }}
+                </div>
+                <div>
+                    <span x-currency="{{ $line['quantity'] * $line['unit_amount'] }}"></span>
+                </div>
             @else
                 <span class="underline">
                     {{ __($line['name']) }}
@@ -17,7 +21,7 @@
                     x {{ $line['quantity'] }}
                     @endif
                 </span>
-                <span>@money($line['unit_amount'] * $line['quantity'])</span>
+                <span x-currency="{{ $line['quantity'] * $line['unit_amount'] }}"></span>
             @endif
         </div>
     @endforeach
@@ -27,5 +31,5 @@
 
 <div class="flex justify-between font-bold text-lg">
     <span>Tot.</span>
-    <span x-text="$({{ $reservation->tot }})"></span>
+    <span x-currency="{{ $reservation->tot }}"></span>
 </div>

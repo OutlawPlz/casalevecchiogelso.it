@@ -15,7 +15,7 @@
 
     <div class="text-gray-600">
         {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
-        {{ $reservation->guest_count }} {{ __('guests') }} • Tot. @money($reservation->tot)
+        {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
     </div>
 </div>
 

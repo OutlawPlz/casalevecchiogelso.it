@@ -12,17 +12,24 @@ window.addDays = addDays;
 window.addYears = addYears;
 window.differenceInDays = differenceInDays;
 
-const moneyFormatter = new Intl.NumberFormat(
-    document.documentElement.lang,
-    { style: 'currency', currency: 'EUR' }
-)
-
-/**
- * @param {number} cents
- * @returns {string}
- */
-window.$ = (cents) => moneyFormatter.format(cents / 100);
-
 Alpine.plugin([intersect, persist]);
+
+Alpine.directive(
+    'currency',
+    (el, { expression }, { evaluateLater, effect }) => {
+        const getAmount = evaluateLater(expression);
+
+        effect(() => {
+            getAmount((cents) => {
+                const formatter = new Intl.NumberFormat(
+                    document.documentElement.lang,
+                    { style: 'currency', currency: 'EUR' }
+                );
+
+                el.textContent = formatter.format(cents / 100);
+            })
+        });
+    }
+);
 
 Alpine.start();

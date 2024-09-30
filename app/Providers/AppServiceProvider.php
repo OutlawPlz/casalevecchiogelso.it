@@ -37,9 +37,5 @@ class AppServiceProvider extends ServiceProvider
 
             return (bool) $authUser?->isHost();
         });
-
-        Blade::directive('money', function (string $cents, string $currency = 'eur'): string {
-            return "<?php echo money_formatter($cents, '$currency'); ?>";
-        });
     }
 }
