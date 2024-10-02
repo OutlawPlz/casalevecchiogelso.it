@@ -14,7 +14,7 @@
             <x-primary-button
                 value="{{ $reservation->ulid }}"
                 name="reservation"
-                class="!text-sm w-full justify-center"
+                class="w-full justify-center"
             >{{ __('Confirm and pay') }}</x-primary-button>
         </form>
 
@@ -53,7 +53,7 @@
     @case(ReservationStatus::CONFIRMED)
         <x-primary-button
             x-on:click.prevent="$dispatch('open-modal', 'cancel')"
-            class="justify-center w-full !text-sm mt-6"
+            class="justify-center w-full mt-6"
         >
             {{ __('Cancel the booking') }}
         </x-primary-button>
@@ -87,7 +87,6 @@
                     <x-secondary-button
                         x-on:click="$dispatch('close')"
                         type="button"
-                        class="!text-sm"
                     >
                         {{ __('Close') }}
                     </x-secondary-button>
@@ -95,7 +94,7 @@
                     <x-primary-button
                         value="{{ ReservationStatus::CANCELLED }}"
                         name="status"
-                        class="justify-center !text-sm"
+                        class="justify-center"
                     >
                         {{ __('Cancel') }}
                     </x-primary-button>

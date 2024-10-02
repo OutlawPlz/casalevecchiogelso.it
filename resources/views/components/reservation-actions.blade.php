@@ -44,9 +44,9 @@
                 method="POST"
             >
                 @csrf
-                <div class="prose">
-                    <h2>{{ __('Pre-approve') }}</h2>
-                    <p>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">{{ __('Pre-approve') }}</h2>
+                    <p class="mt-1 text-gray-600">
                         {{ __('Do you want to pre-approve this booking?') }} <br>
                         {{ __('The guest will have 24 hours to confirm the reservation.') }}
                     </p>
@@ -56,7 +56,6 @@
                     <x-secondary-button
                         x-on:click="$dispatch('close')"
                         type="button"
-                        class="!text-sm"
                     >
                         {{ __('Close') }}
                     </x-secondary-button>
@@ -64,7 +63,6 @@
                     <x-primary-button
                         value="{{ ReservationStatus::PENDING }}"
                         name="status"
-                        class="!text-sm"
                     >
                         {{ __('Pre-approve') }}
                     </x-primary-button>
@@ -79,16 +77,15 @@
                 method="POST"
             >
                 @csrf
-                <div class="prose">
-                    <h2>{{ __('Reject') }}</h2>
-                    <p>{{ __('Are you sure you want to decline this booking?') }}</p>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">{{ __('Reject') }}</h2>
+                    <p class="mt-1 text-gray-600">{{ __('Are you sure you want to decline this booking?') }}</p>
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-3">
                     <x-secondary-button
                         x-on:click="$dispatch('close')"
                         type="button"
-                        class="!text-sm"
                     >
                         {{ __('Cancel') }}
                     </x-secondary-button>
@@ -96,7 +93,6 @@
                     <x-primary-button
                         value="{{ ReservationStatus::REJECTED }}"
                         name="status"
-                        class="!text-sm"
                     >
                         {{ __('Reject') }}
                     </x-primary-button>
@@ -109,7 +105,7 @@
     @case(ReservationStatus::CONFIRMED)
         <x-primary-button
             x-on:click.prevent="$dispatch('open-modal', 'cancel')"
-            class="justify-center w-full !text-sm mt-6"
+            class="justify-center w-full mt-6"
         >
             {{ __('Cancel the booking') }}
         </x-primary-button>
@@ -123,17 +119,14 @@
                 @csrf
 
                 <div class="prose">
-                    <h2>{{ __('Cancel the booking') }}</h2>
-                    <p>
-                        {{ __('Are you sure you want to cancel the reservation?') }}
-                    </p>
+                    <h2 class="text-lg font-bold text-gray-900">{{ __('Cancel the booking') }}</h2>
+                    <p class="mt-1 text-gray-600">{{ __('Are you sure you want to cancel the reservation?') }}</p>
                 </div>
 
                 <div class="mt-6 space-x-3 flex justify-end">
                     <x-secondary-button
                         x-on:click="$dispatch('close')"
                         type="button"
-                        class="!text-sm"
                     >
                         {{ __('Close') }}
                     </x-secondary-button>
@@ -141,7 +134,7 @@
                     <x-primary-button
                         value="{{ ReservationStatus::CANCELLED }}"
                         name="status"
-                        class="justify-center !text-sm"
+                        class="justify-center"
                     >
                         {{ __('Cancel') }}
                     </x-primary-button>

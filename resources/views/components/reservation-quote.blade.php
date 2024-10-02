@@ -94,7 +94,7 @@
             <x-primary-button
                 x-data=""
                 type="button"
-                class="w-full justify-center !text-sm"
+                class="w-full justify-center"
                 x-on:click.prevent="$dispatch('open-modal', 'token-login')"
             >
                 {{ __('Request to book') }}
@@ -102,7 +102,7 @@
             @endguest
 
             @auth()
-            <x-primary-button class="w-full justify-center !text-sm">
+            <x-primary-button class="w-full justify-center">
                 {{ __('Request to book') }}
             </x-primary-button>
             @endauth

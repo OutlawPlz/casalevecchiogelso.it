@@ -41,15 +41,6 @@
                     </div>
 
                     <x-reservation-status class="mt-4" :$reservation :$authUser />
-
-                    <x-secondary-button
-                        x-on:click.prevent="$dispatch('open-dialog', 'plpl')"
-                        class="justify-center w-full"
-                    >
-                        {{ __('Open dialog') }}
-                    </x-secondary-button>
-
-                    <x-dialog name="plpl"></x-dialog>
                 </div>
 
                 <div class="py-6 border-b">
