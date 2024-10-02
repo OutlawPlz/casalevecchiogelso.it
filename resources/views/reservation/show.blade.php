@@ -25,11 +25,7 @@
             <div class="sticky top-0 bg-white flex items-center justify-between p-4 border-b">
                 <h3 class="text-xl font-bold">{{ __('Details') }}</h3>
 
-                <button x-on:click="isDetailsVisible = false" class="p-1 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-                        <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>
-                    </svg>
-                </button>
+                <x-ui-close x-on:click="isDetailsVisible = false" />
             </div>
 
             <div class="px-4">
