@@ -34,19 +34,8 @@ class RefundGuest
         $amount |= $paymentIntent->amount * $reservation->refundFactor();
 
         if (! $amount) {
-            $message = 'The reservation is not eligible for a refund.';
-
-            activity()
-                ->causedBy($authUser)
-                ->performedOn($reservation)
-                ->withProperties([
-                    'user' => $authUser?->email,
-                    'reservation' => $reservation->ulid,
-                ])
-                ->log($message);
-
             throw ValidationException::withMessages([
-                'refund_denied' => __($message),
+                'refund_denied' => __('The reservation is not eligible for a refund.'),
             ]);
         }
 

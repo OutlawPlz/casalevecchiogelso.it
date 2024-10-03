@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReservationStatus;
 use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
@@ -97,6 +98,31 @@ class ReservationController extends Controller
             'authUser' => $authUser,
             'reservation' => $reservation,
         ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param Reservation $reservation
+     * @return View|RedirectResponse
+     */
+    public function delete(Request $request, Reservation $reservation): View|RedirectResponse
+    {
+        /** @var User $authUser */
+        $authUser = $request->user();
+
+//        if (! $reservation->inStatus(ReservationStatus::CONFIRMED)) {
+//            return redirect()->route('reservation.show', [$reservation]);
+//        }
+
+        return \view('reservation.delete', [
+            'authUser' => $authUser,
+            'reservation' => $reservation,
+        ]);
+    }
+
+    public function destroy(Request $request, Reservation $reservation)
+    {
+        //
     }
 
     /**
