@@ -39,7 +39,8 @@ Route::group([
         ->can('view', 'reservation');
     Route::delete('/reservations/{reservation:ulid}', [ReservationController::class, 'destroy'])->name('reservation.destroy')
         ->can('destroy', 'reservation');
-    Route::post('/reservations/{reservation:ulid}/status', ReservationStatusController::class)->name('reservation.status');
+    Route::post('/reservations/{reservation:ulid}/status', ReservationStatusController::class)->name('reservation.status')
+        ->can('update', 'reservation');
     Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
         ->can('viewAny', [Activity::class, 'reservation']);
 

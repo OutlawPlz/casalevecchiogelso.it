@@ -61,7 +61,7 @@
                 @host
                 {{ __('The reservation will be cancelled immediately and the guest will be refunded according with cancellation policy.') }}
                 @else
-                {{ __('Your reservation will be cancelled immediately and you\'ll be refunded within few business days according with cancellation policy.') }}
+                {{ __('Your reservation will be cancelled immediately and you\'ll be refunded within few business days, according with cancellation policy.') }}
                 @endhost
             </p>
 

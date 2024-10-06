@@ -133,7 +133,9 @@ class ReservationController extends Controller
      */
     public function destroy(Request $request, Reservation $reservation): RedirectResponse
     {
-        (new RefundGuest)($reservation);
+        $amount = refund_amount($reservation);
+
+        if ($amount) (new RefundGuest)($reservation, $amount);
 
         $reservation->update(['status' => ReservationStatus::CANCELLED]);
 

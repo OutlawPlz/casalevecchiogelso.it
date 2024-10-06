@@ -39,9 +39,11 @@
                     <x-reservation-status class="mt-4" :$reservation :$authUser />
                 </div>
 
+                @host
                 <div class="py-6 border-b">
                     <x-reservation-actions class="mt-4" :$reservation :$authUser />
                 </div>
+                @endhost
 
                 <div class="grid grid-cols-2 divide-x py-6 border-b">
                     <div>

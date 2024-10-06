@@ -22,15 +22,10 @@ class ReservationPolicy
 
     /**
      * @param  User  $user
-     * @param  Reservation  $reservation
      * @return bool
      */
-    public function update(User $user, Reservation $reservation): bool
+    public function update(User $user): bool
     {
-        if ($reservation->inStatus(ReservationStatus::PENDING)) {
-            return false;
-        }
-
         return $user->isHost();
     }
 
