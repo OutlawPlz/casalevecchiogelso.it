@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->index();
             $table->string('phone')->nullable();
-            $table->date('check_in');
-            $table->date('check_out');
+            $table->dateTime('check_in')->index();
+            $table->dateTime('check_out')->index();
             $table->string('preparation_time');
             $table->json('price_list');
             $table->integer('guest_count')->unsigned();

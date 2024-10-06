@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Price;
+use App\Models\Product;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,11 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::factory()->create([
+            'name' => 'Guest User',
+            'email' => 'guest@example.com',
+        ]);
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Host User',
+            'email' => 'host@example.com',
         ]);
+
+        Product::syncFromStripe();
+
+        Price::syncFromStripe();
     }
 }

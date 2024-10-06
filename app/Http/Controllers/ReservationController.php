@@ -53,6 +53,9 @@ class ReservationController extends Controller
     {
         $attributes = $request->validate(self::rules());
 
+        $attributes['check_in'] .= ' ' . config('reservation.check_in_time');
+        $attributes['check_out'] .= ' ' . config('reservation.check_out_time');
+
         $reservation = new Reservation($attributes);
 
         $priceList = Product::defaultPriceList();

@@ -8,7 +8,7 @@
             defaultOvernightStay: {{ Js::from(array_shift($priceList)) }},
             priceList: {{ Js::from($priceList) }},
             period: $persist([new Date().toJSON().slice(0, 10), new Date().toJSON().slice(0, 10)]).using(sessionStorage),
-            guestCount: 1,
+            guestCount: $persist(1).using(sessionStorage),
             loading: false,
             errors: {{ Js::from($errors->messages()) }},
 

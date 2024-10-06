@@ -15,6 +15,7 @@
 
             this.picker = new easepick.create({
                 element: this.$refs.startDate,
+                lang: document.documentElement.lang || undefined,
                 grid: calendarColumns,
                 calendars: calendarColumns,
                 css: [

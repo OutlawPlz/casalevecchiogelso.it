@@ -99,8 +99,8 @@ class Reservation extends Model
     protected function casts(): array
     {
         return [
-            'check_in' => 'immutable_date',
-            'check_out' => 'immutable_date',
+            'check_in' => 'immutable_datetime',
+            'check_out' => 'immutable_datetime',
             'preparation_time' => AsDateInterval::class,
             'price_list' => 'array',
             'status' => ReservationStatus::class,

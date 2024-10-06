@@ -36,7 +36,7 @@ return [
     |
     */
 
-    'check_in_time' => env('CHECK_IN_TIME', '11:00'),
+    'check_in_time' => env('CHECK_IN_TIME', '16:00'),
 
-    'check_out_time' => env('CHECK_OUT_TIME', '16:00'),
+    'check_out_time' => env('CHECK_OUT_TIME', '11:00'),
 ];

@@ -48,12 +48,12 @@
                 <div class="grid grid-cols-2 divide-x py-6 border-b">
                     <div>
                         <div class="font-bold">{{ __('Check-in') }}</div>
-                        <span class="text-gray-600">{{ $reservation->check_in->format('Y-m-d') }}</span>
+                        <span class="text-gray-600" x-date="'{{ $reservation->check_in }}'"></span>
                     </div>
 
                     <div class="text-right">
                         <div class="font-bold">{{ __('Check-out') }}</div>
-                        <span class="text-gray-600">{{ $reservation->check_out->format('Y-m-d') }}</span>
+                        <span class="text-gray-600" x-date="'{{ $reservation->check_out }}'"></span>
                     </div>
                 </div>
 
