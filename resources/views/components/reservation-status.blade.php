@@ -18,7 +18,7 @@
             >{{ __('Confirm and pay') }}</x-primary-button>
         </form>
 
-        <div class="prose">
+        <div class="prose mt-4">
             {{ __('Your booking has been pre-approved.') }}
             {{ __('You have 24 hours to confirm and pay for your reservation.') }}
         </div>
@@ -51,12 +51,12 @@
         @break
 
     @case(ReservationStatus::CONFIRMED)
-        <x-primary-button
-            x-on:click.prevent="$dispatch('open-modal', 'cancel')"
-            class="justify-center w-full mt-6"
+        <a
+            href="{{ route('reservation.delete', [$reservation]) }}"
+            class="justify-center w-full mt-3 inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
         >
             {{ __('Cancel the booking') }}
-        </x-primary-button>
+        </a>
 
         <div class="rounded-md p-4 bg-green-50 flex space-x-2 mt-6">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-green-400">
@@ -65,42 +65,6 @@
 
             <span class="text-green-700 text-sm">{{ __('Reservation confirmed!') }}</span>
         </div>
-
-        <x-modal name="cancel" max-width="xl">
-            <form
-                class="p-6"
-                action="{{ route('reservation.status', [$reservation]) }}"
-                method="POST"
-            >
-                @csrf
-
-                <div class="prose">
-                    <h2>Cancel the booking</h2>
-                    <p>
-                        {{ __('Are you sure you want to cancel your reservation?') }}
-                        {{ __('You will receive a refund, if applicable.') }}
-                        {{ __('Check the cancellation policy.') }}
-                    </p>
-                </div>
-
-                <div class="mt-6 space-x-3 flex justify-end">
-                    <x-secondary-button
-                        x-on:click="$dispatch('close')"
-                        type="button"
-                    >
-                        {{ __('Close') }}
-                    </x-secondary-button>
-
-                    <x-primary-button
-                        value="{{ ReservationStatus::CANCELLED }}"
-                        name="status"
-                        class="justify-center"
-                    >
-                        {{ __('Cancel') }}
-                    </x-primary-button>
-                </div>
-            </form>
-        </x-modal>
 
         @break
 @endswitch

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Refund;
 use Stripe\StripeClient;
 use function App\Helpers\money_formatter;
 
@@ -18,11 +19,11 @@ class RefundGuest
     /**
      * @param Reservation $reservation
      * @param int $amount
-     * @return void
+     * @return Refund
      * @throws ApiErrorException
      * @throws ValidationException
      */
-    public function __invoke(Reservation $reservation, int $amount = 0): void
+    public function __invoke(Reservation $reservation, int $amount = 0): Refund
     {
         $this->stripe = App::make(StripeClient::class);
 
@@ -38,8 +39,6 @@ class RefundGuest
                 'refund_denied' => __('The reservation is not eligible for a refund.'),
             ]);
         }
-
-        // TODO: Catch ApiError and show message to the user.
 
         $refund = $this->stripe->refunds->create([
             'payment_intent' => $reservation->payment_intent,
@@ -61,5 +60,7 @@ class RefundGuest
                 'amount' => $refund->amount,
             ])
             ->log("A refund of $formattedAmount has been created.");
+
+        return $refund;
     }
 }

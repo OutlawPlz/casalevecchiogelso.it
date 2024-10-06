@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RefundGuest;
 use App\Enums\ReservationStatus;
 use App\Models\Product;
 use App\Models\Reservation;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Stripe\Refund;
 use function App\Helpers\is_overnight_stay;
 
 class ReservationController extends Controller
@@ -110,9 +112,9 @@ class ReservationController extends Controller
         /** @var User $authUser */
         $authUser = $request->user();
 
-//        if (! $reservation->inStatus(ReservationStatus::CONFIRMED)) {
-//            return redirect()->route('reservation.show', [$reservation]);
-//        }
+        if (! $reservation->inStatus(ReservationStatus::CONFIRMED)) {
+            return redirect()->route('reservation.show', [$reservation]);
+        }
 
         return \view('reservation.delete', [
             'authUser' => $authUser,
@@ -120,9 +122,23 @@ class ReservationController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, Reservation $reservation)
+    /**
+     * @param Request $request
+     * @param Reservation $reservation
+     * @return void
+     * @throws ValidationException
+     * @throws \Stripe\Exception\ApiErrorException
+     */
+    public function destroy(Request $request, Reservation $reservation): void
     {
-        //
+        /** @var User $authUser */
+        $authUser = $request->user();
+
+        $message = $request->validate(['message' => 'nullable'])['message'];
+
+        $refund = (new RefundGuest)($reservation, 10000);
+
+        dd($refund);
     }
 
     /**

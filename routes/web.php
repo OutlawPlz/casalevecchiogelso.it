@@ -72,7 +72,7 @@ Route::get('auth/token', [TokenAuthenticationController::class, 'store'])->name(
 Route::post('/locale-preference', LocalePreferenceController::class)->name('locale-preference');
 
 Route::get('/test', function (\Stripe\StripeClient $stripe) {
-    return $stripe->paymentIntents->retrieve('pi_3PsWK1AKSJP4UmE23u551Jio', [
+    return $stripe->paymentIntents->retrieve('pi_3Q6usdAKSJP4UmE203g6Oc6E', [
         'expand' => ['latest_charge.balance_transaction'],
     ]);
 });

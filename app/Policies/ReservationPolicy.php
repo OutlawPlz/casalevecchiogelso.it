@@ -33,4 +33,18 @@ class ReservationPolicy
 
         return $user->isHost();
     }
+
+    /**
+     * @param User $user
+     * @param Reservation $reservation
+     * @return bool
+     */
+    public function destroy(User $user, Reservation $reservation): bool
+    {
+        if (! $reservation->inStatus(ReservationStatus::CONFIRMED)) {
+            return false;
+        }
+
+        return $user->isHost() || $reservation->user()->is($user);
+    }
 }
