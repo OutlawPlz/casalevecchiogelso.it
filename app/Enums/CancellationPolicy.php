@@ -13,10 +13,7 @@ enum CancellationPolicy: string
      */
     public function refundFactor(): float
     {
-        return match ($this) {
-            self::FLEXIBLE => .3,
-            self::MODERATE, self::STRICT => .5,
-        };
+        return .3;
     }
 
     /**
@@ -26,8 +23,8 @@ enum CancellationPolicy: string
     {
         return match ($this) {
             self::FLEXIBLE => '1 day',
-            self::MODERATE => '7 days',
-            self::STRICT => '1 month',
+            self::MODERATE => '5 days',
+            self::STRICT => '14 days',
         };
     }
 }

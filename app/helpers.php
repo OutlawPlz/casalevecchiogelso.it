@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Reservation;
 use DateInterval;
 use DatePeriod;
 use DateTime;
@@ -118,6 +119,26 @@ function dates_in_range(
 function is_overnight_stay(string $stripeId): bool
 {
     return config('reservation.overnight_stay') === $stripeId;
+}
+
+/**
+ * @param Reservation $reservation
+ * @param DateTime|null $date
+ * @return int
+ */
+function refund_amount(Reservation $reservation, DateTime $date = null): int
+{
+    if (! $date) $date = now();
+
+    $refundFactor = 1;
+
+    if ($date->isAfter($reservation->check_in)) $refundFactor = 0;
+
+    if ($date->isBetween(...$reservation->refundPeriod)) {
+        $refundFactor = $reservation->cancellation_policy->refundFactor();
+    }
+
+     return $reservation->tot * $refundFactor;
 }
 
 /**

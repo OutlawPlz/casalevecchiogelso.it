@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Stripe\Refund;
 use function App\Helpers\is_overnight_stay;
+use function App\Helpers\refund_amount;
 
 class ReservationController extends Controller
 {
@@ -109,36 +110,36 @@ class ReservationController extends Controller
      */
     public function delete(Request $request, Reservation $reservation): View|RedirectResponse
     {
-        /** @var User $authUser */
-        $authUser = $request->user();
-
         if (! $reservation->inStatus(ReservationStatus::CONFIRMED)) {
             return redirect()->route('reservation.show', [$reservation]);
         }
 
-        return \view('reservation.delete', [
+        /** @var User $authUser */
+        $authUser = $request->user();
+
+        return view('reservation.delete', [
             'authUser' => $authUser,
             'reservation' => $reservation,
+            'refundAmount' => refund_amount($reservation),
         ]);
     }
 
     /**
      * @param Request $request
      * @param Reservation $reservation
-     * @return void
+     * @return RedirectResponse
      * @throws ValidationException
      * @throws \Stripe\Exception\ApiErrorException
      */
-    public function destroy(Request $request, Reservation $reservation): void
+    public function destroy(Request $request, Reservation $reservation): RedirectResponse
     {
-        /** @var User $authUser */
-        $authUser = $request->user();
+        (new RefundGuest)($reservation);
 
-        $message = $request->validate(['message' => 'nullable'])['message'];
+        $reservation->update(['status' => ReservationStatus::CANCELLED]);
 
-        $refund = (new RefundGuest)($reservation, 10000);
+        // TODO: Send notification to host and guest.
 
-        dd($refund);
+        return redirect()->route('reservation.show', [$reservation]);
     }
 
     /**

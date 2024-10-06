@@ -1,8 +1,8 @@
 @php
     /**
      * @var \App\Models\User $authUser
-     * @var \Illuminate\Pagination\Paginator $reservations
      * @var \App\Models\Reservation $reservation
+     * @var int $refundAmount
      */
 @endphp
 
@@ -26,8 +26,12 @@
             <h2 class="mt text-2xl">Why do you need to cancel?</h2>
 
             <p class="mt-2 text-gray-600">
+                @host
+                {{ __('Let the guest know why you need to cancel the reservation.') }}
+                @else
                 {{ __('We are sorry to see you cancel your reservation.') }}
                 {{ __('If you like, leave us a message.') }}
+                @endhost
             </p>
 
             <form
@@ -54,18 +58,22 @@
             <h2 class="mt text-2xl">{{ __('Confirm cancellation') }}</h2>
 
             <p class="mt-2 text-gray-600">
-                {{ __('Your reservation will be cancelled immediately and you\'ll be refunded within few business days.') }}
+                @host
+                {{ __('The reservation will be cancelled immediately and the guest will be refunded according with cancellation policy.') }}
+                @else
+                {{ __('Your reservation will be cancelled immediately and you\'ll be refunded within few business days according with cancellation policy.') }}
+                @endhost
             </p>
 
             <div class="mt-6 grid grid-cols-2 items-center max-w-sm" x-data>
                 <div>
-                    <span class="text-gray-600">You paid</span> <br>
+                    <span class="text-gray-600">Paid</span> <br>
                     <span class="text-2xl" x-currency="{{ $reservation->tot }}"></span>
                 </div>
 
                 <div>
-                    <span class="text-gray-600">{{ __('Your refund') }}</span> <br>
-                    <span class="text-2xl" x-currency="{{ $reservation->tot * $reservation->refundFactor() }}"></span>
+                    <span class="text-gray-600">{{ __('Refund') }}</span> <br>
+                    <span class="text-2xl" x-currency="{{ $refundAmount }}"></span>
                 </div>
             </div>
 

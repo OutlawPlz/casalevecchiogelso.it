@@ -11,6 +11,7 @@ use Stripe\Exception\ApiErrorException;
 use Stripe\Refund;
 use Stripe\StripeClient;
 use function App\Helpers\money_formatter;
+use function App\Helpers\refund_amount;
 
 class RefundGuest
 {
@@ -30,9 +31,7 @@ class RefundGuest
         /** @var User|null $authUser */
         $authUser = Auth::user();
 
-        $paymentIntent = $this->stripe->paymentIntents->retrieve($reservation->payment_intent);
-
-        $amount |= $paymentIntent->amount * $reservation->refundFactor();
+        $amount |= refund_amount($reservation);
 
         if (! $amount) {
             throw ValidationException::withMessages([
@@ -62,5 +61,26 @@ class RefundGuest
             ->log("A refund of $formattedAmount has been created.");
 
         return $refund;
+    }
+
+    /**
+     * @param Reservation $reservation
+     * @return int
+     */
+    protected function calculateAmount(Reservation $reservation): int
+    {
+        $stripe = App::make(StripeClient::class);
+
+        $paymentIntent = $stripe->paymentIntents->retrieve($reservation->payment_intent);
+
+        $refundFactor = 1;
+
+        if (now()->isAfter($reservation->check_in)) $refundFactor = 0;
+
+        if (now()->isBetween(...$reservation->refundPeriod)) {
+            $refundFactor = $reservation->cancellation_policy->refundFactor();
+        }
+
+        return $paymentIntent->amount * $refundFactor;
     }
 }
