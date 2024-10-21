@@ -6,6 +6,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RefundController;
 use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationStatusController;
@@ -43,6 +44,9 @@ Route::group([
         ->can('update', 'reservation');
     Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
         ->can('viewAny', [Activity::class, 'reservation']);
+
+    /* ----- Refund ----- */
+    Route::post('/reservations/{reservation:ulid}/refund', [RefundController::class, 'store'])->name('refund.store');
 
     /* ----- Checkout ----- */
     Route::post('/checkout', CheckoutController::class)->name('checkout');

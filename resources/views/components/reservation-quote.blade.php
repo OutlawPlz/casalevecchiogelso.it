@@ -128,6 +128,7 @@
                 class="mt-8"
                 x-on:submit.prevent="submit"
                 x-data="{
+                    loading: false,
                     errors: {},
 
                     async submit() {

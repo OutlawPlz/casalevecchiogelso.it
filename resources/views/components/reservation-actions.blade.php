@@ -142,5 +142,63 @@
             </form>
         </x-modal>
 
+        <x-primary-button
+            x-on:click.prevent="$dispatch('open-modal', 'refund')"
+            class="justify-center w-full mt-6"
+        >
+            {{ __('Send money') }}
+        </x-primary-button>
+
+        <x-modal name="refund" max-width="md">
+            <form
+                class="p-6"
+                x-on:submit.prevent="submit"
+                x-data="{
+                    loading: false,
+                    errors: {},
+
+                    async submit() {
+                        this.loading = true;
+
+                        const formData = new FormData(this.$root);
+
+                        await axios.post('{{ route('refund.store', [$reservation]) }}', formData)
+                            .then((response) => this.errors = {})
+                            .catch((error) => {
+                                console.log(error.response.data);
+
+                                if (error.response.status === 422) {
+                                    return this.errors = error.response.data.errors;
+                                }
+                            });
+
+                        this.loading = false;
+                    },
+                }"
+            >
+                <div>
+                    <x-input-label>{{ __('Amount') }}</x-input-label>
+                    <x-text-input step=".01" name="amount" />
+                    <template x-if="errors.amount">
+                        <div x-text="errors.amount[0]" class="text-sm text-red-600 mt-1"></div>
+                    </template>
+                </div>
+
+                <div class="mt-6 space-x-3 flex justify-end">
+                    <x-secondary-button
+                        x-on:click="$dispatch('close')"
+                        type="button"
+                    >
+                        {{ __('Close') }}
+                    </x-secondary-button>
+
+                    <x-primary-button x-bind:disabled="loading">
+                        <x-spinner-loader x-show="loading" />
+                        {{ __('Send money') }}
+                    </x-primary-button>
+                </div>
+            </form>
+        </x-modal>
+
         @break
 @endswitch
