@@ -16,11 +16,11 @@ class RefundGuest
 
     /**
      * @param Reservation $reservation
-     * @param int $amount
+     * @param int $cents
      * @return void
      * @throws ApiErrorException
      */
-    public function __invoke(Reservation $reservation, int $amount = 0): void
+    public function __invoke(Reservation $reservation, int $cents = 0): void
     {
         $this->stripe = App::make(StripeClient::class);
 
@@ -29,7 +29,7 @@ class RefundGuest
 
         $refund = $this->stripe->refunds->create([
             'payment_intent' => $reservation->payment_intent,
-            'amount' => $amount,
+            'amount' => $cents,
             'metadata' => [
                 'reservation' => $reservation->ulid,
             ],

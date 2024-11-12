@@ -47,6 +47,7 @@
                     class="max-w-lg"
                     placeholder="{{ __('Your message') }}..."
                     name="message"
+                    rows="3"
                 ></x-textarea-input>
             </form>
 
@@ -81,9 +82,9 @@
 
             <p class="mt-2 text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at blandit sem. Nullam lobortis enim sit amet sem hendrerit, ut elementum lectus bibendum. Mauris quis lorem laoreet, porttitor arcu eu, pulvinar augue.</p>
 
-            <x-primary-button class="mt-6" form="cancellation-form">
+            <x-button variant="primary" class="mt-6" form="cancellation-form">
                 {{ __('Confirm cancellation') }}
-            </x-primary-button>
+            </x-button>
         </div>
     </section>
 </x-app-layout>

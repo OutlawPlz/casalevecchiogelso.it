@@ -18,5 +18,5 @@ export default {
         },
     },
 
-    plugins: [forms, typography],
+    plugins: [typography],
 };

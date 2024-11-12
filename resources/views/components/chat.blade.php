@@ -44,7 +44,7 @@
                 .get(`/reservations/{{ $channel }}/messages/${messageId}?locale=${this.locale}`)
                 .then((response) => this.messages.unshift(response.data));
 
-            $nextTick(() => location.href = '#end');
+            $nextTick(() => document.getElementById(`message-${messageId}`).scrollIntoView());
 
             this.loading = false;
         },
@@ -85,10 +85,10 @@
             $watch('locale', (value, oldValue) => {
                 if (value === oldValue) return;
 
-                this.index().then(() => $nextTick(() => location.href = '#end'));
+                this.index();
             });
 
-            this.index().then(() => $nextTick(() => location.href = '#end'));
+            this.index().then(() => $nextTick(() => this.$refs.end.scrollIntoView()));
 
             Echo
                 .private('Reservations.{{ $channel }}')
@@ -97,7 +97,7 @@
     }"
     x-on:translate-chat.window="locale = $event.detail"
 >
-    <div class="sticky top-0 py-4 bg-white flex overflow-x-scroll space-x-4 px-4 sm:px-6 border-l shadow-sm">
+    <div class="sticky top-0 py-4 bg-white flex shrink-0 overflow-x-scroll space-x-4 px-4 sm:px-6 border-l shadow-sm">
         <h3 class="text-xl font-bold">{{ __('Chat') }}</h3>
 
         <button
@@ -141,7 +141,9 @@
     </div>
 
     <div class="w-full max-w-3xl mx-auto grow px-4 md:px-6">
-        <div id="start"x-intersect:enter="index"></div>
+        <div x-ref="start" x-intersect:enter="index">
+            <!-- Chat start placeholder -->
+        </div>
 
         <template x-for="(messages, date) in chat" :key="date">
             <div>
@@ -181,7 +183,9 @@
             </div>
         </template>
 
-        <div id="end"></div>
+        <div x-ref="end">
+            <!-- Chat end placeholder -->
+        </div>
     </div>
 
     <div class="w-full max-w-3xl mx-auto sticky bottom-0 py-2 px-4 md:px-6 mt-2">
@@ -221,14 +225,15 @@
                 @host
                 <x-dropdown align="top" class="mb-4 w-48">
                     <x-slot name="trigger">
-                        <button
+                        <x-button
+                            variant="ghost"
+                            size="size-10"
                             type="button"
-                            class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
                             </svg>
-                        </button>
+                        </x-button>
                     </x-slot>
 
                     <x-slot name="content">
@@ -247,7 +252,7 @@
                 </x-dropdown>
                 @endhost
 
-                <div class="relative p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
+                <div class="relative text-sm size-10 items-center font-medium justify-center gap-2 whitespace-nowrap disabled:opacity-75 dark:disabled:opacity-75 disabled:cursor-default disabled:pointer-events-none text-sm rounded-lg inline-flex bg-transparent hover:bg-zinc-800/5 dark:hover:bg-white/15 text-zinc-800 dark:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
                         <path fill-rule="evenodd" d="M15.621 4.379a3 3 0 0 0-4.242 0l-7 7a3 3 0 0 0 4.241 4.243h.001l.497-.5a.75.75 0 0 1 1.064 1.057l-.498.501-.002.002a4.5 4.5 0 0 1-6.364-6.364l7-7a4.5 4.5 0 0 1 6.368 6.36l-3.455 3.553A2.625 2.625 0 1 1 9.52 9.52l3.45-3.451a.75.75 0 1 1 1.061 1.06l-3.45 3.451a1.125 1.125 0 0 0 1.587 1.595l3.454-3.553a3 3 0 0 0 0-4.242Z" clip-rule="evenodd" />
                     </svg>
@@ -265,11 +270,11 @@
 
                 <div class="grow"></div>
 
-                <button class="relative p-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                <x-button variant="primary" size="size-10">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
                         <path d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z"/>
                     </svg>
-                </button>
+                </x-button>
             </div>
         </form>
     </div>

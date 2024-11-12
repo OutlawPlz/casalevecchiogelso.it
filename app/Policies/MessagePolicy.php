@@ -22,7 +22,7 @@ class MessagePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Reservation $reservation, Message $message): bool
+    public function view(User $user, Reservation $reservation): bool
     {
         if ($user->isHost()) return true;
 

@@ -91,20 +91,21 @@
             @csrf
 
             @guest()
-            <x-primary-button
+            <x-button
+                variant="primary"
                 x-data=""
                 type="button"
                 class="w-full justify-center"
                 x-on:click.prevent="$dispatch('open-modal', 'token-login')"
             >
                 {{ __('Request to book') }}
-            </x-primary-button>
+            </x-button>
             @endguest
 
             @auth()
-            <x-primary-button class="w-full justify-center">
+            <x-button variant="primary" class="w-full justify-center">
                 {{ __('Request to book') }}
-            </x-primary-button>
+            </x-button>
             @endauth
 
             <p class="text-sm mt-2 text-center">{{ __('You won\'t be charged yet') }}</p>
@@ -163,8 +164,12 @@
                 </div>
 
                 <div class="mt-2">
-                    <x-primary-button
-                        class="w-full justify-center">{{ __('Sign-in') }}</x-primary-button>
+                    <x-button
+                        variant="primary"
+                        class="w-full justify-center"
+                    >
+                        {{ __('Sign-in') }}
+                    </x-button>
                 </div>
 
                 <div class="relative mt-4">
