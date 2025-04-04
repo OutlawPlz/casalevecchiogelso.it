@@ -48,4 +48,8 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
         'min_payout_amount' => env('STRIPE_MIN_PAYOUT', 100),
     ],
+
+    'airbnb' => [
+        'ics_link' => env('AIRBNB_ICS_LINK')
+    ],
 ];

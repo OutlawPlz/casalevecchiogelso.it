@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\Reservation;
+use Carbon\Carbon;
 use DateInterval;
 use DatePeriod;
 use DateTime;
@@ -123,10 +124,10 @@ function is_overnight_stay(string $stripeId): bool
 
 /**
  * @param Reservation $reservation
- * @param DateTime|null $date
+ * @param Carbon|null $date
  * @return int
  */
-function refund_amount(Reservation $reservation, DateTime $date = null): int
+function refund_amount(Reservation $reservation, Carbon $date = null): int
 {
     if (! $date) $date = now();
 

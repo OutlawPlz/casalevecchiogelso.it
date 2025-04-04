@@ -143,7 +143,7 @@ class Calendar
      */
     public function fromAirbnb(?string $ics = null): array
     {
-        $ics ??= env('AIRBNB_ICS_LINK');
+        $ics ??= config('services.airbnb.ics_link');
 
         // I have to use withUserAgent(), otherwise AirBnB will return 429 code.
         $response = Http::withUserAgent('')->get($ics);
@@ -157,7 +157,7 @@ class Calendar
         foreach ($matches[0] as $match) {
             $event = [];
 
-            $lines = explode("\n", $match);
+            $lines = explode("\r\n", $match);
 
             foreach ($lines as $line) {
                 [$key, $value] = explode(':', $line, 2);
