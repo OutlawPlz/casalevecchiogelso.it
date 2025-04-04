@@ -17,7 +17,7 @@
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white shadow sm:rounded-lg">
+            <div class="bg-white shadow-sm sm:rounded-lg">
                 <div class="divide-y divide-gray-100">
                     @foreach($reservations as $reservation)
                     <a

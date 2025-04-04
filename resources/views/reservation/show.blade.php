@@ -96,7 +96,7 @@
                 x-on:change="$dispatch('translate-chat', $event.target.value)"
             >
                 @foreach(App\Services\GoogleTranslate::languages() as $language)
-                    <label class="has-[:checked]:ring-gray-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-gray-100">
+                    <label class="has-checked:ring-gray-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-gray-100">
                         <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
                         <span>{{ $language['name'] }}</span>
                     </label>

@@ -97,7 +97,7 @@
     }"
     x-on:translate-chat.window="locale = $event.detail"
 >
-    <div class="sticky top-0 py-4 bg-white flex shrink-0 overflow-x-scroll space-x-4 px-4 sm:px-6 border-l shadow-sm">
+    <div class="sticky top-0 py-4 bg-white flex shrink-0 overflow-x-scroll space-x-4 px-4 sm:px-6 border-l shadow-xs">
         <h3 class="text-xl font-bold">{{ __('Chat') }}</h3>
 
         <button
@@ -157,7 +157,7 @@
                     >
                         <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
                         <div
-                            class="shadow flex flex-col max-w-[95%] leading-1.5 p-3 rounded-lg"
+                            class="shadow-sm flex flex-col max-w-[95%] leading-1.5 p-3 rounded-lg"
                             :class="isAuthUser(message.user_id) ? 'bg-gray-200' : 'bg-white'"
                         >
                             <div class="flex items-center space-x-2">
@@ -193,7 +193,7 @@
             enctype="multipart/form-data"
             x-ref="form"
             x-on:submit.prevent="submit"
-            class="p-3 rounded-lg bg-white shadow space-y-2"
+            class="p-3 rounded-lg bg-white shadow-sm space-y-2"
         >
             <div class="autogrow" :data-replicated-value="content">
                 <textarea
