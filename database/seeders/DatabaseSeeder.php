@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Price;
 use App\Models\Product;
+use App\Models\Reservation;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Factories\ReservationFactory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,18 +17,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Guest User',
-            'email' => 'guest@example.com',
-        ]);
+        Price::syncFromStripe();
+        Product::syncFromStripe();
 
         User::factory()->create([
             'name' => 'Host User',
             'email' => 'host@example.com',
         ]);
 
-        Product::syncFromStripe();
-
-        Price::syncFromStripe();
+        User::factory()
+            ->has(Reservation::factory())
+            ->create([
+                'name' => 'Guest User',
+                'email' => 'guest@example.com',
+            ]);
     }
 }

@@ -18,6 +18,7 @@ use function App\Helpers\is_overnight_stay;
 /**
  * @property int $id
  * @property string $ulid
+ * @property int $user_id
  * @property string $first_name
  * @property string $last_name
  * @property string $email
