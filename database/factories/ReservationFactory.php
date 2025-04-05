@@ -18,13 +18,13 @@ class ReservationFactory extends Factory
     public function definition(): array
     {
         return [
-            'ulid' => Str::uuid(),
+            'ulid' => Str::ulid(),
             'name' => fake()->name(),
             'email' => fake()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'guest_count' => fake()->numberBetween(1, 10),
-            'check_in' => fake()->dateTime('+1 week'),
-            'check_out' => fake()->dateTime('+2 weeks'),
+            'check_in' => today()->addWeek(),
+            'check_out' => today()->addWeeks(2),
             'preparation_time' => new DateInterval('P1D'),
             'summary' => fake()->sentence(),
             'price_list' => [

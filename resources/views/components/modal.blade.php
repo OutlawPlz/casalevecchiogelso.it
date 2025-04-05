@@ -1,7 +1,7 @@
 @props([
     'name',
     'maxWidth' => '2xl',
-    'defaultClasses' => 'shadow-lg rounded-xl mt-12 bg-white dark:bg-zinc-800 border border-transparent dark:border-zinc-700 w-full',
+    'defaultClasses' => 'shadow-lg rounded-xl mt-12 mx-auto bg-white border border-transparent w-full',
 ])
 
 @php
