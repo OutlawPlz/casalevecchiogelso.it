@@ -58,22 +58,32 @@
     }"
 >
     <div>
-        <x-input-label>{{ __('Check-in') }}</x-input-label>
-        <x-text-input readonly=""
-                      type="text"
-                      x-ref="startDate"
-                      name="{{ $names[0] }}"
-                      x-model="_dates[0]"
-                      x-on:click="picker.show()"/>
+        <x-label for="start-date" class="mb-1">
+            {{ __('Check-in') }}
+        </x-label>
+        <x-input
+            readonly=""
+            type="text"
+            x-ref="startDate"
+            name="{{ $names[0] }}"
+            x-model="_dates[0]"
+            x-on:click="picker.show()"
+            id="start-date"
+        />
     </div>
 
     <div>
-        <x-input-label>{{ __('Check-out') }}</x-input-label>
-        <x-text-input readonly=""
-                      type="text"
-                      x-ref="endDate"
-                      name="{{ $names[1] }}"
-                      x-model="_dates[1]"
-                      x-on:click="picker.show()"/>
+        <x-label for="end-date" class="mb-1">
+            {{ __('Check-out') }}
+        </x-label>
+        <x-input
+            readonly=""
+            type="text"
+            x-ref="endDate"
+            name="{{ $names[1] }}"
+            x-model="_dates[1]"
+            x-on:click="picker.show()"
+            id="end-date"
+        />
     </div>
 </div>

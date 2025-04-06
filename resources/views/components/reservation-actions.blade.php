@@ -6,6 +6,16 @@
 @endphp
 
 @use('\App\Enums\ReservationStatus')
+@use('\Illuminate\Support\Str')
+
+<x-field
+    :id="Str::ulid()"
+    label="{{ __('Amount') }}"
+    name="amount"
+    :required="false"
+>
+    <x-input type="text" />
+</x-field>
 
 <div>
     <div>
@@ -142,8 +152,6 @@
                         await axios.post('{{ route('refund.store', [$reservation]) }}', formData)
                             .then((response) => this.errors = {})
                             .catch((error) => {
-                                console.log(error.response.data);
-
                                 if (error.response.status === 422) {
                                     return this.errors = error.response.data.errors;
                                 }
@@ -154,7 +162,8 @@
                 }"
             >
                 <div>
-                    <x-input-label>{{ __('Amount') }}</x-input-label>
+                    <label>{{ __('Amount') }}</label>
+                    <input type="number" name="amount" step=".01" min=".01">
                     <x-text-input step=".01" name="amount" />
                     <template x-if="errors.amount">
                         <div x-text="errors.amount[0]" class="text-sm text-red-600 mt-1"></div>

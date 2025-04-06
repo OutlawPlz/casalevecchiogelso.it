@@ -40,28 +40,23 @@
                 />
 
                 @foreach(['check_in', 'check_out', 'unavailable_dates'] as $key)
-                <template x-if="errors.{{ $key }}">
-                    <div x-text="errors.{{ $key }}[0]" class="text-sm text-red-600 mt-1"></div>
-                </template>
+                    <x-error-messages class="mt-1" messages="errors.{{ $key }}" />
                 @endforeach
             </div>
 
-            <div>
-                <x-input-label>{{ __('Guests') }}</x-input-label>
-
-                <x-text-input
+            <x-field
+                id="guest-count"
+                name="guest_count"
+                :label="__('Guests')"
+            >
+                <x-input
                     type="number"
-                    name="guest_count"
                     min="1"
                     max="10"
                     x-bind:disabled="loading"
                     x-model="guestCount"
                 />
-
-                <template x-if="errors.guest_count">
-                    <div x-text="errors.guest_count[0]" class="text-sm text-red-600 mt-1"></div>
-                </template>
-            </div>
+            </x-field>
         </div>
 
         <div class="space-y-2">

@@ -3,7 +3,8 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
 import persist from '@alpinejs/persist';
-import { format, addDays, addYears, differenceInDays } from 'date-fns';
+import {format, addDays, addYears, differenceInDays} from 'date-fns';
+import {ulid} from 'ulid';
 
 window.Alpine = Alpine;
 
@@ -14,19 +15,21 @@ window.differenceInDays = differenceInDays;
 
 Alpine.plugin([intersect, persist]);
 
+window.ulid = ulid;
+
 window.currencyFormatter = new Intl.NumberFormat(
     document.documentElement.lang || undefined,
-    { style: 'currency', currency: 'EUR' }
+    {style: 'currency', currency: 'EUR'}
 );
 
 window.dateTimeFormatter = new Intl.DateTimeFormat(
     document.documentElement.lang || undefined,
-    { dateStyle: 'short', timeStyle: 'short' }
+    {dateStyle: 'short', timeStyle: 'short'}
 );
 
 Alpine.directive(
     'currency',
-    (el, { expression }, { evaluateLater, effect }) => {
+    (el, {expression}, {evaluateLater, effect}) => {
         const getAmount = evaluateLater(expression);
 
         effect(() => {
@@ -39,7 +42,7 @@ Alpine.directive(
 
 Alpine.directive(
     'date',
-    (el, { expression }, { evaluateLater, effect }) => {
+    (el, {expression}, {evaluateLater, effect}) => {
         const getDateTime = evaluateLater(expression);
 
         effect(() => {
