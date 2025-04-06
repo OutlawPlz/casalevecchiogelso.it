@@ -21,7 +21,7 @@
 
 @switch($reservation->status)
     @case(ReservationStatus::QUOTE)
-        <div class="grid grid-cols-2 gap-4 mt-4">
+        <div class="flex flex-col gap-2 mt-4">
             <x-button
                 x-on:click.prevent="$dispatch('open-modal', 'reject')"
                 class="justify-center"
@@ -108,21 +108,23 @@
         @break
 
     @case(ReservationStatus::CONFIRMED)
-        <x-button
-            variant="primary"
-            href="{{ route('reservation.delete', [$reservation]) }}"
-            class="w-full"
-        >
-            {{ __('Cancel the booking') }}
-        </x-button>
+        <div class="flex flex-col gap-2 mt-4">
+            <x-button
+                variant="primary"
+                href="{{ route('reservation.delete', [$reservation]) }}"
+                class="w-full"
+            >
+                {{ __('Cancel the booking') }}
+            </x-button>
 
-        <x-button
-            variant="primary"
-            x-on:click.prevent="$dispatch('open-modal', 'refund')"
-            class="justify-center w-full mt-6"
-        >
-            {{ __('Send money') }}
-        </x-button>
+            <x-button
+                variant="primary"
+                x-on:click.prevent="$dispatch('open-modal', 'refund')"
+                class="justify-center w-full"
+            >
+                {{ __('Send money') }}
+            </x-button>
+        </div>
 
         <x-modal name="refund" max-width="md">
             <form
