@@ -32,7 +32,7 @@
                 <div class="py-6 border-b">
                     <div class="font-bold">{{ __('Price') }}</div>
 
-                    <div class="mt-2 space-y-6 p-6 bg-gray-50 rounded-lg">
+                    <div class="mt-2 space-y-6 p-6 bg-zinc-50 rounded-lg">
                         <x-reservation-price :$reservation />
                     </div>
 
@@ -48,28 +48,28 @@
                 <div class="grid grid-cols-2 divide-x py-6 border-b">
                     <div>
                         <div class="font-bold">{{ __('Check-in') }}</div>
-                        <span class="text-gray-600" x-date="'{{ $reservation->check_in }}'"></span>
+                        <span class="text-zinc-600" x-date="'{{ $reservation->check_in }}'"></span>
                     </div>
 
                     <div class="text-right">
                         <div class="font-bold">{{ __('Check-out') }}</div>
-                        <span class="text-gray-600" x-date="'{{ $reservation->check_out }}'"></span>
+                        <span class="text-zinc-600" x-date="'{{ $reservation->check_out }}'"></span>
                     </div>
                 </div>
 
                 <div class="py-6 border-b">
                     <div class="font-bold">{{ __('Who\'s coming') }}</div>
-                    <span class="text-gray-600">{{ $reservation->guest_count }} {{ __('guests') }}</span>
+                    <span class="text-zinc-600">{{ $reservation->guest_count }} {{ __('guests') }}</span>
                 </div>
 
                 <div class="py-6 border-b">
                     <div class="font-bold">{{ __('Reservation code') }}</div>
-                    <span class="text-gray-600 font-mono">{{ $reservation->ulid }}</span>
+                    <span class="text-zinc-600 font-mono">{{ $reservation->ulid }}</span>
                 </div>
 
                 <div class="py-6 border-b">
                     <div class="font-bold">{{ __('Cancellation policy') }}</div>
-                    <p class="text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at blandit sem. Nullam lobortis enim sit amet sem hendrerit, ut elementum lectus bibendum. Mauris quis lorem laoreet, porttitor arcu eu, pulvinar augue.</p>
+                    <p class="text-zinc-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at blandit sem. Nullam lobortis enim sit amet sem hendrerit, ut elementum lectus bibendum. Mauris quis lorem laoreet, porttitor arcu eu, pulvinar augue.</p>
                 </div>
             </div>
         </aside>
@@ -93,10 +93,10 @@
 
             <div
                 class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
-                x-on:change="$dispatch('translate-chat', $event.target.value)"
+                x-on:change="$dispatch('tranzinc-chat', $event.target.value)"
             >
                 @foreach(App\Services\GoogleTranslate::languages() as $language)
-                    <label class="has-checked:ring-gray-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-gray-100">
+                    <label class="has-checked:ring-zinc-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-zinc-100">
                         <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
                         <span>{{ $language['name'] }}</span>
                     </label>

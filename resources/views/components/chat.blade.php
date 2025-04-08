@@ -95,7 +95,7 @@
                 .listen('ChatReply', (event) => this.show(event.message.id));
         },
     }"
-    x-on:translate-chat.window="locale = $event.detail"
+    x-on:tranzinc-chat.window="locale = $event.detail"
 >
     <div class="sticky top-0 py-4 bg-white flex shrink-0 overflow-x-scroll space-x-4 px-4 sm:px-6 border-l shadow-xs">
         <h3 class="text-xl font-bold">{{ __('Chat') }}</h3>
@@ -103,7 +103,7 @@
         <button
             x-on:click="isDetailsVisible = ! isDetailsVisible"
             type="button"
-            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-zinc-900 ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 flex items-center space-x-1"
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                 <path d="M5.75 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM7.25 8.25A.75.75 0 0 1 8 7.5h2.25a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75ZM5.75 9.5a.75.75 0 0 0 0 1.5H8a.75.75 0 0 0 0-1.5H5.75Z" />
@@ -116,7 +116,7 @@
         <button
             x-on:click.prevent="$dispatch('open-modal', 'chat-language')"
             type="button"
-            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-zinc-900 ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 flex items-center space-x-1"
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                 <path fill-rule="evenodd" d="M11 5a.75.75 0 0 1 .688.452l3.25 7.5a.75.75 0 1 1-1.376.596L12.89 12H9.109l-.67 1.548a.75.75 0 1 1-1.377-.596l3.25-7.5A.75.75 0 0 1 11 5Zm-1.24 5.5h2.48L11 7.636 9.76 10.5ZM5 1a.75.75 0 0 1 .75.75v1.261a25.27 25.27 0 0 1 2.598.211.75.75 0 1 1-.2 1.487c-.22-.03-.44-.056-.662-.08A12.939 12.939 0 0 1 5.92 8.058c.237.304.488.595.752.873a.75.75 0 0 1-1.086 1.035A13.075 13.075 0 0 1 5 9.307a13.068 13.068 0 0 1-2.841 2.546.75.75 0 0 1-.827-1.252A11.566 11.566 0 0 0 4.08 8.057a12.991 12.991 0 0 1-.554-.938.75.75 0 1 1 1.323-.707c.049.09.099.181.15.271.388-.68.708-1.405.952-2.164a23.941 23.941 0 0 0-4.1.19.75.75 0 0 1-.2-1.487c.853-.114 1.72-.185 2.598-.211V1.75A.75.75 0 0 1 5 1Z" clip-rule="evenodd" />
@@ -129,7 +129,7 @@
         <button
             x-on:click="isFeedVisible = ! isFeedVisible"
             type="button"
-            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 flex items-center space-x-1"
+            class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-zinc-900 ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 flex items-center space-x-1"
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                 <path d="M8 2a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM8 6.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM9.5 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
@@ -155,16 +155,16 @@
                         class="flex items-start gap-2.5 mt-2"
                         :class="isAuthUser(message.user_id) ? 'flex-row-reverse' : 'justify-start'"
                     >
-                        <div class="hidden bg-gray-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
+                        <div class="hidden bg-zinc-200 w-7 h-7 shrink-0 rounded-full shadow-inner"></div>
                         <div
                             class="shadow-sm flex flex-col max-w-[95%] leading-1.5 p-3 rounded-lg"
-                            :class="isAuthUser(message.user_id) ? 'bg-gray-200' : 'bg-white'"
+                            :class="isAuthUser(message.user_id) ? 'bg-zinc-200' : 'bg-white'"
                         >
                             <div class="flex items-center space-x-2">
-                                <span class="text-sm font-semibold text-gray-900" x-text="message.author.name"></span>
+                                <span class="text-sm font-semibold text-zinc-900" x-text="message.author.name"></span>
                                 <span
                                     :title="format(message.created_at, 'd MMM y, H:m')"
-                                    class="text-sm font-normal text-gray-500"
+                                    class="text-sm font-normal text-zinc-500"
                                     x-text="format(message.created_at, 'HH:mm')"
                                 ></span>
                             </div>
@@ -212,7 +212,7 @@
 
                     <div
                         x-on:click="$refs.fileInput.value = ''; $refs.fileInput.dispatchEvent(new Event('change'));"
-                        class="flex flex-row-reverse items-center h-24 bg-gray-100 px-3 rounded-lg text-gray-500 cursor-pointer hover:text-gray-900 hover:bg-gray-200"
+                        class="flex flex-row-reverse items-center h-24 bg-zinc-100 px-3 rounded-lg text-zinc-500 cursor-pointer hover:text-zinc-900 hover:bg-zinc-200"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -242,7 +242,7 @@
                             <button
                                 type="button"
                                 data-template="{{ $template['template'] }}"
-                                class="px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 w-full"
+                                class="px-4 py-2 text-start text-sm leading-5 text-zinc-700 hover:bg-zinc-100 w-full"
                             >
                                 {{ $template['label'] }}
                             </button>

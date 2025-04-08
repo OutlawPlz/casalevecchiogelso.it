@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
+    <div class="mb-4 text-sm text-zinc-600">
         {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
     </div>
 
@@ -10,11 +10,18 @@
         @csrf
 
         <!-- Email Address -->
-        <div>
-            <x-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-error-messages :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-field
+            id="email"
+            :label="__('Email')"
+            name="email"
+        >
+            <x-input
+                type="email"
+                :value="old('email')"
+                required
+                autofocus
+            />
+        </x-field>
 
         <div class="flex items-center justify-end mt-4">
             <x-button variant="primary">

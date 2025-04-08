@@ -58,9 +58,7 @@
     }"
 >
     <div>
-        <x-label for="start-date" class="mb-1">
-            {{ __('Check-in') }}
-        </x-label>
+        <x-label for="start-date" class="mb-1.5 font-medium" :value="__('Check-in')"/>
         <x-input
             readonly=""
             type="text"
@@ -73,9 +71,7 @@
     </div>
 
     <div>
-        <x-label for="end-date" class="mb-1">
-            {{ __('Check-out') }}
-        </x-label>
+        <x-label for="end-date" class="mb-1.5 font-medium" :value="__('Check-out')"/>
         <x-input
             readonly=""
             type="text"

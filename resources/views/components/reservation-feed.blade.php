@@ -42,22 +42,22 @@
             <template x-for="item in feed">
                 <li class="group relative flex gap-x-4">
                     <div class="group-last:hidden absolute -bottom-6 left-0 top-0 flex w-6 justify-center">
-                        <div class="w-px bg-gray-200"></div>
+                        <div class="w-px bg-zinc-200"></div>
                     </div>
 
                     <div class="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
-                        <div class="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300"></div>
+                        <div class="h-1.5 w-1.5 rounded-full bg-zinc-100 ring-1 ring-zinc-300"></div>
                     </div>
 
                     <p
                         x-text="item.description"
-                        class="flex-auto py-0.5 text-sm leading-5 text-gray-700"
+                        class="flex-auto py-0.5 text-sm leading-5 text-zinc-700"
                     ></p>
 
                     <time
                         :datetime="item.created_at"
                         :title="format(item.created_at, 'd MMM y, H:mm')"
-                        class="flex-none py-0.5 text-xs leading-5 text-gray-500"
+                        class="flex-none py-0.5 text-xs leading-5 text-zinc-500"
                         x-text="format(item.created_at, 'd MMM')"
                     ></time>
                 </li>

@@ -21,10 +21,10 @@
 <div>
     <div>
         <span class="font-bold">{{ $reservation->user->name }}</span>
-        <span class="tracking-wider text-gray-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
+        <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
     </div>
 
-    <div class="text-gray-600">
+    <div class="text-zinc-600">
         {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
         {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
     </div>
@@ -57,8 +57,8 @@
             >
                 @csrf
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900">{{ __('Pre-approve') }}</h2>
-                    <p class="mt-1 text-gray-600">
+                    <h2 class="text-lg font-bold text-zinc-900">{{ __('Pre-approve') }}</h2>
+                    <p class="mt-1 text-zinc-600">
                         {{ __('Do you want to pre-approve this booking?') }} <br>
                         {{ __('The guest will have 24 hours to confirm the reservation.') }}
                     </p>
@@ -92,8 +92,8 @@
             >
                 @csrf
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900">{{ __('Reject') }}</h2>
-                    <p class="mt-1 text-gray-600">{{ __('Are you sure you want to decline this booking?') }}</p>
+                    <h2 class="text-lg font-bold text-zinc-900">{{ __('Reject') }}</h2>
+                    <p class="mt-1 text-zinc-600">{{ __('Are you sure you want to decline this booking?') }}</p>
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-3">
@@ -162,15 +162,6 @@
                     },
                 }"
             >
-                <div>
-                    <label>{{ __('Amount') }}</label>
-                    <input type="number" name="amount" step=".01" min=".01">
-                    <x-text-input step=".01" name="amount" />
-                    <template x-if="errors.amount">
-                        <div x-text="errors.amount[0]" class="text-sm text-red-600 mt-1"></div>
-                    </template>
-                </div>
-
                 <div class="mt-6 space-x-3 flex justify-end">
                     <x-button
                         variant="ghost"

@@ -9,7 +9,7 @@ switch ($align) {
         $alignmentClasses = 'ltr:origin-top-left rtl:origin-top-right start-0';
         break;
     case 'top':
-        $alignmentClasses = 'origin-top top-0 -translate-y-full';
+        $alignmentClasses = 'origin-top top-0 -tranzinc-y-full';
         break;
     case 'right':
     default:
