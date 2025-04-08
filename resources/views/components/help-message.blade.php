@@ -3,5 +3,5 @@
 ])
 
 @if($message)
-    <div {{ $attributes }}>{{ $message }}</div>
+    <div {{ $attributes->class('text-zinc-500 ') }}>{{ $message }}</div>
 @endif

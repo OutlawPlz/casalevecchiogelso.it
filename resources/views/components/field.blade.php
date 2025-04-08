@@ -8,16 +8,20 @@
     'alpinejs' => '',
 ])
 
-<div {{ $attributes }}>
+<div {{ $attributes->class('flex flex-col gap-1.5') }}>
     @if($label)
-        <x-label for="{{ $id }}" class="mb-1">{{ $label }}</x-label>
+        <x-label
+            class="font-medium"
+            for="{{ $id }}"
+            :value="$label"
+        />
     @endif
 
     {{ $slot }}
 
     @if($help)
-        <x-help-message class="mt-1" :message="$help"/>
+        <x-help-message :message="$help"/>
     @endif
 
-    <x-error-messages class="mt-1" :messages="$alpinejs ?: $errors->get($name)"/>
+    <x-error-messages :messages="$alpinejs ?: $errors->get($name)"/>
 </div>

@@ -56,7 +56,29 @@
     grid-area: 1 / 1 / 2 / 2;
 }
 
-.invalid-text {
-    color: var(--color-red-500);
-    font-size: var(--text-sm);
+.inline-field {
+    display: grid;
+    grid-template-columns: auto 1fr;
+
+    input {
+        order: calc(-infinity);
+        grid-row: 1/-1;
+        align-self: start;
+    }
+
+    :not(input) {
+        grid-column: 2
+    }
+}
+
+.inline-field--reverse {
+    display: grid;
+    grid-template-columns: 1fr auto;
+
+    input {
+        order: calc(infinity);
+        grid-row: 1/-1;
+        align-self: start;
+        grid-column: 2;
+    }
 }

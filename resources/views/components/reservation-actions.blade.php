@@ -13,8 +13,9 @@
     label="{{ __('Amount') }}"
     name="amount"
     :required="false"
+    help="Non preoccuparti, ti aiuto io..."
 >
-    <x-input type="text" />
+    <x-input type="checkbox" />
 </x-field>
 
 <div>

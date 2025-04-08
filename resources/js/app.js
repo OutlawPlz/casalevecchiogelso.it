@@ -4,7 +4,6 @@ import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
 import persist from '@alpinejs/persist';
 import {format, addDays, addYears, differenceInDays} from 'date-fns';
-import {ulid} from 'ulid';
 
 window.Alpine = Alpine;
 
@@ -14,8 +13,6 @@ window.addYears = addYears;
 window.differenceInDays = differenceInDays;
 
 Alpine.plugin([intersect, persist]);
-
-window.ulid = ulid;
 
 window.currencyFormatter = new Intl.NumberFormat(
     document.documentElement.lang || undefined,
