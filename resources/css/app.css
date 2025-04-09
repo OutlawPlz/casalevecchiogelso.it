@@ -82,3 +82,29 @@
         grid-column: 2;
     }
 }
+
+input[type=checkbox]:checked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:after {
+        content: "\2713";
+        line-height: 1;
+        color: white;
+    }
+}
+
+input[type=radio]:checked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:after {
+        content: " ";
+        width: 50%;
+        height: 50%;
+        background: white;
+        border-radius: calc(infinity * 1px);
+    }
+}

@@ -15,7 +15,10 @@
     :required="false"
     help="Non preoccuparti, ti aiuto io..."
 >
-    <x-input type="checkbox" />
+    <x-input type="radio" />
+    <x-input type="radio" />
+    <x-input type="radio" />
+    <x-input type="radio" />
 </x-field>
 
 <div>

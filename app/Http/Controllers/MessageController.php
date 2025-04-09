@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\MarkAsReplied;
-use App\Actions\MarkAsVisited;
 use App\Events\ChatReply;
 use App\Models\Message;
 use App\Models\Reservation;
@@ -51,7 +49,7 @@ class MessageController extends Controller
             $message->rendered_content = $this->messageRenderer->render($message, $data);
         }
 
-        (new MarkAsVisited)($reservation, $authUser);
+        $reservation->visitedBy($authUser)->save();
 
         return $messages;
     }
@@ -76,7 +74,7 @@ class MessageController extends Controller
 
         $message->rendered_content = $this->messageRenderer->render($message, $data);
 
-        (new MarkAsVisited)($reservation, $authUser);
+        $reservation->visitedBy($authUser)->save();
 
         return $message;
     }
@@ -130,7 +128,7 @@ class MessageController extends Controller
 
         ChatReply::dispatch($message);
 
-        (new MarkAsReplied)($reservation, $message);
+        $reservation->repliedAt($message->created_at)->save();
 
         return $message;
     }

@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
-use Stripe\StripeClient;
 use function App\Helpers\is_overnight_stay;
 
 /**
@@ -66,9 +65,6 @@ class Reservation extends Model
         'cancellation_policy',
     ];
 
-    /**
-     * @param  array  $attributes
-     */
     final public function __construct(array $attributes = [])
     {
         $today = today()->format('Y-m-d');
@@ -82,9 +78,6 @@ class Reservation extends Model
         parent::__construct($attributes);
     }
 
-    /**
-     * @return Attribute
-     */
     protected function nights(): Attribute
     {
         return Attribute::make(
@@ -111,9 +104,6 @@ class Reservation extends Model
         ];
     }
 
-    /**
-     * @return Attribute
-     */
     protected function reservedPeriod(): Attribute
     {
         return Attribute::make(
@@ -121,9 +111,6 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return Attribute
-     */
     protected function refundPeriod(): Attribute
     {
         $timeWindow = $this->cancellation_policy->timeWindow();
@@ -136,9 +123,6 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return array
-     */
     public function order(): array
     {
         $order = [];
@@ -153,17 +137,11 @@ class Reservation extends Model
         return $order;
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return Attribute
-     */
     protected function checkInPreparationTime(): Attribute
     {
         return Attribute::make(
@@ -178,9 +156,6 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return Attribute
-     */
     protected function checkOutPreparationTime(): Attribute
     {
         return Attribute::make(
@@ -195,9 +170,6 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return Attribute
-     */
     protected function tot(): Attribute
     {
         return Attribute::make(
@@ -211,18 +183,11 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * @return HasMany
-     */
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
     }
 
-    /**
-     * @param  string|ReservationStatus  $status
-     * @return bool
-     */
     public function inStatus(string|ReservationStatus $status): bool
     {
         if (is_string($status)) {
@@ -232,10 +197,6 @@ class Reservation extends Model
         return $this->status === $status;
     }
 
-    /**
-     * @param  User  $user
-     * @return bool
-     */
     public function hasNewMessageFor(User $user): bool
     {
         if (! $this->visited_at || ! $this->replied_at) return false;
@@ -247,17 +208,21 @@ class Reservation extends Model
         return $this->replied_at->greaterThan($visitedAt);
     }
 
-    /**
-     * @return float
-     */
-    public function refundFactor(): float
+    public function visitedBy(User $user): self
     {
-        if (now()->isAfter($this->check_in)) return 0;
+        $visitedAt = $this->visited_at ?? [];
 
-        if (now()->isBetween(...$this->refundPeriod)) {
-            return $this->cancellation_policy->refundFactor();
-        }
+        $visitedAt[$user->email] = now()->toDateTimeString();
 
-        return 1;
+        $this->visited_at = $visitedAt;
+
+        return $this;
+    }
+
+    public function repliedAt(?CarbonImmutable $dateTime = null): self
+    {
+        $this->replied_at = $dateTime ?? now();
+
+        return $this;
     }
 }
