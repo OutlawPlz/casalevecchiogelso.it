@@ -56,34 +56,68 @@
     grid-area: 1 / 1 / 2 / 2;
 }
 
-.inline-field {
-    display: grid;
-    grid-template-columns: auto 1fr;
+.field:not(.inline, .inline-reverse) {
+    @apply
+    flex
+    flex-col
+    gap-1.5;
+}
+
+.field.inline {
+    @apply
+    grid
+    grid-cols-[auto_1fr]
+    gap-x-2;
 
     input {
-        order: calc(-infinity);
-        grid-row: 1/-1;
-        align-self: start;
+        @apply
+        order-first
+        row-1 col-1
+        self-center;
     }
 
     :not(input) {
-        grid-column: 2
+        @apply
+        col-2;
     }
 }
 
-.inline-field--reverse {
-    display: grid;
-    grid-template-columns: 1fr auto;
+.field.inline-reverse {
+    @apply
+    grid
+    grid-cols-[1fr_auto]
+    gap-x-2;
 
     input {
-        order: calc(infinity);
-        grid-row: 1/-1;
-        align-self: start;
-        grid-column: 2;
+        @apply
+        order-last
+        row-1 col-2
+        self-center;
+    }
+
+    :not(input) {
+        @apply
+        col-1;
     }
 }
 
-input:not([type="checkbox"], [type="radio"]) {
+.label,
+label {
+    @apply
+    inline-flex
+    items-center
+    text-sm
+    font-medium
+    text-zinc-800;
+
+    &.disabled {
+        @apply
+        opacity-50;
+    }
+}
+
+.input,
+input:not([type="checkbox"], [type="radio"], .clear) {
     @apply
     w-full
     border
@@ -92,7 +126,6 @@ input:not([type="checkbox"], [type="radio"]) {
     disabled:shadow-none
     appearance-none
     text-base
-    sm:text-sm
     py-2
     h-10
     leading-[1.375rem]
@@ -109,33 +142,66 @@ input:not([type="checkbox"], [type="radio"]) {
     disabled:border-b-zinc-200;
 }
 
-input[type=checkbox]:checked {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:after {
-        content: "\2713";
-        line-height: 1;
-        color: white;
-    }
+.checkbox,
+input[type=checkbox]:not(.clear) {
+    @apply
+    shrink-0
+    size-[1.125rem]
+    appearance-none
+    rounded-[.3rem]
+    flex
+    justify-center
+    items-center
+    text-sm
+    text-zinc-700
+    shadow-xs
+    disabled:opacity-75
+    disabled:checked:opacity-50
+    disabled:shadow-none
+    checked:shadow-none
+    border
+    border-zinc-300
+    disabled:border-zinc-200
+    checked:border-transparent
+    disabled:checked:border-transparent
+    bg-white
+    checked:bg-zinc-900
+    checked:text-white
+    hover:checked:bg-zinc-900
+    focus:checked:bg-zinc-900
+    checked:after:content-["\2713"];
 }
 
-input[type=radio]:checked {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:after {
-        content: " ";
-        width: 50%;
-        height: 50%;
-        background: white;
-        border-radius: calc(infinity * 1px);
-    }
+.radio,
+input[type=radio]:not(.clear) {
+    @apply
+    shrink-0
+    size-[1.125rem]
+    appearance-none
+    rounded-full
+    text-sm
+    text-zinc-700
+    shadow-xs
+    disabled:opacity-75
+    checked:disabled:opacity-50
+    disabled:shadow-none
+    checked:shadow-none
+    flex
+    justify-center
+    items-center
+    border
+    border-zinc-300
+    disabled:border-zinc-200
+    checked:border-transparent
+    checked:disabled:border-transparent
+    bg-white
+    checked:bg-zinc-900
+    checked:after:size-1/2
+    checked:after:bg-white
+    checked:after:rounded-full
 }
 
-.button:not(.clear),
+.button,
 button:not(.clear) {
     @apply
     items-center

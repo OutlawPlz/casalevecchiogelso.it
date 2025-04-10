@@ -31,12 +31,20 @@
             />
         </x-field>
 
-        <div class="block">
-            <x-label class="flex items-center gap-2 text-zinc-600">
-                <x-input type="checkbox"/>
-                {{ __('Remember me') }}
-            </x-label>
-        </div>
+        <x-field
+            :label="__('Remember me')"
+            id="remember"
+            name="remember"
+            class="inline gap-y-0.5"
+            help="Questo è un messaggio di testo"
+        >
+            <x-input type="checkbox" />
+        </x-field>
+
+        <x-label class="flex items-center gap-2 text-zinc-600">
+            <x-input type="checkbox" name="remember"/>
+            {{ __('Remember me') }}
+        </x-label>
 
         <div class="flex items-center justify-end">
             @if (Route::has('password.request'))

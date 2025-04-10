@@ -68,11 +68,7 @@
             />
         </x-field>
 
-        <button class="primary">Prova</button>
-
-        <button
-            class="primary w-full"
-        >
+        <button class="primary w-full">
             {{ __('Sign-in') }}
         </button>
     </div>

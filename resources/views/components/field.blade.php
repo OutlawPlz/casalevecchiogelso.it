@@ -8,20 +8,18 @@
     'jserror' => '',
 ])
 
-<div {{ $attributes->class('flex flex-col gap-1.5') }}>
+<div {{ $attributes->class('field') }}>
     @if($label)
         <x-label
-            class="font-medium"
             for="{{ $id }}"
             :value="$label"
+            :disabled="$disabled"
         />
     @endif
 
     {{ $slot }}
 
-    @if($help)
-        <x-help-message :message="$help"/>
-    @endif
+    @if($help) <x-help-message :message="$help"/> @endif
 
     <x-error-messages :messages="$jserror ?: $errors->get($name)"/>
 </div>

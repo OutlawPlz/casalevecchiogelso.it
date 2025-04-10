@@ -6,20 +6,6 @@
 @endphp
 
 @use('\App\Enums\ReservationStatus')
-@use('\Illuminate\Support\Str')
-
-<x-field
-    :id="Str::ulid()"
-    label="{{ __('Amount') }}"
-    name="amount"
-    :required="false"
-    help="Non preoccuparti, ti aiuto io..."
->
-    <x-input type="radio" />
-    <x-input type="radio" />
-    <x-input type="radio" />
-    <x-input type="radio" />
-</x-field>
 
 <div>
     <div>
@@ -36,9 +22,7 @@
 @switch($reservation->status)
     @case(ReservationStatus::QUOTE)
         <div class="flex flex-col gap-2 mt-4">
-            <button
-                x-on:click.prevent="$dispatch('open-modal', 'reject')"
-            >
+            <button x-on:click.prevent="$dispatch('open-modal', 'reject')">
                 {{ __('Reject') }}
             </button>
 

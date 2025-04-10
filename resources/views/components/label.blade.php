@@ -1,5 +1,8 @@
-@props(['value' => null])
+@props([
+    'value' => null,
+    'disabled' => false,
+])
 
-<label {{ $attributes->class('text-sm zinc-950 select-none block') }}>
+<label {{ $attributes->class(['disabled' => $disabled]) }}>
     {{ $value ?? $slot }}
 </label>

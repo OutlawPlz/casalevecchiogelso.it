@@ -4,7 +4,7 @@
 
 @php
     $fromAlpine = is_string($messages);
-    $classObject = 'text-base/6 text-red-600 sm:text-sm/6';
+    $classObject = 'text-red-500 text-sm';
 @endphp
 
 <div>
