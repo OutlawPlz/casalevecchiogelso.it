@@ -83,6 +83,32 @@
     }
 }
 
+input:not([type="checkbox"], [type="radio"]) {
+    @apply
+    w-full
+    border
+    rounded-lg
+    block
+    disabled:shadow-none
+    appearance-none
+    text-base
+    sm:text-sm
+    py-2
+    h-10
+    leading-[1.375rem]
+    ps-3
+    pe-3
+    bg-white
+    text-zinc-700
+    disabled:text-zinc-500
+    placeholder-zinc-400
+    disabled:placeholder-zinc-400/70
+    shadow-xs
+    border-zinc-200
+    border-b-zinc-300/80
+    disabled:border-b-zinc-200;
+}
+
 input[type=checkbox]:checked {
     display: flex;
     align-items: center;
@@ -106,5 +132,102 @@ input[type=radio]:checked {
         height: 50%;
         background: white;
         border-radius: calc(infinity * 1px);
+    }
+}
+
+.button:not(.clear),
+button:not(.clear) {
+    @apply
+    items-center
+    font-medium
+    justify-center
+    gap-2
+    whitespace-nowrap
+    cursor-pointer
+    disabled:opacity-75
+    disabled:cursor-default
+    disabled:pointer-events-none
+    inline-flex;
+
+    &:not(.primary,.filled,.danger,.ghost,.subtle) {
+        @apply
+        bg-white
+        hover:bg-zinc-50
+        text-zinc-800
+        border
+        border-zinc-200
+        hover:border-zinc-200
+        border-b-zinc-300/80
+        shadow-xs;
+    }
+
+    &.primary {
+        @apply
+        bg-zinc-800
+        hover:bg-zinc-900
+        text-white
+        shadow-xs;
+    }
+
+    &.filled {
+        @apply
+        bg-zinc-800/5
+        hover:bg-zinc-800/10
+        text-zinc-800
+        shadow-xs;
+    }
+
+    &.danger {
+        @apply
+        bg-red-500
+        hover:bg-red-600
+        text-white;
+    }
+
+    &.ghost {
+        @apply
+        bg-transparent
+        hover:bg-zinc-800/5
+        text-zinc-800;
+    }
+
+    &.subtle {
+        @apply
+        bg-transparent
+        hover:bg-zinc-800/5
+        text-zinc-400
+        hover:text-zinc-800;
+    }
+
+    &:not(.sm,.xs,.square) {
+        @apply
+        h-10
+        text-sm
+        rounded-lg
+        px-4;
+    }
+
+    &.sm {
+        @apply
+        h-8
+        text-sm
+        rounded-md
+        px-3
+    }
+
+    &.xs {
+        @apply
+        h-6
+        text-xs
+        rounded-md
+        px-2
+        shadow-none;
+    }
+
+    &.square {
+        @apply
+        size-8
+        text-sm
+        rounded-lg
     }
 }

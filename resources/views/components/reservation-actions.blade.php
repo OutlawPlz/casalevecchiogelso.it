@@ -36,20 +36,18 @@
 @switch($reservation->status)
     @case(ReservationStatus::QUOTE)
         <div class="flex flex-col gap-2 mt-4">
-            <x-button
+            <button
                 x-on:click.prevent="$dispatch('open-modal', 'reject')"
-                class="justify-center"
             >
                 {{ __('Reject') }}
-            </x-button>
+            </button>
 
-            <x-button
-                variant="primary"
+            <button
+                class="primary"
                 x-on:click.prevent="$dispatch('open-modal', 'pre-approve')"
-                class="justify-center"
             >
                 {{ __('Pre-approve') }}
-            </x-button>
+            </button>
         </div>
 
         <x-modal name="pre-approve" max-width="xl">
@@ -68,21 +66,21 @@
                 </div>
 
                 <div class="mt-6 space-x-3 flex justify-end">
-                    <x-button
-                        variant="ghost"
+                    <button
+                        class="ghost"
                         x-on:click="$dispatch('close')"
                         type="button"
                     >
                         {{ __('Close') }}
-                    </x-button>
+                    </button>
 
-                    <x-button
-                        variant="primary"
+                    <button
+                        class="primary"
                         value="{{ ReservationStatus::PENDING }}"
                         name="status"
                     >
                         {{ __('Pre-approve') }}
-                    </x-button>
+                    </button>
                 </div>
             </form>
         </x-modal>
@@ -100,21 +98,21 @@
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-3">
-                    <x-button
-                        variant="ghost"
+                    <button
+                        class="ghost"
                         x-on:click="$dispatch('close')"
                         type="button"
                     >
                         {{ __('Cancel') }}
-                    </x-button>
+                    </button>
 
-                    <x-button
-                        variant="primary"
+                    <button
+                        class="primary"
                         value="{{ ReservationStatus::REJECTED }}"
                         name="status"
                     >
                         {{ __('Reject') }}
-                    </x-button>
+                    </button>
                 </div>
             </form>
         </x-modal>
@@ -123,21 +121,19 @@
 
     @case(ReservationStatus::CONFIRMED)
         <div class="flex flex-col gap-2 mt-4">
-            <x-button
-                variant="primary"
+            <button
                 href="{{ route('reservation.delete', [$reservation]) }}"
-                class="w-full"
+                class="primary w-full"
             >
                 {{ __('Cancel the booking') }}
-            </x-button>
+            </button>
 
-            <x-button
-                variant="primary"
+            <button
                 x-on:click.prevent="$dispatch('open-modal', 'refund')"
-                class="justify-center w-full"
+                class="primary w-full"
             >
                 {{ __('Send money') }}
-            </x-button>
+            </button>
         </div>
 
         <x-modal name="refund" max-width="md">
@@ -166,18 +162,18 @@
                 }"
             >
                 <div class="mt-6 space-x-3 flex justify-end">
-                    <x-button
-                        variant="ghost"
+                    <button
+                        class="ghost"
                         x-on:click="$dispatch('close')"
                         type="button"
                     >
                         {{ __('Close') }}
-                    </x-button>
+                    </button>
 
-                    <x-button x-bind:disabled="loading" variant="primary">
+                    <button x-bind:disabled="loading" class="primary">
                         <x-spinner-loader x-show="loading" />
                         {{ __('Send money') }}
-                    </x-button>
+                    </button>
                 </div>
             </form>
         </x-modal>

@@ -11,15 +11,14 @@
     @case(ReservationStatus::PENDING)
         <form action="{{ route('checkout') }}" method="POST" class="mt-4">
             @csrf
-            <x-button
-                variant="primary"
+            <button
                 value="{{ $reservation->ulid }}"
                 name="reservation"
-                class="w-full justify-center"
+                class="primary w-full"
                 :disabled="$authUser->isHost()"
             >
                 {{ __('Confirm and pay') }}
-            </x-button>
+            </button>
         </form>
 
         <div class="prose-sm mt-2">
@@ -55,14 +54,13 @@
         @break
 
     @case(ReservationStatus::CONFIRMED)
-        <x-button
-            variant="primary"
+        <button
             href="{{ route('reservation.delete', [$reservation]) }}"
-            class="w-full mt-4"
+            class="primary w-full mt-4"
             :disabled="$authUser->isHost()"
         >
             {{ __('Cancel the booking') }}
-        </x-button>
+        </button>
 
         <div class="rounded-md p-4 bg-green-50 flex space-x-2 mt-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-green-400">

@@ -48,9 +48,9 @@
                 </a>
             @endif
 
-            <x-button variant="primary" class="ms-3">
+            <button class="primary ms-3">
                 {{ __('Log in') }}
-            </x-button>
+            </button>
         </div>
     </form>
 </x-guest-layout>
