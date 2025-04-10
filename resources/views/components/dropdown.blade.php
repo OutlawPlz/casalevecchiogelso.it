@@ -1,21 +1,14 @@
 @props([
     'align' => 'left',
-    'contentClasses' => 'rounded-md ring-1 rounded-md shadow-lg ring-black ring-opacity-5 py-1 bg-white',
+    'contentClasses' => 'rounded-md ring-1 rounded-md shadow-lg ring-black/5 py-1 bg-white',
 ])
 
 @php
-switch ($align) {
-    case 'left':
-        $alignmentClasses = 'ltr:origin-top-left rtl:origin-top-right start-0';
-        break;
-    case 'top':
-        $alignmentClasses = 'origin-top top-0 -tranzinc-y-full';
-        break;
-    case 'right':
-    default:
-        $alignmentClasses = 'ltr:origin-top-right rtl:origin-top-left end-0';
-        break;
-}
+$alignmentClasses = match ($align) {
+    'left' => 'ltr:origin-top-left rtl:origin-top-right start-0',
+    'top' => 'origin-top top-0 -translate-y-full',
+    default => 'ltr:origin-top-right rtl:origin-top-left end-0',
+};
 @endphp
 
 <div

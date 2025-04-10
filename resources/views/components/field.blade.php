@@ -5,7 +5,7 @@
     'required' => false,
     'disabled' => false,
     'help' => '',
-    'alpinejs' => '',
+    'jserror' => '',
 ])
 
 <div {{ $attributes->class('flex flex-col gap-1.5') }}>
@@ -23,5 +23,5 @@
         <x-help-message :message="$help"/>
     @endif
 
-    <x-error-messages :messages="$alpinejs ?: $errors->get($name)"/>
+    <x-error-messages :messages="$jserror ?: $errors->get($name)"/>
 </div>
