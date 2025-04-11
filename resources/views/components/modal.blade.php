@@ -5,6 +5,7 @@
     data-modal="{{ $name }}"
     x-on:open-modal.window="if ($event.detail === '{{ $name }}') $el.showModal();"
     x-on:close-modal.window="if ($event.detail === '{{ $name }}') $el.close();"
+    x-on:close.stop="$el.close();"
     {{ $attributes }}
 >
     {{ $slot }}
