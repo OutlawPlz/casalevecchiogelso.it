@@ -13,23 +13,42 @@
         @csrf
         @method('put')
 
-        <div>
-            <x-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-error-messages :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+        <x-field
+            :label="__('Current Password')"
+            id="update_password_current_password"
+            error="updatePassword:current_password"
+        >
+            <x-input
+                name="current_password"
+                type="password"
+                autocomplete="current-password"
+            />
+        </x-field>
 
-        <div>
-            <x-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-error-messages :messages="$errors->updatePassword->get('password')" class="mt-2" />
-        </div>
+        <x-field
+            :label="__('New Password')"
+            id="update_password_password"
+            error="updatePassword:password"
+        >
+            <x-input
+                name="password"
+                type="password"
+                autocomplete="new-password"
+            />
+        </x-field>
 
-        <div>
-            <x-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-error-messages :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
-        </div>
+
+        <x-field
+            :label="__('Confirm Password')"
+            id="update_password_password_confirmation"
+            error="updatePassword:password_confirmation"
+        >
+            <x-input
+                name="password_confirmation"
+                type="password"
+                autocomplete="new-password"
+            />
+        </x-field>
 
         <div class="flex items-center gap-4">
             <button class="primary">{{ __('Save') }}</button>

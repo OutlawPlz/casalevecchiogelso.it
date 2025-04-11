@@ -46,11 +46,11 @@
     <div class="flex flex-col gap-2">
         <x-field
             :label="__('Name')"
-            name="name"
             id="sign-in_name"
             jserror="errors.name"
         >
             <x-input
+                name="name"
                 required
                 placeholder="{{ __('Mario Rossi') }}"
             />
@@ -58,11 +58,11 @@
 
         <x-field
             :label="__('Email')"
-            name="email"
             id="sign-in_email"
             jserror="errors.email"
         >
             <x-input
+                name="email"
                 required
                 placeholder="{{ __('mario.rossi@example.com') }}"
             />

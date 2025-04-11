@@ -11,9 +11,10 @@
             <x-field
                 id="password"
                 :label="__('Password')"
-                name="password"
+                error="password"
             >
                 <x-input
+                    name="password"
                     type="password"
                     required
                     autocomplete="current-password"

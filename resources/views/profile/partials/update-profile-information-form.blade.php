@@ -17,16 +17,35 @@
         @csrf
         @method('patch')
 
-        <div>
-            <x-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-error-messages class="mt-2" :messages="$errors->get('name')" />
-        </div>
+
+        <x-field
+            id="name"
+            :label="__('Name')"
+            error="name"
+        >
+            <x-input
+                name="name"
+                :value="old('name', $user->name)"
+                required
+                autofocus
+                autocomplete="name"
+            />
+        </x-field>
 
         <div>
-            <x-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-error-messages class="mt-2" :messages="$errors->get('email')" />
+            <x-field
+                id="email"
+                :label="__('Email')"
+                error="email"
+            >
+                <x-input
+                    name="email"
+                    type="email"
+                    :value="old('email', $user->email)"
+                    required
+                    autocomplete="username"
+                />
+            </x-field>
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div>

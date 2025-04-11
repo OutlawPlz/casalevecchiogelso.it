@@ -5,9 +5,10 @@
         <x-field
             id="name"
             :label="__('Name')"
-            name="name"
+            error="name"
         >
             <x-input
+                name="name"
                 type="text"
                 :value="old('name')"
                 required
@@ -19,9 +20,10 @@
         <x-field
             :label="__('Email')"
             id="email"
-            name="email"
+            error="email"
         >
             <x-input
+                name="email"
                 type="email"
                 :value="old('email')"
                 required
@@ -32,9 +34,10 @@
         <x-field
             id="password"
             :label="__('Password')"
-            name="password"
+            error="password"
             >
             <x-input
+                name="password"
                 type="password"
                 required
                 autocomplete="new-password"
@@ -44,9 +47,9 @@
         <x-field
             :label="__('Confirm Password')"
             id="password_confirmation"
-            name="password_confirmation"
         >
             <x-input
+                name="password_confirmation"
                 type="password"
                 required
                 autocomplete="new-password"

@@ -7,10 +7,11 @@
 
         <x-field
             id="email"
-            name="email"
+            error="email"
             :label="__('Email')"
         >
             <x-input
+                name="email"
                 type="email"
                 :value="old('email')"
                 required
@@ -21,10 +22,11 @@
 
         <x-field
             id="password"
-            name="password"
+            error="password"
             :label="__('Password')"
         >
             <x-input
+                name="password"
                 type="password"
                 required
                 autocomplete="current-password"
@@ -34,10 +36,13 @@
         <x-field
             :label="__('Remember me')"
             id="remember"
-            name="remember"
+            error="remember"
             class="inline"
         >
-            <x-input type="checkbox" />
+            <x-input
+                name="remember"
+                type="checkbox"
+            />
         </x-field>
 
         <div class="flex items-center justify-end gap-2">

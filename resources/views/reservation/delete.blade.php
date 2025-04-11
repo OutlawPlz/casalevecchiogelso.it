@@ -43,12 +43,12 @@
                 @csrf
                 @method('DELETE')
 
-                <x-textarea-input
+                <textarea
                     class="max-w-lg"
                     placeholder="{{ __('Your message') }}..."
                     name="message"
                     rows="3"
-                ></x-textarea-input>
+                ></textarea>
             </form>
 
             <div class="mt-6">

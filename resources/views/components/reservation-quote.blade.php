@@ -48,10 +48,11 @@
 
             <x-field
                 id="guest-count"
-                name="guest_count"
+                jserror="guest_count"
                 :label="__('Guests')"
             >
                 <x-input
+                    name="guest_count"
                     type="number"
                     min="1"
                     max="10"

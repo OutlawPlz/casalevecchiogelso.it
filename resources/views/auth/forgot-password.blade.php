@@ -13,9 +13,10 @@
         <x-field
             id="email"
             :label="__('Email')"
-            name="email"
+            error="email"
         >
             <x-input
+                name="email"
                 type="email"
                 :value="old('email')"
                 required
