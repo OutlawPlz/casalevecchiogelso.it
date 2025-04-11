@@ -28,7 +28,7 @@
         <x-field
             :label="__('New Password')"
             id="update_password_password"
-            error="updatePassword:password"
+            error="password:updatePassword"
         >
             <x-input
                 name="password"

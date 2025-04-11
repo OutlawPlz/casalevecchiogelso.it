@@ -7,7 +7,10 @@
         x-data="{
             defaultOvernightStay: {{ Js::from(array_shift($priceList)) }},
             priceList: {{ Js::from($priceList) }},
-            period: $persist([new Date().toJSON().slice(0, 10), new Date().toJSON().slice(0, 10)]).using(sessionStorage),
+            period: $persist([
+                new Date().toJSON().slice(0, 10),
+                new Date().toJSON().slice(0, 10)
+            ]).using(sessionStorage),
             guestCount: $persist(1).using(sessionStorage),
             loading: false,
             errors: {{ Js::from($errors->messages()) }},
@@ -122,11 +125,6 @@
 
             <x-sign-in />
         </div>
-
-        <x-ui-close
-            x-on:click="$dispatch('close')"
-            class="absolute top-0 right-0 mt-2 mr-2"
-        />
     </x-modal>
     @endguest
 </div>

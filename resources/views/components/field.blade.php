@@ -1,7 +1,3 @@
-@php
-/** @var \Illuminate\Support\ViewErrorBag $errors */
-@endphp
-
 @props([
     'id',
     'name',
@@ -18,7 +14,7 @@
         <x-label
             for="{{ $id }}"
             :value="$label"
-            :disabled="$disabled"
+            :$disabled
         />
     @endif
 
@@ -28,16 +24,5 @@
         <div class="help-message">{{ $help }}</div>
     @endif
 
-        @if($error)
-            @php([$bag, $key] = explode(':', ":$error"))
-            @foreach($errors->getBag($bag)->get($key) as $message)
-                <div class="error-message">{{ $message }}</div>
-            @endforeach
-        @endif
-
-    @if($jserror)
-        <template x-for="message in {{ $jserror }}">
-            <div x-text="message" class="error-message"></div>
-        </template>
-    @endif
+    <x-error-messages :$error :$jserror />
 </div>

@@ -145,6 +145,11 @@ input:not([type="checkbox"], [type="radio"], .clear) {
     border-zinc-200
     border-b-zinc-300/80
     disabled:border-b-zinc-200;
+
+    &.invalid {
+        @apply
+        border-red-500;
+    }
 }
 
 .checkbox,

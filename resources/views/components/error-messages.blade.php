@@ -1,18 +1,17 @@
 @props([
-    'messages' => [],
+    'error' => '',
+    'jserror' => '',
 ])
 
-@php
-    $fromAlpine = is_string($messages);
-    $classObject = 'text-red-500 text-sm';
-@endphp
-
-@if($fromAlpine)
-    <template x-for="message in {{ $messages }}">
-        <div x-text="message" {{ $attributes->class($classObject) }}></div>
+@if($jserror)
+    <template x-for="message in {{ $jserror }}">
+        <div x-text="message" class="error-message"></div>
     </template>
-@else
-    @foreach($messages as $message)
-        <div {{ $attributes->class($classObject) }}>{{ $message }}</div>
+@endif
+
+@if($error)
+    @php([$key, $bag] = explode(':', "$error:default"))
+    @foreach($errors->getBag($bag)->get($key) as $message)
+        <div class="error-message">{{ $message }}</div>
     @endforeach
 @endif

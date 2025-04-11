@@ -1,7 +1,7 @@
 @props([
     'name',
     'maxWidth' => '2xl',
-    'defaultClasses' => 'shadow-lg rounded-xl mt-12 mx-auto bg-white border border-transparent w-full',
+    'defaultClasses' => 'relative shadow-lg rounded-xl mt-12 mx-auto bg-white border border-transparent w-full',
 ])
 
 @php
@@ -23,4 +23,9 @@ $maxWidth = [
     {{ $attributes->class([$defaultClasses, $maxWidth]) }}
 >
     {{ $slot }}
+
+    <x-ui-close
+        x-on:click="$dispatch('close')"
+        class="absolute top-0 right-0 m-2"
+    />
 </dialog>
