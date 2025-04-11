@@ -5,6 +5,7 @@
     'required' => false,
     'disabled' => false,
     'help' => '',
+    'error' => '',
     'jserror' => '',
 ])
 
@@ -19,7 +20,17 @@
 
     {{ $slot }}
 
-    @if($help) <x-help-message :message="$help"/> @endif
+    @if($help)
+        <div class="help-message">{{ $help }}</div>
+    @endif
 
-    <x-error-messages :messages="$jserror ?: $errors->get($name)"/>
+    @foreach($errors->get($error) as $message)
+        <div class="error-message">{{ $message }}</div>
+    @endforeach
+
+    @if($jserror)
+        <template x-for="message in {{ $jserror }}">
+            <div x-text="message" class="error-message"></div>
+        </template>
+    @endif
 </div>
