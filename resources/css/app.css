@@ -110,15 +110,16 @@
 
 .label,
 label {
-    display: inline-flex;
-    align-items: center;
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    font-weight: 500;
-    color: var(--color-zinc-800);
+    @apply
+    inline-flex
+    items-center
+    text-sm
+    font-medium
+    text-zinc-800;
 
     &.disabled {
-        opacity: 50%;
+        @apply
+        opacity-50;
     }
 }
 
@@ -306,4 +307,18 @@ button:not(.clear) {
         text-sm
         rounded-lg
     }
+}
+
+.dialog,
+dialog:not(.clear) {
+    @apply
+    relative
+    shadow-lg
+    rounded-xl
+    mt-12
+    mx-auto
+    bg-white
+    border
+    border-transparent
+    w-full;
 }

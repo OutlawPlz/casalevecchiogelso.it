@@ -51,7 +51,7 @@
 
             <x-field
                 id="guest-count"
-                jserror="guest_count"
+                jserror="errors.guest_count"
                 :label="__('Guests')"
             >
                 <x-input
@@ -113,18 +113,16 @@
     </form>
 
     @guest()
-    <x-modal name="token-login" max-width="sm">
-        <div class="p-6">
-            <div class="text-center">
-                <h2 class="text-3xl font-semibold">{{ __('Sign-in') }}</h2>
-                <p class="text-sm mt-4">
-                    {{ __('In order to manage the booking we need to know your name and email.') }}
-                    {{ __('Use the form below to sign-in.') }}
-                </p>
-            </div>
-
-            <x-sign-in />
+    <x-modal name="token-login" class="max-w-sm p-6">
+        <div class="text-center">
+            <h2 class="text-3xl font-semibold">{{ __('Sign-in') }}</h2>
+            <p class="text-sm mt-4">
+                {{ __('In order to manage the booking we need to know your name and email.') }}
+                {{ __('Use the form below to sign-in.') }}
+            </p>
         </div>
+
+        <x-sign-in />
     </x-modal>
     @endguest
 </div>

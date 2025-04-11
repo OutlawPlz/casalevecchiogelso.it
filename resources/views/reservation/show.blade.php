@@ -87,21 +87,19 @@
         @endhost
     </div>
 
-    <x-modal name="chat-language">
-        <div class="p-6">
-            <h3 class="text-2xl font-bold">{{ __('Choose a language') }}</h3>
+    <x-modal name="chat-language" class="max-w-2xl p-6">
+        <h3 class="text-2xl font-bold">{{ __('Choose a language') }}</h3>
 
-            <div
-                class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
-                x-on:change="$dispatch('tranzinc-chat', $event.target.value)"
-            >
-                @foreach(App\Services\GoogleTranslate::languages() as $language)
-                    <label class="has-checked:ring-zinc-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-zinc-100">
-                        <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
-                        <span>{{ $language['name'] }}</span>
-                    </label>
-                @endforeach
-            </div>
+        <div
+            class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
+            x-on:change="$dispatch('translate-chat', $event.target.value)"
+        >
+            @foreach(App\Services\GoogleTranslate::languages() as $language)
+                <label class="has-checked:ring-zinc-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-zinc-100">
+                    <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
+                    <span>{{ $language['name'] }}</span>
+                </label>
+            @endforeach
         </div>
     </x-modal>
 </x-app-layout>

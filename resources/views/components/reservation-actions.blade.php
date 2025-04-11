@@ -34,7 +34,7 @@
             </button>
         </div>
 
-        <x-modal name="pre-approve" max-width="xl">
+        <x-modal name="pre-approve" class="max-w-xl">
             <form
                 action="{{ route('reservation.status', [$reservation]) }}"
                 class="p-6"
@@ -69,7 +69,7 @@
             </form>
         </x-modal>
 
-        <x-modal name="reject" max-width="xl">
+        <x-modal name="reject" class="max-w-xl">
             <form
                 action="{{ route('reservation.status', [$reservation]) }}"
                 class="p-6"
@@ -120,7 +120,7 @@
             </button>
         </div>
 
-        <x-modal name="refund" max-width="md">
+        <x-modal name="refund" class="max-w-md">
             <form
                 class="p-6"
                 x-on:submit.prevent="submit"
