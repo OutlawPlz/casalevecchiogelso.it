@@ -4,8 +4,7 @@
 ])
 
 <div
-    {!! $attributes !!}
-    class="relative"
+    {{ $attributes->class('relative') }}
     x-modelable="_dates"
     x-data="{
         _dates: [],
@@ -57,29 +56,29 @@
         },
     }"
 >
-    <div>
-        <x-label for="start-date" class="mb-1.5 font-medium" :value="__('Check-in')"/>
+    <x-field
+        id="daterange_start-date"
+        :label="__('Check-in')"
+    >
         <x-input
-            readonly=""
-            type="text"
+            readonly
             x-ref="startDate"
             name="{{ $names[0] }}"
             x-model="_dates[0]"
-            x-on:click="picker.show()"
-            id="start-date"
+            jserror="errors.{{ $names[0] }}"
         />
-    </div>
+    </x-field>
 
-    <div>
-        <x-label for="end-date" class="mb-1.5 font-medium" :value="__('Check-out')"/>
+    <x-field
+        id="daterange_end-date"
+        :label="__('Check-out')"
+    >
         <x-input
-            readonly=""
-            type="text"
+            readonly
             x-ref="endDate"
             name="{{ $names[1] }}"
             x-model="_dates[1]"
-            x-on:click="picker.show()"
-            id="end-date"
+            jserror="errors.{{ $names[1] }}"
         />
-    </div>
+    </x-field>
 </div>

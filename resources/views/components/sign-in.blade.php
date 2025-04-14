@@ -28,20 +28,20 @@
 >
     @csrf
 
-    <div x-show="emailSent" class="p-4 border rounded-lg border-green-300 bg-green-50 flex gap-2 mb-4">
-        <svg class="shrink-0 size-5 inline-block text-green-400 mt-0.5" data-flux-icon="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"></path>
-        </svg>
+    <x-callout variant="success" x-show="emailSent" class="mb-6">
+        <x-slot:icon>
+            <svg class="size-5" data-flux-icon="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"></path>
+            </svg>
+        </x-slot:icon>
 
-        <div>
-            <p class="font-medium text-green-600">{{ __('Email inviata!') }}</p>
+        <p class="font-medium">{{ __('Email sent!') }}</p>
 
-            <p class="text-green-600 mt-1">
-                {{ __('A confirmation link has been sent to your email address.') }}
-                {{ __('Click the link to complete the login.') }}
-            </p>
-        </div>
-    </div>
+        <p class="mt-1">
+            {{ __('A confirmation link has been sent to your email address.') }}
+            {{ __('Click the link to complete the login.') }}
+        </p>
+    </x-callout>
 
     <div class="flex flex-col gap-2">
         <x-field

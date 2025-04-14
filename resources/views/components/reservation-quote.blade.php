@@ -1,8 +1,6 @@
 <div>
     <form
-        action="{{ route('reservation.store') }}"
-        method="POST"
-        x-ref="form"
+        x-on:submit.prevent="submit"
         class="space-y-6"
         x-data="{
             defaultOvernightStay: {{ Js::from(array_shift($priceList)) }},
@@ -25,6 +23,23 @@
                 const tot = this.priceList.reduce((partial, line) => partial + (line.unit_amount * line.quantity), 0);
 
                 return this.defaultOvernightStay.unit_amount * this.nights + tot;
+            },
+
+            async submit() {
+                this.loading = true;
+
+                const formData = new FormData($root);
+
+                await axios
+                    .post('{{ route('reservation.store') }}', formData)
+                    .then((response) => console.log(response))
+                    .catch((error) => {
+                        if (error.response.status === 422) {
+                            return this.errors = error.response.data.errors;
+                        }
+                    });
+
+                this.loading = false;
             },
         }"
     >

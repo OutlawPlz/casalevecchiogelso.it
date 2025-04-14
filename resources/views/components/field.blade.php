@@ -1,8 +1,6 @@
 @props([
     'id',
-    'name',
     'label' => '',
-    'required' => false,
     'disabled' => false,
     'help' => '',
     'error' => '',
@@ -11,11 +9,12 @@
 
 <div {{ $attributes->class('field') }}>
     @if($label)
-        <x-label
+        <label
             for="{{ $id }}"
-            :value="$label"
-            :$disabled
-        />
+            @class(['disabled' => $disabled])
+        >
+            {{ $label }}
+        </label>
     @endif
 
     {{ $slot }}

@@ -20,7 +20,7 @@ if ($error) {
 
 <input
     {{ $attributes->class($classObject) }}
-    @if($jserror)::class="{ invalid: !!{{ $jserror }} }"@endif
+    @if($jserror) :class="{ invalid: !!{{ $jserror }} }" @endif
     id="{{ $id }}"
     name="{{ $name }}"
     type="{{ $type }}"
