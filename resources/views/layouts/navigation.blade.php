@@ -32,23 +32,21 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('reservation.index')">
+                        <a href="{{ route('reservation.index') }}" class="dropdown-link">
                             {{ __('Reservations') }}
-                        </x-dropdown-link>
+                        </a>
 
-                        <x-dropdown-link :href="route('profile.edit')">
+                        <a href="{{ route('profile.edit') }}">
                             {{ __('Profile') }}
-                        </x-dropdown-link>
+                        </a>
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                            <button class="dropdown-link">
                                 {{ __('Log Out') }}
-                            </x-dropdown-link>
+                            </button>
                         </form>
                     </x-slot>
                 </x-dropdown>

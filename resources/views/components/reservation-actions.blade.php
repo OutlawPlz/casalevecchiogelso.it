@@ -155,7 +155,6 @@
                     </button>
 
                     <button x-bind:disabled="loading" class="primary">
-                        <x-spinner-loader x-show="loading" />
                         {{ __('Send money') }}
                     </button>
                 </div>

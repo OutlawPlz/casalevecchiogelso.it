@@ -45,11 +45,11 @@ class ReservationController extends Controller
     /**
      * @param  Request  $request
      * @param  Calendar  $calendar
-     * @return RedirectResponse
+     * @return array
      * @throws ValidationException
      * @throws \Exception
      */
-    public function store(Request $request, Calendar $calendar): RedirectResponse
+    public function store(Request $request, Calendar $calendar): array
     {
         $attributes = $request->validate(self::rules());
 
@@ -87,7 +87,7 @@ class ReservationController extends Controller
 
         session()->forget('reservation');
 
-        return redirect()->route('reservation.show', [$reservation]);
+        return ['redirect' => route('reservation.show', [$reservation])];
     }
 
     /**

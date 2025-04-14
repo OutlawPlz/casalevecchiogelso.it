@@ -32,7 +32,7 @@
 
                 await axios
                     .post('{{ route('reservation.store') }}', formData)
-                    .then((response) => console.log(response))
+                    .then((response) => window.location = response.data.redirect)
                     .catch((error) => {
                         if (error.response.status === 422) {
                             return this.errors = error.response.data.errors;
@@ -106,22 +106,18 @@
         <div class="mt-4">
             @csrf
 
-            @guest()
+
             <button
+                @guest()
                 x-data=""
                 type="button"
-                class="primary w-full"
                 x-on:click.prevent="$dispatch('open-modal', 'token-login')"
+                @endguest
+                class="primary w-full"
             >
+                <x-loading x-show="loading" x-cloak />
                 {{ __('Request to book') }}
             </button>
-            @endguest
-
-            @auth()
-            <button class="primary w-full">
-                {{ __('Request to book') }}
-            </button>
-            @endauth
 
             <p class="text-sm mt-2 text-center">{{ __('You won\'t be charged yet') }}</p>
         </div>

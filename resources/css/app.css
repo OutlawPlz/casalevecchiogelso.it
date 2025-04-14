@@ -31,6 +31,10 @@
   }
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 .autogrow {
     display: grid;
 }
@@ -213,7 +217,7 @@ input[type=radio]:not(.clear) {
 }
 
 .button,
-button:not(.clear) {
+button:not(.clear,.dropdown-link) {
     @apply
     items-center
     font-medium
@@ -229,7 +233,7 @@ button:not(.clear) {
     &:not(.primary,.filled,.danger,.ghost,.subtle) {
         @apply
         bg-white
-        hover:bg-zinc-50
+        hover:bg-zinc-800/5
         text-zinc-800
         border
         border-zinc-200
@@ -321,4 +325,30 @@ dialog:not(.clear) {
     border
     border-transparent
     w-full;
+}
+
+.dropdown:not(.clear) {
+    @apply
+    p-1
+    rounded-lg
+    shadow-xs
+    border
+    border-zinc-200
+    bg-white;
+}
+
+.dropdown-link,
+.dropdown a:not(.clear) {
+    @apply
+    flex
+    items-center
+    px-2
+    py-1.5
+    w-full
+    rounded-md
+    text-start
+    text-sm
+    text-zinc-800
+    hover:bg-zinc-800/5
+    focus:bg-zinc-800/5;
 }

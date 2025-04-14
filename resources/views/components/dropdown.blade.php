@@ -33,7 +33,7 @@ $alignmentClasses = match ($align) {
         style="display: none;"
         @click="open = false"
     >
-        <div {{ $attributes->merge(['class' => $contentClasses]) }}>
+        <div {{ $attributes->class('dropdown') }}>
             {{ $content }}
         </div>
     </div>
