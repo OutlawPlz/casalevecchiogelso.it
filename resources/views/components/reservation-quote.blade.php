@@ -3,7 +3,7 @@
         x-on:submit.prevent="submit"
         class="space-y-6"
         x-data="{
-            defaultOvernightStay: {{ Js::from(array_shift($priceList)) }},
+            overnightStay: {{ Js::from(array_shift($priceList)) }},
             priceList: {{ Js::from($priceList) }},
             period: $persist([
                 new Date().toJSON().slice(0, 10),
@@ -11,7 +11,7 @@
             ]).using(sessionStorage),
             guestCount: $persist(1).using(sessionStorage),
             loading: false,
-            errors: {{ Js::from($errors->messages()) }},
+            errors: {},
 
             get nights() {
                 if (! this.period[1] || ! this.period[0]) return 0;
@@ -22,7 +22,7 @@
             get tot() {
                 const tot = this.priceList.reduce((partial, line) => partial + (line.unit_amount * line.quantity), 0);
 
-                return this.defaultOvernightStay.unit_amount * this.nights + tot;
+                return this.overnightStay.unit_amount * this.nights + tot;
             },
 
             async submit() {
@@ -44,7 +44,7 @@
         }"
     >
         <div>
-            <span class="text-3xl" x-currency="defaultOvernightStay.unit_amount"></span>
+            <span class="text-3xl" x-currency="overnightStay.unit_amount"></span>
             <span> / {{ __('night') }}</span>
         </div>
 
@@ -83,9 +83,9 @@
         <div class="space-y-2">
             <div class="flex justify-between">
                 <span class="underline">
-                    <span x-currency="defaultOvernightStay.unit_amount"></span> x <span x-text="nights"></span> {{ __('nights') }}
+                    <span x-currency="overnightStay.unit_amount"></span> x <span x-text="nights"></span> {{ __('nights') }}
                 </span>
-                <span x-currency="nights * defaultOvernightStay.unit_amount"></span>
+                <span x-currency="nights * overnightStay.unit_amount"></span>
             </div>
 
             <template x-for="(line, index) of priceList" :key="index">

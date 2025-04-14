@@ -32,7 +32,7 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <a href="{{ route('reservation.index') }}" class="dropdown-link">
+                        <a href="{{ route('reservation.index') }}">
                             {{ __('Reservations') }}
                         </a>
 
@@ -44,7 +44,7 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
-                            <button class="dropdown-link">
+                            <button class="clear dropdown-link">
                                 {{ __('Log Out') }}
                             </button>
                         </form>
@@ -55,9 +55,9 @@
             </div>
 
             <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-zinc-400 hover:text-zinc-500 hover:bg-zinc-100 focus:outline-hidden focus:bg-zinc-100 focus:text-zinc-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+            <div class="flex items-center sm:hidden">
+                <button @click="open = ! open" class="ghost square">
+                    <svg class="size-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>

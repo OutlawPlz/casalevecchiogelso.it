@@ -17,7 +17,7 @@
 
             @foreach($availableLocales as $langcode => $locale)
                 <button
-                    class="dropdown-link"
+                    class="clear dropdown-link"
                     value="{{ $langcode }}"
                     name="locale"
                 >{{ $locale }}</button>
