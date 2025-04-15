@@ -9,7 +9,6 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
@@ -17,7 +16,6 @@ use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
-use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 
@@ -198,7 +196,9 @@ class StripeController extends Controller
      */
     protected function handleCustomerDeleted(Event $event): void
     {
-        $user = User::query()->where('stripe_id', $event->data->object->id)->firstOrFail();
+        $user = User::query()
+            ->where('stripe_id', $event->data->object->id)
+            ->firstOrFail();
 
         $user->update(['stripe_id' => null]);
     }
@@ -303,5 +303,27 @@ class StripeController extends Controller
                 'amount' => $refund->amount,
             ])
             ->log($message);
+    }
+
+    protected function handleCheckoutSessionExpired(Event $event): void
+    {
+        /** @var string $ulid */
+        $ulid = $event->data->object->metadata->reservation;
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()->where('ulid', $ulid)->firstOrFail();
+
+        $reservation->update([
+            'checkout_session' => null,
+            'status' => ReservationStatus::QUOTE,
+        ]);
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+            ])
+            ->log("The pre-approval has expired.");
+
+        // TODO: Notify the guest and the host that pre-approval has expired..
     }
 }

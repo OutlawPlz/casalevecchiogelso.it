@@ -9,17 +9,12 @@
 
 @switch($reservation->status)
     @case(ReservationStatus::PENDING)
-        <form action="{{ route('checkout') }}" method="POST" class="mt-4">
-            @csrf
-            <button
-                value="{{ $reservation->ulid }}"
-                name="reservation"
-                class="primary w-full"
-                :disabled="$authUser->isHost()"
-            >
-                {{ __('Confirm and pay') }}
-            </button>
-        </form>
+        <a
+            href="{{ $reservation->checkout_session['url'] }}"
+            class="button primary w-full"
+        >
+            {{ __('Confirm and pay') }}
+        </a>
 
         <div class="prose-sm mt-2">
             {{ __('Your booking has been pre-approved.') }}

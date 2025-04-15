@@ -127,7 +127,7 @@ function is_overnight_stay(string $stripeId): bool
  * @param Carbon|null $date
  * @return int
  */
-function refund_amount(Reservation $reservation, Carbon $date = null): int
+function refund_amount(Reservation $reservation, ?Carbon $date = null): int
 {
     if (! $date) $date = now();
 

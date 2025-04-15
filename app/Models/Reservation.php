@@ -33,6 +33,7 @@ use function App\Helpers\is_overnight_stay;
  * @property array<int, string>|null $visited_at
  * @property CarbonImmutable|null $replied_at
  * @property string|null $payment_intent
+ * @property array{id:string,url:string,expires_at:int}|null $checkout_session
  * @property-read int $tot
  * @property-read User $user
  * @property-read Collection<Message> $messages
@@ -63,6 +64,7 @@ class Reservation extends Model
         'replied_at',
         'payment_intent',
         'cancellation_policy',
+        'checkout_session',
     ];
 
     final public function __construct(array $attributes = [])
@@ -101,6 +103,7 @@ class Reservation extends Model
             'visited_at' => 'array',
             'replied_at' => 'immutable_datetime',
             'cancellation_policy' => CancellationPolicy::class,
+            'checkout_session' => 'array',
         ];
     }
 

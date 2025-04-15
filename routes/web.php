@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
@@ -48,9 +47,6 @@ Route::group([
     /* ----- Refund ----- */
     Route::post('/reservations/{reservation:ulid}/refund', [RefundController::class, 'store'])->name('refund.store');
 
-    /* ----- Checkout ----- */
-    Route::post('/checkout', CheckoutController::class)->name('checkout');
-
     /* ----- Message ----- */
     Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index')
         ->can('viewAny', [Message::class, 'reservation']);
@@ -77,7 +73,5 @@ Route::get('auth/token', [TokenAuthenticationController::class, 'store'])->name(
 Route::post('/locale-preference', LocalePreferenceController::class)->name('locale-preference');
 
 Route::get('/test', function (\Stripe\StripeClient $stripe) {
-    return $stripe->paymentIntents->retrieve('pi_3Q6vcBAKSJP4UmE20JSLSegf', [
-        'expand' => ['latest_charge.balance_transaction'],
-    ]);
+    return $stripe->checkout->sessions->expire('cs_test_b17UVXKqLdUZW9fjvtPHSQyZi7av7avaq5JC4JjmLRsWB0HBOiUlVGiXIf', []);
 });
