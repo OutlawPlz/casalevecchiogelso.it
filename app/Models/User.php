@@ -24,11 +24,6 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -36,19 +31,11 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         'locale',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * @return HasMany<Reservation>
-     */
     public function reservations(): HasMany
     {
         return $this->hasMany(Reservation::class);
@@ -92,33 +79,21 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         return $this->stripe_id;
     }
 
-    /**
-     * @return bool
-     */
     public function hasStripeId(): bool
     {
         return ! is_null($this->stripe_id);
     }
 
-    /**
-     * @return bool
-     */
     public function isHost(): bool
     {
         return $this->role === 'host';
     }
 
-    /**
-     * @return bool
-     */
     public function isGuest(): bool
     {
         return $this->role === 'guest';
     }
 
-    /**
-     * @return string|null
-     */
     public function preferredLocale(): ?string
     {
         return $this->locale;

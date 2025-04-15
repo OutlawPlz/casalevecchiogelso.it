@@ -18,6 +18,7 @@ use Stripe\Refund;
 use Stripe\Stripe;
 use Stripe\Webhook;
 use UnexpectedValueException;
+use function App\Helpers\money_formatter;
 
 class StripeController extends Controller
 {
@@ -293,6 +294,7 @@ class StripeController extends Controller
             'succeeded' => 'The refund process is completed.',
             'failed' => "The refund failed due to $refund->failure_reason.",
             'cancelled' => "The refund was canceled due to $refund->failure_reason.",
+            default => throw new \RuntimeException("Unhandled refund status: $refund->status"),
         };
 
         activity()

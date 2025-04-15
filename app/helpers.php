@@ -10,10 +10,6 @@ use DateTime;
 use DateTimeInterface;
 use NumberFormatter;
 
-/**
- * @param DateTimeInterface|DateInterval|DatePeriod $date
- * @return string
- */
 function iso8601_encode(DateTimeInterface|DateInterval|DatePeriod $date): string
 {
     if ($date instanceof DateTimeInterface) {

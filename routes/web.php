@@ -44,9 +44,6 @@ Route::group([
     Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
         ->can('viewAny', [Activity::class, 'reservation']);
 
-    /* ----- Refund ----- */
-    Route::post('/reservations/{reservation:ulid}/refund', [RefundController::class, 'store'])->name('refund.store');
-
     /* ----- Message ----- */
     Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index')
         ->can('viewAny', [Message::class, 'reservation']);
