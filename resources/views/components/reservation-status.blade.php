@@ -49,13 +49,12 @@
         @break
 
     @case(ReservationStatus::CONFIRMED)
-        <button
+        <a
             href="{{ route('reservation.delete', [$reservation]) }}"
-            class="primary w-full mt-4"
-            :disabled="$authUser->isHost()"
+            class="button primary w-full mt-4"
         >
             {{ __('Cancel the booking') }}
-        </button>
+        </a>
 
         <div class="rounded-md p-4 bg-green-50 flex space-x-2 mt-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-green-400">

@@ -57,11 +57,9 @@
                     :unavailable="$unavailable_dates"
                 />
 
-                <div class="mt-1 5">
-                    @foreach(['check_in', 'check_out', 'unavailable_dates'] as $key)
-                        <x-error-messages jserror="errors.{{ $key }}" />
-                    @endforeach
-                </div>
+                @foreach(['check_in', 'check_out', 'unavailable_dates'] as $key)
+                    <x-error-messages jserror="errors.{{ $key }}" />
+                @endforeach
             </div>
 
             <x-field

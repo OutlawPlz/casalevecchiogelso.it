@@ -26,25 +26,23 @@ function iso8601_encode(DateTimeInterface|DateInterval|DatePeriod $date): string
         $date = $date->getDateInterval();
     }
 
-    if ($date instanceof DateInterval) {
-        if ($iso8601) $iso8601 .= '/';
+    if ($iso8601) $iso8601 .= '/';
 
-        $P = $date->invert ? '-P' : 'P';
+    $P = $date->invert ? '-P' : 'P';
 
-        foreach (['y', 'm', 'd'] as $period) {
-            if ($date->$period) $P .= $date->$period . strtoupper($period);
-        }
-
-        $T = '';
-
-        foreach (['h', 'i', 's'] as $time) {
-            if ($date->$time) $T .= $date->$time . strtoupper($time);
-        }
-
-        if ($T) $T = 'T' . $T;
-
-        $iso8601 .= $P . $T;
+    foreach (['y', 'm', 'd'] as $period) {
+        if ($date->$period) $P .= $date->$period . strtoupper($period);
     }
+
+    $T = '';
+
+    foreach (['h', 'i', 's'] as $time) {
+        if ($date->$time) $T .= $date->$time . strtoupper($time);
+    }
+
+    if ($T) $T = 'T' . $T;
+
+    $iso8601 .= $P . $T;
 
     return $iso8601;
 }

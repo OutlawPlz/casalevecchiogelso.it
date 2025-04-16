@@ -8,9 +8,7 @@
 @source '../**/*.js';
 
 @theme {
-  --font-sans:
-    Figtree, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: Figtree, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 /*
@@ -22,13 +20,13 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-zinc-200, currentcolor);
-  }
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-zinc-200, currentcolor);
+    }
 }
 
 [x-cloak] {
@@ -61,42 +59,49 @@
 }
 
 .field:not(.inline, .inline-reverse) {
-    display: flex;
-    flex-direction: column;
-    row-gap: calc(var(--spacing) * 1.5);
+    @apply
+    flex
+    flex-col
+    gap-1.5;
 }
 
 .field.inline {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: calc(var(--spacing) * 2);
+    @apply
+    grid
+    grid-cols-[auto_1fr]
+    gap-2;
 
     input {
-        order: calc(-infinity);
-        grid-row: 1;
-        grid-column: 1;
-        align-self: center;
+        @apply
+        order-first
+        row-1
+        col-1
+        self-center;
     }
 
     :not(input) {
-        grid-column: 2;
+        @apply
+        col-2;
     }
 }
 
 .field.inline-reverse {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: calc(var(--spacing) * 2);
+    @apply
+    grid
+    grid-cols-[1fr_auto]
+    gap-2;
 
     input {
-        order: calc(infinity);
-        grid-row: 1;
-        grid-column: 2;
-        align-self: center;
+        @apply
+        order-last
+        row-1
+        col-2
+        self-center;
     }
 
     :not(input) {
-        grid-column: 1;
+        @apply
+        col-1;
     }
 }
 
@@ -214,6 +219,82 @@ input[type=radio]:not(.clear) {
     checked:after:size-1/2
     checked:after:bg-white
     checked:after:rounded-full
+}
+
+.select,
+select:not(.clear, [multiple]) {
+    @apply
+    appearance-none
+    w-full
+    ps-3
+    pe-10
+    block
+    h-10
+    py-2
+    text-base
+    leading-none
+    rounded-lg
+    shadow-xs
+    bg-white
+    text-zinc-700
+    disabled:shadow-none
+    border
+    border-zinc-200
+    border-b-zinc-300/80;
+}
+
+.multiple-select,
+select[multiple]:not(.clear) {
+    @apply
+    appearance-none
+    w-full
+    p-1
+    block
+    h-20
+    rounded-lg
+    shadow-xs
+    bg-white
+    text-zinc-700
+    disabled:shadow-none
+    border
+    border-zinc-200
+    border-b-zinc-300/80;
+
+    & option {
+        @apply
+        flex
+        items-center
+        rounded-md
+        px-2
+        h-7;
+
+        &:not(:last-child) {
+            @apply
+            mb-1;
+        }
+    }
+}
+
+.textarea,
+textarea:not(.clear) {
+    @apply
+    block
+    p-3
+    w-full
+    shadow-xs
+    disabled:shadow-none
+    border
+    rounded-lg
+    bg-white
+    resize-y
+    text-base
+    sm:text-sm
+    text-zinc-700
+    disabled:text-zinc-500
+    placeholder-zinc-400
+    disabled:placeholder-zinc-400/70
+    border-zinc-200
+    border-b-zinc-300/80
 }
 
 .button,
