@@ -222,12 +222,12 @@
                 </div>
             </template>
 
-            <div class="flex w-full">
+            <div class="flex gap-1 w-full">
                 @host
                 <x-dropdown align="top" class="mb-4 w-48">
                     <x-slot name="trigger">
                         <button
-                            class="ghost sm"
+                            class="ghost square"
                             size="size-10"
                             type="button"
                         >
@@ -243,7 +243,7 @@
                             <button
                                 type="button"
                                 data-template="{{ $template['template'] }}"
-                                class="px-4 py-2 text-start text-sm leading-5 text-zinc-700 hover:bg-zinc-100 w-full"
+                                class="clear dropdown-link"
                             >
                                 {{ $template['label'] }}
                             </button>

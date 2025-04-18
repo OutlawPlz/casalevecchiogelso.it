@@ -51,9 +51,9 @@ class Calendar
         return true;
     }
 
-    public function isNotAvailable(DateTimeImmutable $checkIn, DateTimeImmutable $checkOut): bool
+    public function isNotAvailable(DateTimeImmutable $checkIn, DateTimeImmutable $checkOut, ?Reservation $ignore = null): bool
     {
-        return ! $this->isAvailable($checkIn, $checkOut);
+        return ! $this->isAvailable($checkIn, $checkOut, $ignore);
     }
 
     public function sync(): void

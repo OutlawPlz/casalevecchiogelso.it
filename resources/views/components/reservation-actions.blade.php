@@ -105,12 +105,12 @@
 
     @case(ReservationStatus::CONFIRMED)
         <div class="flex flex-col gap-2 mt-4">
-            <button
+            <a
                 href="{{ route('reservation.delete', [$reservation]) }}"
-                class="primary w-full"
+                class="button primary w-full"
             >
                 {{ __('Cancel the booking') }}
-            </button>
+            </a>
         </div>
 
         @break

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Casts\AsDateInterval;
 use App\Enums\CancellationPolicy;
 use App\Enums\ReservationStatus;
+use App\Traits\HasPriceList;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
-use function App\Helpers\is_overnight_stay;
 
 /**
  * @property int $id
@@ -25,16 +24,13 @@ use function App\Helpers\is_overnight_stay;
  * @property int $guest_count
  * @property CarbonImmutable $check_in
  * @property CarbonImmutable $check_out
- * @property \DateInterval|null $preparation_time
  * @property string $summary
- * @property array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}[] $price_list
  * @property ReservationStatus $status
  * @property CancellationPolicy $cancellation_policy
  * @property array<int, string>|null $visited_at
  * @property CarbonImmutable|null $replied_at
  * @property string|null $payment_intent
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
- * @property-read int $tot
  * @property-read User $user
  * @property-read Collection<Message> $messages
  * @property-read int $nights
@@ -45,7 +41,7 @@ use function App\Helpers\is_overnight_stay;
  */
 class Reservation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPriceList;
 
     protected $fillable = [
         'ulid',
@@ -56,7 +52,6 @@ class Reservation extends Model
         'guest_count',
         'check_in',
         'check_out',
-        'preparation_time',
         'price_list',
         'summary',
         'status',
@@ -97,7 +92,6 @@ class Reservation extends Model
         return [
             'check_in' => 'immutable_datetime',
             'check_out' => 'immutable_datetime',
-            'preparation_time' => AsDateInterval::class,
             'price_list' => 'array',
             'status' => ReservationStatus::class,
             'visited_at' => 'array',
@@ -124,20 +118,6 @@ class Reservation extends Model
                 $this->check_in
             ]
         );
-    }
-
-    public function order(): array
-    {
-        $order = [];
-
-        foreach ($this->price_list as $line) {
-            $order[] = [
-                'price' => $line['price'],
-                'quantity' => is_overnight_stay($line['product']) ? $this->nights : 1
-            ];
-        }
-
-        return $order;
     }
 
     public function user(): BelongsTo
@@ -177,19 +157,6 @@ class Reservation extends Model
         );
     }
 
-    protected function tot(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                return array_reduce(
-                    $this->price_list,
-                    fn ($tot, $line) => $tot + ($line['unit_amount'] * $line['quantity']),
-                    0
-                );
-            }
-        );
-    }
-
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
@@ -207,7 +174,7 @@ class Reservation extends Model
     public function hasNewMessageFor(User $user): bool
     {
         if (! $this->visited_at || ! $this->replied_at) return false;
-        // Given user has never visited the reservation...
+        // The given user has never visited the reservation...
         if (! array_key_exists($user->email, $this->visited_at)) return false;
 
         $visitedAt = new CarbonImmutable($this->visited_at[$user->email]);

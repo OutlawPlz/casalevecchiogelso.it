@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\ApproveRequest;
+use App\Actions\ApproveReservation;
 use App\Actions\RefundGuest;
 use App\Enums\ReservationStatus;
 use App\Models\Reservation;
@@ -31,7 +31,7 @@ class ReservationStatusController extends Controller
 
     protected function markAsPending(Reservation $reservation): RedirectResponse
     {
-        (new ApproveRequest)($reservation);
+        (new ApproveReservation)($reservation);
 
         // TODO: Notify the guest and the host.
 

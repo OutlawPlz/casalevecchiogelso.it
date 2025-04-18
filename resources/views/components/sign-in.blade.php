@@ -43,7 +43,7 @@
         </p>
     </x-callout>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-4">
         <x-field
             :label="__('Name')"
             id="sign-in_name"

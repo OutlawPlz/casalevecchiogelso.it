@@ -13,16 +13,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Stripe\Refund;
+use Stripe\Exception\ApiErrorException;
 use function App\Helpers\is_overnight_stay;
 use function App\Helpers\refund_amount;
 
 class ReservationController extends Controller
 {
-    /**
-     * @param  Request  $request
-     * @return View
-     */
     public function index(Request $request): View
     {
         /** @var User $authUser */
@@ -43,11 +39,7 @@ class ReservationController extends Controller
     }
 
     /**
-     * @param  Request  $request
-     * @param  Calendar  $calendar
-     * @return array
      * @throws ValidationException
-     * @throws \Exception
      */
     public function store(Request $request, Calendar $calendar): array
     {
@@ -89,11 +81,6 @@ class ReservationController extends Controller
         return ['redirect' => route('reservation.show', [$reservation])];
     }
 
-    /**
-     * @param  Request  $request
-     * @param  Reservation  $reservation
-     * @return View
-     */
     public function show(Request $request, Reservation $reservation): View
     {
         /** @var User $authUser */
@@ -105,11 +92,6 @@ class ReservationController extends Controller
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @param Reservation $reservation
-     * @return View|RedirectResponse
-     */
     public function delete(Request $request, Reservation $reservation): View|RedirectResponse
     {
         if (! $reservation->inStatus(ReservationStatus::CONFIRMED)) {
@@ -127,13 +109,9 @@ class ReservationController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param Reservation $reservation
-     * @return RedirectResponse
-     * @throws ValidationException
-     * @throws \Stripe\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
-    public function destroy(Request $request, Reservation $reservation): RedirectResponse
+    public function destroy(Reservation $reservation): RedirectResponse
     {
         $amount = refund_amount($reservation);
 
@@ -146,9 +124,6 @@ class ReservationController extends Controller
         return redirect()->route('reservation.show', [$reservation]);
     }
 
-    /**
-     * @return array
-     */
     public static function rules(): array
     {
         $date = now()->addDays(2)->format('Y-m-d');
