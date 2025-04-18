@@ -22,8 +22,6 @@
                 });
 
             this.loading.false;
-
-            console.log(this.feed);
         },
 
         init() {
@@ -50,8 +48,8 @@
                     </div>
 
                     <p
-                        x-text="item.description"
                         class="flex-auto py-0.5 text-sm leading-5 text-zinc-700"
+                        x-text="item.description"
                     ></p>
 
                     <time

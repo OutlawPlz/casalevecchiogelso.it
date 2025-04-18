@@ -149,10 +149,12 @@ class Reservation extends Model
     {
         return Attribute::make(
             get: function () {
-                if (! $this->preparation_time) return [];
+                $preparationTime = config('reservation.preparation_time');
+
+                if (! $preparationTime) return [];
 
                 return [
-                    $this->check_in->sub($this->preparation_time),
+                    $this->check_in->sub($preparationTime),
                     $this->check_in
                 ];
             }
@@ -163,11 +165,13 @@ class Reservation extends Model
     {
         return Attribute::make(
             get: function () {
-                if (! $this->preparation_time) return [];
+                $preparationTime = config('reservation.preparation_time');
+
+                if (! $preparationTime) return [];
 
                 return [
                     $this->check_out,
-                    $this->check_out->add($this->preparation_time)
+                    $this->check_out->add($preparationTime)
                 ];
             }
         );

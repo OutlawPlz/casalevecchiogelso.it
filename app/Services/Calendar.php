@@ -6,7 +6,6 @@ use App\Enums\ReservationStatus;
 use App\Models\Reservation;
 use Carbon\CarbonImmutable;
 use DateTimeImmutable;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +17,7 @@ use function App\Helpers\dates_in_range;
 
 class Calendar
 {
+    /** @var list<array{uid:string,start_at:string,end_at:string,unavailable_dates:string[],summary:string}> */
     protected array $events;
 
     /** @var string[] */
@@ -28,21 +28,19 @@ class Calendar
         $this->events = Storage::json('calendar.json') ?? [];
     }
 
-    /**
-     * @param DateTimeImmutable $checkIn
-     * @param DateTimeImmutable $checkOut
-     * @return bool
-     */
-    public function isAvailable(DateTimeImmutable $checkIn, DateTimeImmutable $checkOut): bool
+    public function isAvailable(DateTimeImmutable $checkIn, DateTimeImmutable $checkOut, ?Reservation $ignore = null): bool
     {
         $reservedPeriod = new Period($checkIn, $checkOut, Precision::DAY(), Boundaries::EXCLUDE_END());
 
-        foreach ($this->events as $event) {
-            $eventPeriod = new Period(
-                new CarbonImmutable($event['start_at']),
-                new CarbonImmutable($event['end_at']),
+        $events = array_filter($this->events, fn ($event) => ! $ignore || ! str_starts_with($event['uid'], $ignore->ulid));
+
+        foreach ($events as $event) {
+            $eventPeriod = Period::make(
+                $event['start_at'],
+                $event['end_at'],
                 Precision::DAY(),
-                Boundaries::EXCLUDE_END()
+                Boundaries::EXCLUDE_END(),
+                'Y-m-d\TH:i:s.u\Z'
             );
 
             $overlaps = $eventPeriod->overlapsWith($reservedPeriod);
@@ -53,28 +51,16 @@ class Calendar
         return true;
     }
 
-    /**
-     * @param DateTimeImmutable $checkIn
-     * @param DateTimeImmutable $checkOut
-     * @return bool
-     */
     public function isNotAvailable(DateTimeImmutable $checkIn, DateTimeImmutable $checkOut): bool
     {
         return ! $this->isAvailable($checkIn, $checkOut);
     }
 
-    /**
-     * @return void
-     */
     public function sync(): void
     {
         $this->syncFromServices();
     }
 
-    /**
-     * @param string ...$services
-     * @return void
-     */
     public function syncFromServices(string ...$services): void
     {
         if (! $services) $services = $this->defaultServices;
@@ -92,10 +78,6 @@ class Calendar
         Storage::put('calendar.json', json_encode($this->events, JSON_PRETTY_PRINT));
     }
 
-    /**
-     * @return array
-     * @throws Exception
-     */
     public function fromDatabase(): array
     {
         /** @var Collection<int, Reservation> $reservations */
@@ -110,21 +92,26 @@ class Calendar
 
         foreach ($reservations as $reservation) {
             $events[] = [
-                'uid' => $reservation->ulid,
+                'uid' => "$reservation->ulid@database",
                 'start_at' => $reservation->check_in->toISOString(),
                 'end_at' => $reservation->check_out->toISOString(),
                 'unavailable_dates' => dates_in_range($reservation->check_in, $reservation->check_out),
                 'summary' => $reservation->summary
             ];
 
-            if (! $reservation->preparation_time) continue;
+            $wholePreparationTime = [
+                'check_in_prep' => $reservation->checkInPreparationTime,
+                'check_out_prep' => $reservation->checkOutPreparationTime,
+            ];
 
             /** @var CarbonImmutable[] $preparationTime */
-            foreach ([$reservation->checkInPreparationTime, $reservation->checkOutPreparationTime] as $preparationTime) {
+            foreach ($wholePreparationTime as $prePost => $preparationTime) {
+                if (! $preparationTime) continue;
+
                 [$startAt, $endAt] = $preparationTime;
 
                 $events[] = [
-                    'uid' => $reservation->ulid,
+                    'uid' => "$reservation->ulid-$prePost@database",
                     'start_at' => $startAt->toISOString(),
                     'end_at' => $endAt->toISOString(),
                     'unavailable_dates' => dates_in_range($startAt, $endAt),
@@ -136,11 +123,6 @@ class Calendar
         return $events;
     }
 
-    /**
-     * @param string|null $ics
-     * @return array
-     * @throws Exception
-     */
     public function fromAirbnb(?string $ics = null): array
     {
         $ics ??= config('services.airbnb.ics_link');

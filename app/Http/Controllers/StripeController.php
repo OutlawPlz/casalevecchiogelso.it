@@ -66,7 +66,10 @@ class StripeController extends Controller
             ->where('ulid', $ulid)
             ->firstOrFail();
 
-        $reservation->update(['status' => ReservationStatus::CONFIRMED]);
+        $reservation->update([
+            'status' => ReservationStatus::CONFIRMED,
+            'checkout_session' => null,
+        ]);
 
         // TODO: Notify reservation confirmed.
 

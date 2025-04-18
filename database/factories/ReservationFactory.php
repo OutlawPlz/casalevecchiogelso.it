@@ -25,7 +25,6 @@ class ReservationFactory extends Factory
             'guest_count' => fake()->numberBetween(1, 10),
             'check_in' => today()->addWeek(),
             'check_out' => today()->addWeeks(2),
-            'preparation_time' => new DateInterval('P1D'),
             'summary' => fake()->sentence(),
             'price_list' => [
                 [

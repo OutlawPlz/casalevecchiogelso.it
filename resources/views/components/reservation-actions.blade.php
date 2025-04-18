@@ -22,15 +22,15 @@
 @switch($reservation->status)
     @case(ReservationStatus::QUOTE)
         <div class="flex flex-col gap-2 mt-4">
-            <button x-on:click.prevent="$dispatch('open-modal', 'reject')">
-                {{ __('Reject') }}
-            </button>
-
             <button
                 class="primary"
                 x-on:click.prevent="$dispatch('open-modal', 'pre-approve')"
             >
                 {{ __('Pre-approve') }}
+            </button>
+
+            <button x-on:click.prevent="$dispatch('open-modal', 'reject')">
+                {{ __('Reject') }}
             </button>
         </div>
 
@@ -111,55 +111,7 @@
             >
                 {{ __('Cancel the booking') }}
             </button>
-
-            <button
-                x-on:click.prevent="$dispatch('open-modal', 'refund')"
-                class="primary w-full"
-            >
-                {{ __('Send money') }}
-            </button>
         </div>
-
-        <x-modal name="refund" class="max-w-md">
-            <form
-                class="p-6"
-                x-on:submit.prevent="submit"
-                x-data="{
-                    loading: false,
-                    errors: {},
-
-                    async submit() {
-                        this.loading = true;
-
-                        const formData = new FormData(this.$root);
-
-                        await axios.post('{{ route('refund.store', [$reservation]) }}', formData)
-                            .then((response) => this.errors = {})
-                            .catch((error) => {
-                                if (error.response.status === 422) {
-                                    return this.errors = error.response.data.errors;
-                                }
-                            });
-
-                        this.loading = false;
-                    },
-                }"
-            >
-                <div class="mt-6 space-x-3 flex justify-end">
-                    <button
-                        class="ghost"
-                        x-on:click="$dispatch('close')"
-                        type="button"
-                    >
-                        {{ __('Close') }}
-                    </button>
-
-                    <button x-bind:disabled="loading" class="primary">
-                        {{ __('Send money') }}
-                    </button>
-                </div>
-            </form>
-        </x-modal>
 
         @break
 @endswitch

@@ -70,7 +70,6 @@ class ReservationController extends Controller
             'ulid' => Str::ulid(),
             'name' => $authUser->name,
             'email' => $authUser->email,
-            'preparation_time' => new \DateInterval(config('reservation.preparation_time')),
             'user_id' => $authUser->id,
             'price_list' => $priceList
         ]);
