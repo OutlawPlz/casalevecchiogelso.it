@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\CancellationPolicy;
+use App\Enums\ChangeRequestStatus;
 use App\Enums\ReservationStatus;
 use App\Traits\HasPriceList;
+use App\Traits\HasStartEndDates;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,13 +19,10 @@ use Illuminate\Support\Collection;
  * @property int $id
  * @property string $ulid
  * @property int $user_id
- * @property string $first_name
- * @property string $last_name
+ * @property string $name
  * @property string $email
  * @property string $phone
  * @property int $guest_count
- * @property CarbonImmutable $check_in
- * @property CarbonImmutable $check_out
  * @property string $summary
  * @property ReservationStatus $status
  * @property CancellationPolicy $cancellation_policy
@@ -31,17 +30,14 @@ use Illuminate\Support\Collection;
  * @property CarbonImmutable|null $replied_at
  * @property string|null $payment_intent
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
+ * @property-read Collection<ChangeRequest> $changeRequests
  * @property-read User $user
  * @property-read Collection<Message> $messages
- * @property-read int $nights
- * @property-read CarbonImmutable[] $reservedPeriod
- * @property-read CarbonImmutable[] $checkInPreparationTime
- * @property-read CarbonImmutable[] $checkOutPreparationTime
  * @property-read CarbonImmutable[] $refundPeriod
  */
 class Reservation extends Model
 {
-    use HasFactory, HasPriceList;
+    use HasFactory, HasPriceList, HasStartEndDates;
 
     protected $fillable = [
         'ulid',
@@ -75,15 +71,6 @@ class Reservation extends Model
         parent::__construct($attributes);
     }
 
-    protected function nights(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                return date_diff($this->check_in, $this->check_out)->d;
-            }
-        );
-    }
-
     /**
      * @return string[]
      */
@@ -99,13 +86,6 @@ class Reservation extends Model
             'cancellation_policy' => CancellationPolicy::class,
             'checkout_session' => 'array',
         ];
-    }
-
-    protected function reservedPeriod(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => [$this->check_in, $this->check_out]
-        );
     }
 
     protected function refundPeriod(): Attribute
@@ -125,50 +105,14 @@ class Reservation extends Model
         return $this->belongsTo(User::class);
     }
 
-    protected function checkInPreparationTime(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                $preparationTime = config('reservation.preparation_time');
-
-                if (! $preparationTime) return [];
-
-                return [
-                    $this->check_in->sub($preparationTime),
-                    $this->check_in
-                ];
-            }
-        );
-    }
-
-    protected function checkOutPreparationTime(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                $preparationTime = config('reservation.preparation_time');
-
-                if (! $preparationTime) return [];
-
-                return [
-                    $this->check_out,
-                    $this->check_out->add($preparationTime)
-                ];
-            }
-        );
-    }
-
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
     }
 
-    public function inStatus(string|ReservationStatus $status): bool
+    public function inStatus(ReservationStatus ...$status): bool
     {
-        if (is_string($status)) {
-            $status = ReservationStatus::from($status);
-        }
-
-        return $this->status === $status;
+        return in_array($this->status, $status);
     }
 
     public function hasNewMessageFor(User $user): bool
@@ -196,6 +140,26 @@ class Reservation extends Model
     public function repliedAt(?CarbonImmutable $dateTime = null): self
     {
         $this->replied_at = $dateTime ?? now();
+
+        return $this;
+    }
+
+    public function changeRequests(): HasMany
+    {
+        return $this->hasMany(ChangeRequest::class);
+    }
+
+    public function apply(ChangeRequest $changeRequest): self
+    {
+        $changeRequest->status = ChangeRequestStatus::COMPLETED;
+
+        $this->fill([
+            'check_in' => $changeRequest->check_in,
+            'check_out' => $changeRequest->check_out,
+            'guest_count' => $changeRequest->guest_count,
+            'price_list' => $changeRequest->price_list,
+            'checkout_session' => $changeRequest->checkout_session,
+        ]);
 
         return $this;
     }

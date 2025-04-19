@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\UpdateRequestStatus;
+use App\Enums\ChangeRequestStatus;
 use App\Traits\HasPriceList;
+use App\Traits\HasStartEndDates;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,12 +17,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $check_out
  * @property int $guest_count
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
- * @property UpdateRequestStatus $status
+ * @property ChangeRequestStatus $status
  * @property-read Reservation $reservation
  */
-class UpdateRequest extends Model
+class ChangeRequest extends Model
 {
-    use HasFactory, HasPriceList;
+    use HasFactory, HasPriceList, HasStartEndDates;
 
     /**
      * @return string[]
@@ -33,7 +34,7 @@ class UpdateRequest extends Model
             'check_out' => 'immutable_datetime',
             'checkout_session' => 'array',
             'price_list' => 'array',
-            'status' => UpdateRequestStatus::class,
+            'status' => ChangeRequestStatus::class,
         ];
     }
 
@@ -42,7 +43,7 @@ class UpdateRequest extends Model
         return $this->belongsTo(Reservation::class);
     }
 
-    public function inStatus(UpdateRequestStatus ...$status): bool
+    public function inStatus(ChangeRequestStatus ...$status): bool
     {
         return in_array($this->status, $status);
     }
