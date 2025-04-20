@@ -8,8 +8,8 @@ use App\Models\Reservation;
 use App\Models\User;
 use App\Services\Calendar;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use function App\Helpers\is_overnight_stay;
 
 class ChangeRequestController extends Controller
 {
@@ -18,7 +18,11 @@ class ChangeRequestController extends Controller
      */
     public function store(Request $request, Reservation $reservation, Calendar $calendar): void
     {
-        if ($reservation->inStatus(ReservationStatus::COMPLETED, ReservationStatus::CANCELLED, ReservationStatus::REJECTED)) {
+        if ($reservation->inStatus(
+            ReservationStatus::COMPLETED,
+            ReservationStatus::CANCELLED,
+            ReservationStatus::REJECTED
+        )) {
             throw ValidationException::withMessages([
                 'status' => __('Cannot make a change request on a reservation with :status status.'),
             ]);
@@ -30,14 +34,6 @@ class ChangeRequestController extends Controller
         $attributes['check_out'] .= ' ' . config('reservation.check_out_time');
 
         $changeRequest = new ChangeRequest($attributes);
-
-        $priceList = $reservation->price_list;
-
-        array_walk($priceList, function (&$line) use ($changeRequest) {
-            if (is_overnight_stay($line['product'])) $line['quantity'] = $changeRequest->nights;
-        });
-
-        $changeRequest->price_list = $priceList;
 
         $calendar->sync();
 
@@ -62,14 +58,25 @@ class ChangeRequestController extends Controller
             ->log("The $authUser?->role :properties.user has made a change request.");
     }
 
-    public static function rules(): array
+    public static function rules(?Reservation $reservation = null): array
     {
         $date = now()->addDays(2)->format('Y-m-d');
 
-        return [
+        $rules = [
             'check_in' => ['required', 'date', "after:$date"],
             'check_out' => ['required', 'date', 'after:check_in'],
             'guest_count' => ['required','numeric', 'min:1', 'max:10']
         ];
+
+        if ($reservation?->inProgress()) {
+            $checkIn = $reservation->check_in->format('Y-m-d');
+
+            $rules += [
+                'check_in' => ['required', 'date', "date_equals:$checkIn"],
+                'check_out' => ['required', 'date', Rule::date()->after($reservation->check_out)],
+            ];
+        }
+
+        return $rules;
     }
 }

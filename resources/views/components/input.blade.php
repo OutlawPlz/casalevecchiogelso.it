@@ -4,6 +4,7 @@
     'type' => 'text',
     'error' => '',
     'jserror' => '',
+    'disabled' => false,
 ])
 
 @php
@@ -24,4 +25,5 @@ if ($error) {
     id="{{ $id }}"
     name="{{ $name }}"
     type="{{ $type }}"
+    @disabled($disabled)
 >

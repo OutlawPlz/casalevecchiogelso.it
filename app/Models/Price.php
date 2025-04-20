@@ -69,4 +69,11 @@ class Price extends Model
             'active' => $price->active,
         ]);
     }
+
+    public static function overnightStay(): static
+    {
+        return static::query()
+            ->where('stripe_id', config('reservation.overnight_stay'))
+            ->firstOrFail();
+    }
 }

@@ -56,7 +56,6 @@
         },
     }"
 >
-    <!-- minDate should match preparation_time !!! -->
     <x-field
         id="daterange_start-date"
         :label="__('Check-in')"

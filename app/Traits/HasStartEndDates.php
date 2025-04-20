@@ -62,4 +62,9 @@ trait HasStartEndDates
             }
         );
     }
+
+    public function inProgress(): bool
+    {
+        return now()->between($this->check_in, $this->check_out);
+    }
 }

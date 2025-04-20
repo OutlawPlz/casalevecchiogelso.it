@@ -40,19 +40,27 @@ function is_overnight_stay(string $stripeId): bool
     return config('reservation.overnight_stay') === $stripeId;
 }
 
-function refund_amount(Reservation $reservation, ?Carbon $date = null): int
+/**
+ * @param Reservation $reservation
+ * @param Carbon|null $date
+ * @param int|null $tot Override the total, the default is the reservation's total.
+ * @return int
+ */
+function refund_amount(Reservation $reservation, ?Carbon $date = null, ?int $tot = null): int
 {
     if (! $date) $date = now();
 
     $refundFactor = 1;
 
-    if ($date->isAfter($reservation->check_in)) $refundFactor = 0;
+    if ($reservation->inProgress()) $refundFactor = 0;
 
     if ($date->isBetween(...$reservation->refundPeriod)) {
         $refundFactor = $reservation->cancellation_policy->refundFactor();
     }
 
-     return $reservation->tot * $refundFactor;
+    $tot ??= $reservation->tot;
+
+     return $tot * $refundFactor;
 }
 
 function money_formatter(int $cents, string $currency = 'eur'): string

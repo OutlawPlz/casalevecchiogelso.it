@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReservationStatus;
+use App\Models\ChangeRequest;
 use App\Models\Price;
 use App\Models\Product;
 use App\Models\Reservation;
@@ -10,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
+use Stripe\Checkout\Session;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\PaymentIntent;
@@ -59,12 +61,20 @@ class StripeController extends Controller
      */
     protected function handleCheckoutSessionCompleted(Event $event): void
     {
-        /** @var string $ulid */
-        $ulid = $event->data->object->metadata->reservation;
+        /** @var Session $session */
+        $session = $event->data->object;
+
         /** @var Reservation $reservation */
         $reservation = Reservation::query()
-            ->where('ulid', $ulid)
+            ->where('ulid', $session->metadata->reservation)
             ->firstOrFail();
+
+        if (property_exists($session->metadata, 'change_request')) {
+            $changeRequest = ChangeRequest::query()
+                ->findOrFail($session->metadata->change_request);
+
+            $reservation->apply($changeRequest)->push();
+        }
 
         $reservation->update([
             'status' => ReservationStatus::CONFIRMED,
@@ -76,12 +86,12 @@ class StripeController extends Controller
         activity()
             ->performedOn($reservation)
             ->withProperties([
-                'reservation' => $ulid,
-                'checkout_session' => $event->data->object->id,
-                'payment_intent' => $event->data->object->payment_intent,
-                'user' => $event->data->object->customer_details->email,
+                'reservation' => $session->metadata->reservation,
+                'checkout_session' => $session->id,
+                'payment_intent' => $session->payment_intent,
+                'user' => $session->customer_details->email,
             ])
-            ->log('The guest :properties.user completed a checkout session.');
+            ->log('The user :properties.user completed a checkout session.');
     }
 
     /**
