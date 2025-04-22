@@ -46,9 +46,6 @@ class Reservation extends Model
         'email',
         'phone',
         'guest_count',
-        'check_in',
-        'check_out',
-        'price_list',
         'summary',
         'status',
         'visited_at',
@@ -77,9 +74,6 @@ class Reservation extends Model
     protected function casts(): array
     {
         return [
-            'check_in' => 'immutable_datetime',
-            'check_out' => 'immutable_datetime',
-            'price_list' => 'array',
             'status' => ReservationStatus::class,
             'visited_at' => 'array',
             'replied_at' => 'immutable_datetime',

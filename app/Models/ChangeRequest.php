@@ -30,10 +30,7 @@ class ChangeRequest extends Model
     protected function casts(): array
     {
         return [
-            'check_in' => 'immutable_datetime',
-            'check_out' => 'immutable_datetime',
             'checkout_session' => 'array',
-            'price_list' => 'array',
             'status' => ChangeRequestStatus::class,
         ];
     }

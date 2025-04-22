@@ -15,6 +15,15 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  */
 trait HasStartEndDates
 {
+    public function initializeHasStartEndDates(): void
+    {
+        $this->mergeFillable(['check_in', 'check_out']);
+
+        $this->mergeCasts([
+            'check_in' => 'immutable_datetime',
+            'check_out' => 'immutable_datetime',
+        ]);
+    }
     protected function nights(): Attribute
     {
         return Attribute::make(

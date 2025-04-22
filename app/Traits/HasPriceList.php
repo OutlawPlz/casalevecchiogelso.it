@@ -10,6 +10,15 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  */
 trait HasPriceList
 {
+    public function initializeHasPriceList(): void
+    {
+        $this->mergeFillable(['price_list']);
+
+        $this->mergeCasts([
+            'price_list' => 'array',
+        ]);
+    }
+
     public function toLineItems(): array
     {
         $order = [];
