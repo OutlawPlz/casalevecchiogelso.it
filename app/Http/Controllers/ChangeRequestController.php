@@ -10,9 +10,18 @@ use App\Services\Calendar;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class ChangeRequestController extends Controller
 {
+    public function create(Request $request, Reservation $reservation): View
+    {
+        return view('change_request.create', [
+            'reservation' => $reservation,
+            'authUser' => $request->user(),
+        ]);
+    }
+
     /**
      * @throws ValidationException
      */

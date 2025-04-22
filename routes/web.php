@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
+use App\Http\Controllers\ChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RefundController;
 use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationStatusController;
@@ -43,6 +43,10 @@ Route::group([
         ->can('update', 'reservation');
     Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
         ->can('viewAny', [Activity::class, 'reservation']);
+
+    /* ----- Change Request ----- */
+    Route::get('/reservations/{reservation:ulid}/change', [ChangeRequestController::class, 'create'])->name('change_request.create');
+    Route::post('/reservations/{reservation:ulid}/change', [ChangeRequestController::class, 'store'])->name('change_request.store');
 
     /* ----- Message ----- */
     Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index')
