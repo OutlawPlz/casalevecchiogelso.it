@@ -18,12 +18,12 @@
             <h2 class="mt text-2xl">{{ __('Why do you need to cancel?') }}</h2>
 
             <p class="mt-2 text-zinc-600">
-                @if($authUser->isHost())
+                @host
                 {{ __('Let the guest know why you need to cancel the reservation.') }}
                 @else
                 {{ __('We are sorry to see you cancel your reservation.') }}
                 {{ __('If you like, leave us a message.') }}
-                @endif
+                @endhost
             </p>
 
             <form
@@ -51,11 +51,11 @@
             <h2 class="mt text-2xl">{{ __('Confirm cancellation') }}</h2>
 
             <p class="mt-2 text-zinc-600">
-                @if($authUser->isHost())
+                @host
                 {{ __('The reservation will be cancelled immediately and the guest will be refunded according with cancellation policy.') }}
                 @else
                 {{ __('Your reservation will be cancelled immediately and you\'ll be refunded within few business days, according with cancellation policy.') }}
-                @endif
+                @endhost
             </p>
 
             <div class="mt-6 grid grid-cols-2 items-center max-w-sm" x-data>

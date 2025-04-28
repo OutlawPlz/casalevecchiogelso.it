@@ -165,11 +165,13 @@ class Calendar
     /**
      * @return string[]
      */
-    public function unavailableDates(): array
+    public function unavailableDates(?Reservation $ignore = null): array
     {
+        $events = array_filter($this->events, fn ($event) => ! $ignore || ! str_starts_with($event['uid'], $ignore->ulid));
+
         return call_user_func_array(
             'array_merge',
-            array_column($this->events, 'unavailable_dates')
+            array_column($events, 'unavailable_dates')
         );
     }
 }

@@ -148,7 +148,7 @@ input:not([type="checkbox"], [type="radio"], .clear) {
     px-3
     bg-white
     text-zinc-700
-    disabled:text-zinc-500
+    disabled:text-zinc-400
     placeholder-zinc-400
     disabled:placeholder-zinc-400/70
     shadow-xs

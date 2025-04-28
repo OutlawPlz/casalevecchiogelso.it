@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ReservationStatus;
+use App\Enums\ReservationStatus as Status;
 use App\Models\ChangeRequest;
 use App\Models\Reservation;
 use App\Models\User;
@@ -11,36 +11,36 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Stripe\Exception\ApiErrorException;
+use Stripe\StripeClient;
+use function App\Helpers\refund_factor;
 
 class ChangeRequestController extends Controller
 {
-    public function create(Request $request, Reservation $reservation): View
+    public function create(Request $request, Reservation $reservation, Calendar $calendar): View
     {
+        /** @var ?User $authUser */
+        $authUser = $request->user();
+
+        $refundFactor = refund_factor($reservation);
+
+        if ($authUser?->isHost()) $refundFactor = 1;
+
         return view('change_request.create', [
+            'authUser' => $authUser,
             'reservation' => $reservation,
-            'authUser' => $request->user(),
+            'unavailable' => $calendar->unavailableDates(ignore: $reservation),
+            'refundFactor' => $refundFactor,
         ]);
     }
 
     /**
      * @throws ValidationException
+     * @throws ApiErrorException
      */
-    public function store(Request $request, Reservation $reservation, Calendar $calendar): void
+    public function store(Request $request, Reservation $reservation, Calendar $calendar, StripeClient $stripe): void
     {
-        if ($reservation->inStatus(
-            ReservationStatus::COMPLETED,
-            ReservationStatus::CANCELLED,
-            ReservationStatus::REJECTED
-        )) {
-            throw ValidationException::withMessages([
-                'status' => __('Cannot make a change request on a reservation with :status status.'),
-            ]);
-        }
-
         $attributes = $request->validate(self::rules());
-
-        $attributes['check_in'] .= ' ' . config('reservation.check_in_time');
-        $attributes['check_out'] .= ' ' . config('reservation.check_out_time');
 
         $changeRequest = new ChangeRequest($attributes);
 
@@ -50,6 +50,10 @@ class ChangeRequestController extends Controller
             throw ValidationException::withMessages([
                 'unavailable_dates' => __('The selected dates are not available.')
             ]);
+        }
+
+        if ($reservation->inStatus(Status::PENDING)) {
+            $stripe->checkout->sessions->expire($reservation->checkout_session['id']);
         }
 
         $reservation->changeRequests()->save($changeRequest);

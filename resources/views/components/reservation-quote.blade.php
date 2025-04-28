@@ -52,9 +52,11 @@
             <div>
                 <x-daterange-input
                     class="relative grid grid-cols-2 gap-4"
+                    name="check_in/check_out"
                     x-model="period"
                     x-bind:disabled="loading"
                     :unavailable="$unavailable_dates"
+                    :jserror="['errors.check_in', 'errors.check_out']"
                 />
 
                 @foreach(['check_in', 'check_out', 'unavailable_dates'] as $key)
@@ -103,7 +105,6 @@
 
         <div class="mt-4">
             @csrf
-
 
             <button
                 @guest()

@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Services\Calendar;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use function App\Helpers\get_overnight_stay;
 
 class ReservationQuote extends Component
 {

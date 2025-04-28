@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
-use function App\Helpers\is_overnight_stay;
-use function App\Helpers\refund_amount;
+use function App\Helpers\get_overnight_stay;
+use function App\Helpers\refund_factor;
 
 class ApproveChangeRequest
 {
@@ -22,19 +22,18 @@ class ApproveChangeRequest
     public function __invoke(ChangeRequest $changeRequest):void
     {
         $reservation = $changeRequest->reservation;
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
 
-        $deltaNights = $changeRequest->nights - $reservation->nights;
-
-        if ($deltaNights === 0 || $reservation->inStatus(Status::QUOTE, Status::PENDING)) {
-            $reservation
-                ->fill(['status' => Status::QUOTE])
-                ->apply($changeRequest)
-                ->push();
+        if ($reservation->inStatus(Status::QUOTE)) {
+            $reservation->apply($changeRequest)->push();
 
             (new ApproveReservation)($reservation);
 
             return;
         }
+
+        $deltaNights = $changeRequest->nights - $reservation->nights;
 
         /** @var ?User $authUser */
         $authUser = Auth::user();
@@ -50,21 +49,16 @@ class ApproveChangeRequest
             ->log("The $authUser->role :properties.user has pre-approved the change request.");
 
         if ($deltaNights < 0) {
-            $overnightStay = array_find(
-                $reservation->price_list,
-                fn ($line) => is_overnight_stay($line['product'])
-            );
+            $overnightStay = get_overnight_stay($reservation->price_list);
 
-            $amount = refund_amount($reservation, tot: $deltaNights * $overnightStay['unit_amount']);
+            $amount = refund_factor($reservation) * ($deltaNights * $overnightStay['unit_amount']);
 
-            if ($amount) (new RefundGuest)($reservation, $amount);
+            if ($amount) (new RefundGuest)($reservation, (int) $amount);
 
             $reservation->apply($changeRequest)->push();
 
             return;
         }
-
-        $stripe = App::make(StripeClient::class);
 
         $checkoutSession = $stripe->checkout->sessions->create([
             'line_items' => [[

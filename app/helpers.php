@@ -40,12 +40,30 @@ function is_overnight_stay(string $stripeId): bool
     return config('reservation.overnight_stay') === $stripeId;
 }
 
-/**
- * @param Reservation $reservation
- * @param Carbon|null $date
- * @param int|null $tot Override the total, the default is the reservation's total.
- * @return int
- */
+function get_overnight_stay(array $priceList): array
+{
+    $overnightStay = array_find($priceList, fn ($line) => is_overnight_stay($line['product']));
+
+    if (! $overnightStay) throw new \RuntimeException('Product "overnight_stay" not found in price list.');
+
+    return $overnightStay;
+}
+
+function refund_factor(Reservation $reservation, ?Carbon $date = null): float
+{
+    if (! $date) $date = now();
+
+    $refundFactor = 1;
+
+    if ($reservation->inProgress()) $refundFactor = 0;
+
+    if ($date->isBetween(...$reservation->refundPeriod)) {
+        $refundFactor = $reservation->cancellation_policy->refundFactor();
+    }
+
+    return $refundFactor;
+}
+
 function refund_amount(Reservation $reservation, ?Carbon $date = null, ?int $tot = null): int
 {
     if (! $date) $date = now();

@@ -76,8 +76,6 @@ class ReservationController extends Controller
 
         $reservation->save();
 
-        session()->forget('reservation');
-
         return ['redirect' => route('reservation.show', [$reservation])];
     }
 
