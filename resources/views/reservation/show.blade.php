@@ -58,7 +58,7 @@
                         <div class="font-bold">{{ __('Check-out') }}</div>
                         <span
                             class="text-zinc-600"
-                            x-date="'{{ $reservation->check_out->setTimeFromTimeString(config('reservation.check_in_time')) }}'"
+                            x-date="'{{ $reservation->check_out->setTimeFromTimeString(config('reservation.check_out_time')) }}'"
                         ></span>
                     </div>
                 </div>

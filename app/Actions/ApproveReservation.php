@@ -25,7 +25,7 @@ class ApproveReservation
             ]);
         }
 
-        $checkoutSession = ['expires_at' => now()->addDay()];
+        $checkoutSession = ['expires_at' => now()->addDay()->timestamp];
 
         if (! $reservation->user->hasPaymentMethod()) {
             $checkoutSession = $this->createSetupIntent($reservation);
@@ -67,7 +67,6 @@ class ApproveReservation
                 'reservation' => $reservation->ulid,
             ],
             'setup_intent_data' => [
-                'description' => __('To confirm the reservation, please enter a valid payment method.'),
                 'metadata' => [
                     'reservation' => $reservation->ulid,
                 ]

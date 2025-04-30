@@ -35,12 +35,16 @@
                 @csrf
                 @method('DELETE')
 
-                <textarea
-                    class="max-w-lg"
-                    placeholder="{{ __('Your message') }}..."
-                    name="message"
-                    rows="3"
-                ></textarea>
+                <x-field
+                    id="reason"
+                    :label="__('Reason')"
+                    :error="$errors->first('reason')"
+                >
+                    <x-textarea
+                        name="reason"
+                        placeholder="{{ __('Hello! I want to cancel my booking...') }}"
+                    />
+                </x-field>
             </form>
 
             <div class="mt-6">
