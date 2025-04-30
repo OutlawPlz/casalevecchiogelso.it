@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
+use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\ChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
@@ -16,7 +17,7 @@ use Spatie\Activitylog\Models\Activity;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -55,6 +56,9 @@ Route::group([
         ->can('create', [Message::class, 'reservation']);
     Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])->name('message.show')
         ->can('view', [Message::class, 'reservation']);
+
+    /* ----- Billing portal ----- */
+    Route::post('/billing-portal', BillingPortalController::class)->name('billing_portal');;
 });
 
 /* ----- Stripe Webhook ----- */
@@ -73,6 +77,6 @@ Route::get('auth/token', [TokenAuthenticationController::class, 'store'])->name(
 /* ----- Locale preference ----- */
 Route::post('/locale-preference', LocalePreferenceController::class)->name('locale-preference');
 
-Route::get('/test', function (\Stripe\StripeClient $stripe) {
-    return $stripe->checkout->sessions->expire('cs_test_b17UVXKqLdUZW9fjvtPHSQyZi7av7avaq5JC4JjmLRsWB0HBOiUlVGiXIf', []);
+Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
+    return $request->user()->paymentMethods();
 });

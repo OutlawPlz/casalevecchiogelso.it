@@ -24,6 +24,7 @@ trait HasStartEndDates
             'check_out' => 'immutable_datetime',
         ]);
     }
+
     protected function nights(): Attribute
     {
         return Attribute::make(

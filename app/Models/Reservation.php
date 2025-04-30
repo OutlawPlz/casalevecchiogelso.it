@@ -29,6 +29,7 @@ use Illuminate\Support\Collection;
  * @property array<int, string>|null $visited_at
  * @property CarbonImmutable|null $replied_at
  * @property string|null $payment_intent
+ * @property array $payment_intents
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
  * @property-read Collection<ChangeRequest> $changeRequests
  * @property-read User $user
@@ -50,7 +51,7 @@ class Reservation extends Model
         'status',
         'visited_at',
         'replied_at',
-        'payment_intent',
+        'payment_intents',
         'cancellation_policy',
         'checkout_session',
     ];
@@ -63,6 +64,7 @@ class Reservation extends Model
             'check_in' => $today,
             'check_out' => $today,
             'guest_count' => 1,
+            'payment_intents' => '[]',
         ];
 
         parent::__construct($attributes);
@@ -79,6 +81,7 @@ class Reservation extends Model
             'replied_at' => 'immutable_datetime',
             'cancellation_policy' => CancellationPolicy::class,
             'checkout_session' => 'array',
+            'payment_intents' => 'array',
         ];
     }
 
@@ -145,14 +148,10 @@ class Reservation extends Model
 
     public function apply(ChangeRequest $changeRequest): self
     {
-        $changeRequest->status = ChangeRequestStatus::COMPLETED;
-
         $this->fill([
             'check_in' => $changeRequest->check_in,
             'check_out' => $changeRequest->check_out,
             'guest_count' => $changeRequest->guest_count,
-            'price_list' => $changeRequest->price_list,
-            'checkout_session' => $changeRequest->checkout_session,
         ]);
 
         return $this;

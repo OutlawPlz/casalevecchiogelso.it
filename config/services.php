@@ -47,6 +47,7 @@ return [
         'secret' => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
         'min_payout_amount' => env('STRIPE_MIN_PAYOUT', 100),
+        'currency' => env('STRIPE_CURRENCY', 'eur'),
     ],
 
     'airbnb' => [

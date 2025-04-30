@@ -26,7 +26,9 @@ class ApproveChangeRequest
         $stripe = App::make(StripeClient::class);
 
         if ($reservation->inStatus(Status::QUOTE)) {
-            $reservation->apply($changeRequest)->push();
+            $reservation->apply($changeRequest)->save();
+
+            $changeRequest->update(['status' => Status::COMPLETED]);
 
             (new ApproveReservation)($reservation);
 
@@ -34,6 +36,8 @@ class ApproveChangeRequest
         }
 
         $deltaNights = $changeRequest->nights - $reservation->nights;
+
+        $priceDelta = $changeRequest->tot - $reservation->tot;
 
         /** @var ?User $authUser */
         $authUser = Auth::user();

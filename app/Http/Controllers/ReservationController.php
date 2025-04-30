@@ -45,9 +45,6 @@ class ReservationController extends Controller
     {
         $attributes = $request->validate(self::rules());
 
-        $attributes['check_in'] .= ' ' . config('reservation.check_in_time');
-        $attributes['check_out'] .= ' ' . config('reservation.check_out_time');
-
         $reservation = new Reservation($attributes);
 
         $priceList = Product::defaultPriceList();
@@ -56,13 +53,14 @@ class ReservationController extends Controller
             if (is_overnight_stay($line['product'])) $line['quantity'] = $reservation->nights;
         });
 
+        /** @var ?User $authUser */
         $authUser = $request->user();
 
         $reservation->fill([
             'ulid' => Str::ulid(),
             'name' => $authUser->name,
             'email' => $authUser->email,
-            'user_id' => $authUser->id,
+            'user_id' => $authUser?->id,
             'price_list' => $priceList
         ]);
 

@@ -1,10 +1,10 @@
 @php
-/**
- * @var ?\App\Models\User $authUser
- * @var \App\Models\Reservation $reservation
- * @var string[] $unavailable
- * @var float $refundFactor
- */
+    /**
+     * @var ?\App\Models\User $authUser
+     * @var \App\Models\Reservation $reservation
+     * @var string[] $unavailable
+     * @var float $refundFactor
+     */
 @endphp
 
 <x-app-layout>
@@ -22,7 +22,6 @@
             ],
             priceList: {{ Js::encode($reservation->price_list) }},
             guestCount: {{ $reservation->guest_count }},
-            refundFactor: {{ $refundFactor }},
             errors: {},
             loading: false,
 
@@ -53,7 +52,7 @@
 
                 await axios
                     .post('{{ route('change_request.store', [$reservation]) }}', formData)
-                    .then((response) => console.log(response))
+                    .then((response) => window.location = response.data.redirect)
                     .catch((error) => {
                         if (error.response.status === 422) {
                             return this.errors = error.response.data.errors;
@@ -76,11 +75,17 @@
                 @endhost
             </p>
 
-            <form class="mt-6" x-ref="form">
-                <textarea
-                    name="description"
-                    placeholder="{{ __('Hello, I\'d like to change the reservation...') }}"
-                ></textarea>
+            <form class="mt-6" x-ref="form" x-on:submit.prevent="submit" id="change_request_form">
+                <x-field
+                    id="reason"
+                    jserror="errors.reason"
+                    :label="__('Reason')"
+                >
+                    <x-textarea
+                        name="reason"
+                        placeholder="{{ __('Hello, I\'d like to change the reservation...') }}"
+                    />
+                </x-field>
 
                 <div class="mt-6">
                     <span class="text-3xl" x-currency="overnightStay.unit_amount"></span>
@@ -141,17 +146,6 @@
                     <span>Tot.</span>
                     <span x-currency="tot"></span>
                 </div>
-
-                <div class="flex gap-1 mt-6">
-                    <button class="primary">{{ __('Confirm') }}</button>
-
-                    <a
-                        class="button ghost"
-                        href="{{ route('reservation.show', [$reservation]) }}"
-                    >
-                        {{ __('Back') }}
-                    </a>
-                </div>
             </form>
         </div>
 
@@ -185,6 +179,22 @@
                     <span>{{ __('Price difference') }}</span>
                     <span x-currency="tot - {{ $reservation->tot }}"></span>
                 </div>
+
+                <template x-if="(tot - {{ $reservation->tot }}) < 0">
+                    <div class="mt-2">
+                        <div class="flex justify-between">
+                            <span>{{ __('Refund') }}</span>
+                            <span x-currency="(tot - {{ $reservation->tot }}) * -{{ $refundFactor }}"></span>
+                        </div>
+
+                        <p class="help-message mt-2">{{ __('According to cancellation policy, you\'ll receive the specified refund amount.' ) }}</p>
+                    </div>
+                </template>
+
+                <button class="primary w-full mt-6" form="change_request_form">
+                    <x-loading x-show="loading" />
+                    {{ __('Request to change') }}
+                </button>
             </div>
         </div>
     </section>

@@ -13,16 +13,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property int $reservation_id
+ * @property int $user_id
  * @property CarbonImmutable $check_in
  * @property CarbonImmutable $check_out
  * @property int $guest_count
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
  * @property ChangeRequestStatus $status
  * @property-read Reservation $reservation
+ * @property-read User $user
  */
 class ChangeRequest extends Model
 {
     use HasFactory, HasPriceList, HasStartEndDates;
+
+    protected $fillable = [
+        'reservation_id',
+        'user_id',
+        'guest_count',
+        'checkout_session',
+        'status',
+        'reason',
+    ];
 
     /**
      * @return string[]
@@ -38,6 +49,11 @@ class ChangeRequest extends Model
     public function reservation(): BelongsTo
     {
         return $this->belongsTo(Reservation::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function inStatus(ChangeRequestStatus ...$status): bool

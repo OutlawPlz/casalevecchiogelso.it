@@ -48,12 +48,18 @@
                 <div class="grid grid-cols-2 divide-x py-6 border-b">
                     <div>
                         <div class="font-bold">{{ __('Check-in') }}</div>
-                        <span class="text-zinc-600" x-date="'{{ $reservation->check_in }}'"></span>
+                        <span
+                            class="text-zinc-600"
+                            x-date="'{{ $reservation->check_in->setTimeFromTimeString(config('reservation.check_in_time')) }}'"
+                        ></span>
                     </div>
 
                     <div class="text-right">
                         <div class="font-bold">{{ __('Check-out') }}</div>
-                        <span class="text-zinc-600" x-date="'{{ $reservation->check_out }}'"></span>
+                        <span
+                            class="text-zinc-600"
+                            x-date="'{{ $reservation->check_out->setTimeFromTimeString(config('reservation.check_in_time')) }}'"
+                        ></span>
                     </div>
                 </div>
 

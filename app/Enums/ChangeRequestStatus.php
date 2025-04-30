@@ -17,5 +17,5 @@ enum ChangeRequestStatus: string
     case CANCELLED = 'cancelled';
 
     /** The change is completed. */
-    case COMPLETED = 'completed';
+    case CONFIRMED = 'confirmed';
 }

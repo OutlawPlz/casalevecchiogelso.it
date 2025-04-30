@@ -294,7 +294,12 @@ textarea:not(.clear) {
     placeholder-zinc-400
     disabled:placeholder-zinc-400/70
     border-zinc-200
-    border-b-zinc-300/80
+    border-b-zinc-300/80;
+
+    &.invalid {
+        @apply
+        border-red-500;
+    }
 }
 
 .button,

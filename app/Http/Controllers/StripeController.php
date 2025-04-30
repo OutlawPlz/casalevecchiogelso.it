@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ConfirmReservation;
 use App\Enums\ReservationStatus;
-use App\Models\ChangeRequest;
 use App\Models\Price;
 use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Event;
@@ -18,16 +19,13 @@ use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
+use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use function App\Helpers\money_formatter;
 
 class StripeController extends Controller
 {
-    /**
-     * @param Request $request
-     * @return Response
-     */
     public function __invoke(Request $request): Response
     {
         Stripe::setApiKey(config('services.stripe.secret'));
@@ -55,10 +53,6 @@ class StripeController extends Controller
         return new Response('Webhook handled', 200);
     }
 
-    /**
-     * @param Event $event
-     * @return void
-     */
     protected function handleCheckoutSessionCompleted(Event $event): void
     {
         /** @var Session $session */
@@ -69,35 +63,14 @@ class StripeController extends Controller
             ->where('ulid', $session->metadata->reservation)
             ->firstOrFail();
 
-        if (property_exists($session->metadata, 'change_request')) {
-            $changeRequest = ChangeRequest::query()
-                ->findOrFail($session->metadata->change_request);
+        /** @var ?User $user */
+        $user = User::query()
+            ->where('stripe_id', $session->customer)
+            ->first();
 
-            $reservation->apply($changeRequest)->push();
-        }
-
-        $reservation->update([
-            'status' => ReservationStatus::CONFIRMED,
-            'checkout_session' => null,
-        ]);
-
-        // TODO: Notify reservation confirmed.
-
-        activity()
-            ->performedOn($reservation)
-            ->withProperties([
-                'reservation' => $session->metadata->reservation,
-                'checkout_session' => $session->id,
-                'payment_intent' => $session->payment_intent,
-                'user' => $session->customer_details->email,
-            ])
-            ->log('The user :properties.user completed a checkout session.');
+        (new ConfirmReservation)($reservation, $user);
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handlePaymentIntentPaymentFailed(Event $event): void
     {
         /** @var PaymentIntent $paymentIntent */
@@ -118,10 +91,6 @@ class StripeController extends Controller
             ->log("Payment failed due to {$paymentIntent->last_payment_error->type}.");
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handlePaymentIntentCreated(Event $event): void
     {
         /** @var PaymentIntent $paymentIntent */
@@ -131,31 +100,42 @@ class StripeController extends Controller
             ->where('ulid', $paymentIntent->metadata->reservation)
             ->firstOrFail();
 
-        $reservation->update(['payment_intent' => $paymentIntent->id]);
+        $paymentIntents = $reservation->payment_intents;
+
+        $newPaymentIntent = [
+            'id' => $paymentIntent->id,
+            'customer' => $paymentIntent->customer,
+            'status' => $paymentIntent->status,
+            'amount' => $paymentIntent->amount,
+        ];
+
+        if (property_exists($paymentIntent->metadata, 'change_request')) {
+            $newPaymentIntent['change_request'] = $paymentIntent->metadata->change_request;
+        }
+
+        $paymentIntents[] = $newPaymentIntent;
+
+        $reservation->update(['payment_intents' => $paymentIntents]);
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
-    protected function handlePayoutFailed(Event $event): void
+    protected function handlePaymentIntentCanceled(Event $event): void
     {
-        /** @var Payout $payout */
-        $payout = $event->data->object;
+        /** @var PaymentIntent $paymentIntent */
+        $paymentIntent = $event->data->object;
         /** @var Reservation $reservation */
         $reservation = Reservation::query()
-            ->where('ulid', $payout->metadata->reservation)
+            ->where('ulid', $paymentIntent->metadata->reservation)
             ->firstOrFail();
 
-        activity()
-            ->performedOn($reservation)
-            ->withProperties([
-                'reservation' => $reservation->ulid,
-                'payout' => $payout->id,
-                'failure_code' => $payout->failure_code,
-                'failure_message' => $payout->failure_message,
-            ])
-            ->log("The payout has failed due to $payout->failure_code.");
+        $paymentIntents = $reservation->payment_intents;
+
+        array_walk($paymentIntents, function (&$item) use ($paymentIntent) {
+            if ($item['id'] === $paymentIntent->id) $item = array_merge($item, [
+                'status' => $paymentIntent->status,
+            ]);
+        });
+
+        $reservation->update(['payment_intents' => $paymentIntents]);
     }
 
     /**

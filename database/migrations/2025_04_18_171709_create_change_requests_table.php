@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('change_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('reservation_id')->constrained()->cascadeOnDelete();
             $table->dateTime('check_in')->index();
             $table->dateTime('check_out')->index();
             $table->integer('guest_count')->unsigned();
             $table->json('price_list');
+            $table->text('reason')->nullable();
             $table->string('status')->default('draft')->index();
             $table->string('checkout_session')->nullable();
             $table->timestamps();

@@ -7,7 +7,9 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+ use Illuminate\Http\RedirectResponse;
+ use Illuminate\Notifications\Notifiable;
+ use Illuminate\Support\Collection;
  use Illuminate\Support\Facades\App;
  use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
@@ -55,7 +57,6 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     }
 
     /**
-     * @return string
      * @throws ApiErrorException
      */
     public function createAsStripeCustomer(): string
@@ -97,5 +98,52 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     public function preferredLocale(): ?string
     {
         return $this->locale;
+    }
+
+    /**
+     * @throws ApiErrorException
+     */
+    public function redirectToBillingPortal($returnUrl = null, array $options = []): RedirectResponse
+    {
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
+
+        if (! $this->hasStripeId()) {
+            throw new \RuntimeException(class_basename($this).' is not a Stripe customer yet. See the createAsStripeCustomer method.');
+        }
+
+        $url = $stripe->billingPortal->sessions->create([
+            'customer' => $this->stripe_id,
+            'return_url' => $returnUrl ?? route('home'),
+        ], $options)['url'];
+
+        return redirect($url);
+    }
+
+    /**
+     * @throws ApiErrorException
+     */
+    public function paymentMethods(?string $type = null, $parameters = []): array
+    {
+        if (! $this->hasStripeId()) return [];
+
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
+
+        $parameters = array_merge(['limit' => 24], $parameters);
+
+        $paymentMethods = $stripe->paymentMethods->all(
+            array_filter(['customer' => $this->stripe_id, 'type' => $type]) + $parameters
+        );
+
+        return $paymentMethods->data;
+    }
+
+    /**
+     * @throws ApiErrorException
+     */
+    public function hasPaymentMethod(?string $type = null): bool
+    {
+        return ! empty($this->paymentMethods($type));
     }
 }

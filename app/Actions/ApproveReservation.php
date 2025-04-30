@@ -25,31 +25,15 @@ class ApproveReservation
             ]);
         }
 
-        $stripe = App::make(StripeClient::class);
+        $checkoutSession = ['expires_at' => now()->addDay()];
 
-        $checkoutSession = $stripe->checkout->sessions->create([
-            'line_items' => $reservation->toLineItems(),
-            'customer' => $reservation->user->createAsStripeCustomer(),
-            'mode' => 'payment',
-            'success_url' => route('reservation.show', [$reservation]),
-            'cancel_url' => route('reservation.show', [$reservation]),
-            'metadata' => [
-                'reservation' => $reservation->ulid,
-            ],
-            'payment_intent_data' => [
-                'metadata' => [
-                    'reservation' => $reservation->ulid,
-                ]
-            ],
-        ]);
+        if (! $reservation->user->hasPaymentMethod()) {
+            $checkoutSession = $this->createSetupIntent($reservation);
+        }
 
         $reservation->update([
             'status' => ReservationStatus::PENDING,
-            'checkout_session' => [
-                'id' => $checkoutSession->id,
-                'url' => $checkoutSession->url,
-                'expires_at' => $checkoutSession->expires_at,
-            ],
+            'checkout_session' => $checkoutSession,
         ]);
 
         /** @var ?User $authUser */
@@ -62,6 +46,38 @@ class ApproveReservation
                 'reservation' => $reservation->ulid,
                 'user' => $authUser?->email,
             ])
-            ->log("The $authUser->role :properties.user has pre-approved the request.");
+            ->log("The $authUser?->role has pre-approved the request.");
+    }
+
+    /**
+     * @throws ApiErrorException
+     */
+    protected function createSetupIntent(Reservation $reservation): array
+    {
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
+
+        $checkoutSession = $stripe->checkout->sessions->create([
+            'customer' => $reservation->user->createAsStripeCustomer(),
+            'currency' => config('services.stripe.currency'),
+            'mode' => 'setup',
+            'success_url' => route('reservation.show', [$reservation]),
+            'cancel_url' => route('reservation.show', [$reservation]),
+            'metadata' => [
+                'reservation' => $reservation->ulid,
+            ],
+            'setup_intent_data' => [
+                'description' => __('To confirm the reservation, please enter a valid payment method.'),
+                'metadata' => [
+                    'reservation' => $reservation->ulid,
+                ]
+            ],
+        ]);
+
+        return [
+            'id' => $checkoutSession->id,
+            'url' => $checkoutSession->url,
+            'expires_at' => $checkoutSession->expires_at,
+        ];
     }
 }

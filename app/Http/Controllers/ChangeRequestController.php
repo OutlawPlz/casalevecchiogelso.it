@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReservationStatus as Status;
 use App\Models\ChangeRequest;
+use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Services\Calendar;
@@ -13,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
+use function App\Helpers\is_overnight_stay;
 use function App\Helpers\refund_factor;
 
 class ChangeRequestController extends Controller
@@ -38,11 +40,25 @@ class ChangeRequestController extends Controller
      * @throws ValidationException
      * @throws ApiErrorException
      */
-    public function store(Request $request, Reservation $reservation, Calendar $calendar, StripeClient $stripe): void
+    public function store(Request $request, Reservation $reservation, Calendar $calendar, StripeClient $stripe): array
     {
         $attributes = $request->validate(self::rules());
 
         $changeRequest = new ChangeRequest($attributes);
+
+        $priceList = Product::defaultPriceList();
+
+        array_walk($priceList, function (&$line) use ($reservation) {
+            if (is_overnight_stay($line['product'])) $line['quantity'] = $reservation->nights;
+        });
+
+        /** @var ?User $authUser */
+        $authUser = $request->user();
+
+        $changeRequest->fill([
+            'user_id' => $authUser?->id,
+            'price_list' => $priceList,
+        ]);
 
         $calendar->sync();
 
@@ -58,9 +74,6 @@ class ChangeRequestController extends Controller
 
         $reservation->changeRequests()->save($changeRequest);
 
-        /** @var ?User $authUser */
-        $authUser = $request->user();
-
         activity()
             ->performedOn($reservation)
             ->causedBy($authUser)
@@ -69,6 +82,8 @@ class ChangeRequestController extends Controller
                 'user' => $authUser?->email,
             ])
             ->log("The $authUser?->role :properties.user has made a change request.");
+
+        return ['redirect' => route('reservation.show', [$reservation])];
     }
 
     public static function rules(?Reservation $reservation = null): array
@@ -78,7 +93,8 @@ class ChangeRequestController extends Controller
         $rules = [
             'check_in' => ['required', 'date', "after:$date"],
             'check_out' => ['required', 'date', 'after:check_in'],
-            'guest_count' => ['required','numeric', 'min:1', 'max:10']
+            'guest_count' => ['required','numeric', 'min:1', 'max:10'],
+            'reason' => ['required', 'string', 'max:255'],
         ];
 
         if ($reservation?->inProgress()) {
