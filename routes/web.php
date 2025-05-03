@@ -7,12 +7,14 @@ use App\Http\Controllers\ChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Reservation\ApproveReservationController;
 use App\Http\Controllers\Reservation\ConfirmReservationController;
 use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationStatusController;
 use App\Http\Controllers\StripeController;
 use App\Models\Message;
+use App\Models\Reservation;
 use Illuminate\Support\Facades\Route;
 use Spatie\Activitylog\Models\Activity;
 
@@ -45,7 +47,9 @@ Route::group([
         ->can('update', 'reservation');
     Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
         ->can('viewAny', [Activity::class, 'reservation']);
+
     Route::post('/reservations/{reservation:ulid}/confirm', ConfirmReservationController::class)->name('reservation.confirm');
+    Route::post('/reservations/{reservation:ulid}/approve', ApproveReservationController::class)->name('reservation.approve');
 
     /* ----- Change Request ----- */
     Route::get('/reservations/{reservation:ulid}/change', [ChangeRequestController::class, 'create'])->name('change_request.create');

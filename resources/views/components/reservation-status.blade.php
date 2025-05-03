@@ -10,19 +10,6 @@ use function App\Helpers\datetime_formatter;
 
 @switch($reservation->status)
     @case(ReservationStatus::PENDING)
-        <form method="POST" action="{{ route('reservation.confirm', [$reservation]) }}">
-            @csrf
-
-            <button class="primary w-full">
-                {{ __('Confirm the booking') }}
-            </button>
-        </form>
-
-        <div class="prose-sm mt-2">
-            {{ __('Your booking has been pre-approved.') }}
-            {{ __('You have 24 hours to confirm your reservation.') }}
-            {{ __('Approval expires at :datetime.', ['datetime' => datetime_formatter($reservation->checkout_session['expires_at'])]) }}
-        </div>
 
         @break
 
@@ -64,18 +51,6 @@ use function App\Helpers\datetime_formatter;
                 <p>{{ __('Reservation confirmed!') }}</p>
             </x-callout>
 
-            <a
-                class="button w-full"
-                href="{{ route('change_request.create', [$reservation]) }}"
-            >
-                {{ __('Change the booking') }}
-            </a>
-            <a
-                href="{{ route('reservation.delete', [$reservation]) }}"
-                class="button primary w-full"
-            >
-                {{ __('Cancel the booking') }}
-            </a>
         </div>
 
         @break

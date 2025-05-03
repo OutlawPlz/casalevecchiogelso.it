@@ -7,7 +7,6 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 
@@ -15,14 +14,11 @@ class ApproveReservation
 {
     /**
      * @throws ApiErrorException
-     * @throws ValidationException
      */
     public function __invoke(Reservation $reservation): void
     {
         if (! $reservation->inStatus(ReservationStatus::QUOTE)) {
-            throw ValidationException::withMessages([
-                'status' => "Reservations with the \"{$reservation->status->value}\" status cannot be approved."
-            ]);
+            throw new \RuntimeException("Reservations with the \"{$reservation->status->value}\" status cannot be approved.");
         }
 
         $checkoutSession = ['expires_at' => now()->addDay()->timestamp];
