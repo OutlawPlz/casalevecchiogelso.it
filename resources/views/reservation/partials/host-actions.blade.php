@@ -1,73 +1,97 @@
 @php
-    /**
-     * @var App\Models\User $authUser
-     * @var App\Models\Reservation $reservation
-     */
+/**
+ * @var App\Models\User $authUser
+ * @var App\Models\Reservation $reservation
+ */
+use function App\Helpers\datetime_formatter;
 @endphp
 
 @use('\App\Enums\ReservationStatus as Status')
 
-<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-4">
+    <div>
+        <div>
+            <span class="font-bold">{{ $reservation->user->name }}</span>
+            <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
+        </div>
+
+        <div class="text-zinc-600">
+            {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
+            {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
+        </div>
+    </div>
+
     @switch($reservation->status)
         @case(Status::QUOTE)
-            <button
-                x-data x-on:click.prevent="$dispatch('open-modal', 'pre-approve')"
-                type="button"
-                class="clear hover:underline flex items-center gap-2 cursor-pointer"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                <span>{{ __('Pre-approve') }}</span>
-            </button>
+            <div>
+                <div class="prose-sm text-zinc-700">
+                    <p>
+                        {{ __(':name would like to book your accommodation for :nights nights.', ['name' => $reservation->name, 'nights' => $reservation->nights]) }}
+                        {{ __('Let them know if you can host them, or reject the request.') }}
+                    </p>
 
-            <x-modal name="pre-approve" class="max-w-xl">
-                <form
-                    action="{{ route('reservation.status', [$reservation]) }}"
-                    class="p-6"
-                    method="POST"
+                    <p>
+                        {{ __('You have 24 hours to pre-approve the request.') }}
+                        {{ __('The request will expires at :datetime.', ['datetime' => datetime_formatter($reservation->created_at->addDay())]) }}
+                    </p>
+                </div>
+
+                <button
+                    x-data x-on:click.prevent="$dispatch('open-modal', 'pre-approve')"
+                    type="button"
+                    class="primary w-full mt-4"
                 >
-                    @csrf
-                    <div>
-                        <h2 class="font-semibold text-xl text-zinc-900">{{ __('Pre-approve') }}</h2>
+                    {{ __('Pre-approve') }}
+                </button>
 
-                        <p class="mt-2 text-zinc-500">
-                            {{ __('Do you want to pre-approve the request?') }} <br>
-                            {{ __('The guest will have 24 hours to confirm the reservation.') }}
-                        </p>
+                <x-modal name="pre-approve" class="max-w-xl">
+                    <form
+                        action="{{ route('reservation.status', [$reservation]) }}"
+                        class="p-6"
+                        method="POST"
+                    >
+                        @csrf
+                        <div>
+                            <h2 class="font-semibold text-xl text-zinc-900">{{ __('Pre-approve') }}</h2>
 
-                        <div class="border rounded-lg py-2.5 mt-6 px-4">
-                            <div>
-                                <span class="font-bold">{{ $reservation->user->name }}</span>
-                                <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
-                            </div>
+                            <p class="mt-2 text-zinc-500">
+                                {{ __('Do you want to pre-approve the request?') }} <br>
+                                {{ __('The guest will have 24 hours to confirm the reservation.') }}
+                            </p>
 
-                            <div class="text-zinc-600">
-                                {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
-                                {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
+                            <div class="border rounded-lg py-2.5 mt-6 px-4">
+                                <div>
+                                    <span class="font-semibold">{{ $reservation->user->name }}</span>
+                                    <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
+                                </div>
+
+                                <div class="text-zinc-600">
+                                    {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
+                                    {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mt-6 space-x-3 flex justify-end">
-                        <button
-                            class="ghost"
-                            x-on:click="$dispatch('close')"
-                            type="button"
-                        >
-                            {{ __('Close') }}
-                        </button>
+                        <div class="mt-6 space-x-3 flex justify-end">
+                            <button
+                                class="ghost"
+                                x-on:click="$dispatch('close')"
+                                type="button"
+                            >
+                                {{ __('Close') }}
+                            </button>
 
-                        <button
-                            class="primary"
-                            value="{{ Status::PENDING }}"
-                            name="status"
-                        >
-                            {{ __('Pre-approve') }}
-                        </button>
-                    </div>
-                </form>
-            </x-modal>
+                            <button
+                                class="primary"
+                                value="{{ Status::PENDING }}"
+                                name="status"
+                            >
+                                {{ __('Pre-approve') }}
+                            </button>
+                        </div>
+                    </form>
+                </x-modal>
+            </div>
 
             <button
                 x-data x-on:click.prevent="$dispatch('open-modal', 'reject')"
@@ -87,7 +111,7 @@
                 >
                     @csrf
                     <div>
-                        <h2 class="text-lg font-bold text-zinc-900">{{ __('Reject') }}</h2>
+                        <h2 class="text-lg font-semibold text-zinc-900">{{ __('Reject') }}</h2>
                         <p class="mt-1 text-zinc-600">{{ __('Are you sure you want to decline this booking?') }}</p>
                     </div>
 

@@ -23,16 +23,17 @@
             class="absolute z-10 inset-y-0 md:static overflow-y-scroll hidden w-11/12 md:w-1/4 shrink-0 bg-white shadow-lg"
         >
             <div class="sticky top-0 bg-white flex items-center justify-between p-4 border-b">
-                <h3 class="text-xl font-bold">{{ __('Details') }}</h3>
+                <h3 class="text-xl font-semibold">{{ __('Details') }}</h3>
 
                 <x-ui-close x-on:click="isDetailsVisible = false" />
             </div>
 
             <div class="px-4">
                 <div class="py-6 border-b">
-                    <x-reservation-status class="mt-4" :$reservation :$authUser />
-
                     @include('reservation.partials.host-actions')
+
+                    <hr class="my-6">
+
                     @include('reservation.partials.guest-actions')
                 </div>
             </div>
@@ -44,7 +45,7 @@
 
                 <div class="grid grid-cols-2 divide-x py-6 border-b">
                     <div>
-                        <div class="font-bold">{{ __('Check-in') }}</div>
+                        <div class="font-semibold">{{ __('Check-in') }}</div>
                         <span
                             class="text-zinc-600"
                             x-date="'{{ $reservation->check_in->setTimeFromTimeString(config('reservation.check_in_time')) }}'"
@@ -52,7 +53,7 @@
                     </div>
 
                     <div class="text-right">
-                        <div class="font-bold">{{ __('Check-out') }}</div>
+                        <div class="font-semibold">{{ __('Check-out') }}</div>
                         <span
                             class="text-zinc-600"
                             x-date="'{{ $reservation->check_out->setTimeFromTimeString(config('reservation.check_out_time')) }}'"
@@ -61,17 +62,17 @@
                 </div>
 
                 <div class="py-6 border-b">
-                    <div class="font-bold">{{ __('Who\'s coming') }}</div>
+                    <div class="font-semibold">{{ __('Who\'s coming') }}</div>
                     <span class="text-zinc-600">{{ $reservation->guest_count }} {{ __('guests') }}</span>
                 </div>
 
                 <div class="py-6 border-b">
-                    <div class="font-bold">{{ __('Reservation code') }}</div>
+                    <div class="font-semibold">{{ __('Reservation code') }}</div>
                     <span class="text-zinc-600 font-mono">{{ $reservation->ulid }}</span>
                 </div>
 
                 <div class="py-6 border-b">
-                    <div class="font-bold">{{ __('Cancellation policy') }}</div>
+                    <div class="font-semibold">{{ __('Cancellation policy') }}</div>
                     <p class="text-zinc-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at blandit sem. Nullam lobortis enim sit amet sem hendrerit, ut elementum lectus bibendum. Mauris quis lorem laoreet, porttitor arcu eu, pulvinar augue.</p>
                 </div>
             </div>
@@ -91,7 +92,7 @@
     </div>
 
     <x-modal name="chat-language" class="max-w-2xl p-6">
-        <h3 class="text-2xl font-bold">{{ __('Choose a language') }}</h3>
+        <h3 class="text-2xl font-semibold">{{ __('Choose a language') }}</h3>
 
         <div
             class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"

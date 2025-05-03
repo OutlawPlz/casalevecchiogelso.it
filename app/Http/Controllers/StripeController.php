@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\ConfirmReservation;
 use App\Enums\ReservationStatus;
 use App\Models\Price;
 use App\Models\Product;
@@ -10,7 +9,6 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Event;
@@ -19,7 +17,6 @@ use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
-use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use function App\Helpers\money_formatter;
@@ -57,18 +54,33 @@ class StripeController extends Controller
     {
         /** @var Session $session */
         $session = $event->data->object;
-
         /** @var Reservation $reservation */
         $reservation = Reservation::query()
             ->where('ulid', $session->metadata->reservation)
             ->firstOrFail();
+
+        $checkoutSession = $reservation->checkout_session;
+
+        $checkoutSession['setup_intent'] = $session->setup_intent;
+
+        $reservation->update([
+            'status' => ReservationStatus::CONFIRMED,
+            'checkout_session' => $checkoutSession,
+        ]);
 
         /** @var ?User $user */
         $user = User::query()
             ->where('stripe_id', $session->customer)
             ->first();
 
-        (new ConfirmReservation)($reservation, $user);
+        activity()
+            ->performedOn($reservation)
+            ->causedBy($user)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'user' => $user?->email,
+            ])
+            ->log('The reservation has been confirmed.');
     }
 
     protected function handlePaymentIntentPaymentFailed(Event $event): void

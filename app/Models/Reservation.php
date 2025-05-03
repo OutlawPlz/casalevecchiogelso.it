@@ -30,6 +30,7 @@ use Illuminate\Support\Collection;
  * @property string|null $payment_intent
  * @property array $payment_intents
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
+ * @property CarbonImmutable $created_at
  * @property-read Collection<ChangeRequest> $changeRequests
  * @property-read User $user
  * @property-read Collection<Message> $messages

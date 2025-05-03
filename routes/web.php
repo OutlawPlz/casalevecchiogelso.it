@@ -48,7 +48,6 @@ Route::group([
     Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
         ->can('viewAny', [Activity::class, 'reservation']);
 
-    Route::post('/reservations/{reservation:ulid}/confirm', ConfirmReservationController::class)->name('reservation.confirm');
     Route::post('/reservations/{reservation:ulid}/approve', ApproveReservationController::class)->name('reservation.approve');
 
     /* ----- Change Request ----- */

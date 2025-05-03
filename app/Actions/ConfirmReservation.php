@@ -26,6 +26,5 @@ class ConfirmReservation
                 'user' => $user?->email,
             ])
             ->log('The reservation has been confirmed.');
-
     }
 }

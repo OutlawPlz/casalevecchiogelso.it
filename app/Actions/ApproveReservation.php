@@ -21,11 +21,7 @@ class ApproveReservation
             throw new \RuntimeException("Reservations with the \"{$reservation->status->value}\" status cannot be approved.");
         }
 
-        $checkoutSession = ['expires_at' => now()->addDay()->timestamp];
-
-        if (! $reservation->user->hasPaymentMethod()) {
-            $checkoutSession = $this->createSetupIntent($reservation);
-        }
+        $checkoutSession = $this->createSetupIntent($reservation);
 
         $reservation->update([
             'status' => ReservationStatus::PENDING,
