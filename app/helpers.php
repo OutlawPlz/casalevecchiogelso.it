@@ -9,7 +9,6 @@ use DateMalformedPeriodStringException;
 use DatePeriod;
 use DateTime;
 use DateTimeInterface;
-use DateTimeZone;
 use Exception;
 use IntlDateFormatter;
 use NumberFormatter;
@@ -96,9 +95,13 @@ function money_formatter(int $cents, ?string $currency = null): string
 /**
  * @throws \DateInvalidTimeZoneException
  */
-function datetime_formatter(DateTimeInterface|int $datetime): string
+function datetime_formatter(
+    DateTimeInterface|int $datetime,
+    int $dateFormat = IntlDateFormatter::SHORT,
+    int $timeFormat = IntlDateFormatter::SHORT
+): string
 {
-    $formatter = new IntlDateFormatter(config('app.locale'), IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+    $formatter = new IntlDateFormatter(config('app.locale'), $dateFormat, $timeFormat);
 
     if (is_int($datetime)) $datetime = new DateTime("@$datetime");
 

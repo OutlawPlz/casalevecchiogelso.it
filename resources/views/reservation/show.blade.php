@@ -3,6 +3,8 @@
  * @var \App\Models\Reservation $reservation
  * @var \App\Models\User $authUser
  */
+use function App\Helpers\datetime_formatter;
+use function App\Helpers\money_formatter;
 @endphp
 
 <x-app-layout>
@@ -30,13 +32,42 @@
 
             <div class="px-4">
                 <div class="py-6 border-b">
-                    <div class="font-bold">{{ __('Price') }}</div>
-
-                    <div class="mt-2 space-y-6 p-6 bg-zinc-50 rounded-lg">
-                        <x-reservation-price :$reservation />
-                    </div>
-
                     <x-reservation-status class="mt-4" :$reservation :$authUser />
+                </div>
+            </div>
+
+            <div class="px-4">
+                <div class="py-6 border-b">
+                    <div class="font-bold">{{ __('Pricing') }}</div>
+                    <p class="text-zinc-600">{{ __('The total will be charged to you on :date.', ['date' => datetime_formatter($reservation->dueDate, timeFormat: IntlDateFormatter::NONE)]) }}</p>
+
+                    <div class="flex flex-col gap-1 mt-4">
+                        @foreach($reservation->price_list as $line)
+                            <div class="flex justify-between">
+                                @if($loop->first)
+                                    <div>
+                                        <span>{{ money_formatter($line['unit_amount']) }}</span> x {{ $line['quantity'] }} {{ __('nights') }}
+                                    </div>
+                                    <div>
+                                        <span>{{ money_formatter($line['quantity'] * $line['unit_amount']) }}</span>
+                                    </div>
+                                @else
+                                    <span class="underline">
+                                    {{ __($line['name']) }}
+                                        @if($line['quantity'] > 1)
+                                            x {{ $line['quantity'] }}
+                                        @endif
+                                </span>
+                                    <span>{{ money_formatter($line['quantity'] * $line['unit_amount']) }}</span>
+                                @endif
+                            </div>
+                        @endforeach
+
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Tot.</span>
+                            <span x-currency="{{ $reservation->tot }}"></span>
+                        </div>
+                    </div>
                 </div>
 
                 @host

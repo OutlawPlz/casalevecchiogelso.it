@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\CancellationPolicy;
-use App\Enums\ChangeRequestStatus;
 use App\Enums\ReservationStatus;
 use App\Traits\HasPriceList;
 use App\Traits\HasStartEndDates;
@@ -35,6 +34,7 @@ use Illuminate\Support\Collection;
  * @property-read User $user
  * @property-read Collection<Message> $messages
  * @property-read CarbonImmutable[] $refundPeriod
+ * @property-read CarbonImmutable $dueDate
  */
 class Reservation extends Model
 {
@@ -155,5 +155,12 @@ class Reservation extends Model
         ]);
 
         return $this;
+    }
+
+    protected function dueDate(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->check_in->sub($this->cancellation_policy->timeWindow())
+        );
     }
 }
