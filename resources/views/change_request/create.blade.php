@@ -180,16 +180,18 @@
                     <span x-currency="tot - {{ $reservation->tot }}"></span>
                 </div>
 
-                <template x-if="(tot - {{ $reservation->tot }}) < 0">
-                    <div class="mt-2">
-                        <div class="flex justify-between">
-                            <span>{{ __('Refund') }}</span>
-                            <span x-currency="(tot - {{ $reservation->tot }}) * -{{ $refundFactor }}"></span>
-                        </div>
+                @if($reservation->hasBeenPaid())
+                    <template x-if="(tot - {{ $reservation->tot }}) < 0">
+                        <div class="mt-2">
+                            <div class="flex justify-between">
+                                <span>{{ __('Refund') }}</span>
+                                <span x-currency="(tot - {{ $reservation->tot }}) * -{{ $refundFactor }}"></span>
+                            </div>
 
-                        <p class="help-message mt-2">{{ __('According to cancellation policy, you\'ll receive the specified refund amount.' ) }}</p>
-                    </div>
-                </template>
+                            <p class="help-message mt-2">{{ __('According to cancellation policy, you\'ll receive the specified refund amount.' ) }}</p>
+                        </div>
+                    </template>
+                @endif
 
                 <button class="primary w-full mt-6" form="change_request_form">
                     <x-loading x-show="loading" />
