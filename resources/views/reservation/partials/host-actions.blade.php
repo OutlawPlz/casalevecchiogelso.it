@@ -138,7 +138,7 @@ use function App\Helpers\datetime_formatter;
             @break
 
         @case(Status::PENDING)
-            <p class="prose-sm">
+            <p class="prose-sm text-zinc-600">
                 {{ __('The request has been pre-approved.') }}
                 {{ __('The guest has 24 hours to confirm the reservation.') }}
                 {{ __('Approval expires at :datetime.', ['datetime' => datetime_formatter($reservation->checkout_session['expires_at'])]) }}
@@ -179,12 +179,12 @@ use function App\Helpers\datetime_formatter;
             @break
 
         @case(Status::REJECTED)
-            <p class="prose-sm">{{ __('You rejected this request.') }}</p>
+            <p class="prose-sm text-zinc-600">{{ __('You rejected this request.') }}</p>
 
             @break
 
         @case(Status::CANCELLED)
-            <p class="prose-sm">{{ __('This booking has been cancelled.') }}</p>
+            <p class="prose-sm text-zinc-600">{{ __('This booking has been cancelled.') }}</p>
 
             @break
     @endswitch

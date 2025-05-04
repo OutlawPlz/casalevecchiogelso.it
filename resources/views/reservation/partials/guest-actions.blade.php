@@ -21,11 +21,11 @@ use function App\Helpers\datetime_formatter
             <div class="prose-sm text-zinc-700">
                 <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
 
-                <p>
+                <p class="text-zinc-600">
                     {{ __('Your request has been pre-approved.') }}
                     {{ __('Add a payment method to confirm it.') }}
                     {{ __('The total will be charged to you on :date.', ['date' => datetime_formatter($reservation->dueDate, timeFormat: IntlDateFormatter::NONE)]) }}
-                </p>
+                </p class="text-zinc-600">
 
                 <p>
                     {{ __('You have 24 hours to confirm your reservation.') }}
@@ -56,7 +56,7 @@ use function App\Helpers\datetime_formatter
             <div class="prose-sm text-zinc-700">
                 <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }} 🍾 🥳</h3>
 
-                <p>
+                <p class="text-zinc-600">
                     {{ __('Booking confirmed, see you in :month!', ['month' => $reservation->check_in->translatedFormat('F')]) }}
                     {{ __('If you have any questions, don\'t hesitate to ask.') }}
                 </p>
@@ -87,7 +87,7 @@ use function App\Helpers\datetime_formatter
         @case(Status::REJECTED)
             <div class="prose-sm">
                 <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
-                <p>{{ __('You rejected this request.') }}</p>
+                <p class="text-zinc-600">{{ __('You rejected this request.') }}</p>
             </div>
 
             @break
@@ -95,7 +95,7 @@ use function App\Helpers\datetime_formatter
         @case(Status::CANCELLED)
             <div class="prose-sm">
                 <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
-                <p>{{ __('This booking has been cancelled.') }}</p>
+                <p class="text-zinc-600">{{ __('This booking has been cancelled.') }}</p>
             </div>
 
             @break
