@@ -5,16 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Reservation;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;
 
 class ReservationFeedController extends Controller
 {
-    /**
-     * @param  Request  $request
-     * @param  Reservation  $reservation
-     * @return Paginator
-     */
-    public function __invoke(Request $request, Reservation $reservation): Paginator
+    public function __invoke(Request $request, Reservation $reservation): Collection
     {
         return Activity::query()
             ->whereHasMorph(
@@ -22,6 +18,7 @@ class ReservationFeedController extends Controller
                 Reservation::class,
                 fn ($query) => $query->where('id', $reservation->id)
             )
-            ->simplePaginate();
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }

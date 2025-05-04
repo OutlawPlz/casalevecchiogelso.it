@@ -15,28 +15,25 @@
 
             await axios
                 .get(this.nextPageUrl)
-                .then((response) => {
-                    this.feed.push(...response.data.data);
-
-                    this.nextPageUrl = response.data.next_page_url;
-                });
+                .then((response) => this.feed = response.data);
 
             this.loading.false;
         },
-
-        init() {
-            this.index();
-        },
     }"
+    x-intersect.once="index"
 >
     <div class="sticky z-10 top-0 bg-white flex items-center justify-between p-4 border-b">
         <h3 class="text-xl font-bold">{{ __('Feed') }}</h3>
 
-        <x-ui-close x-on:click="isFeedVisible = false" />
+        <div>
+            <x-ui-reload x-on:click="index" />
+
+            <x-ui-close x-on:click="isFeedVisible = false" />
+        </div>
     </div>
 
     <div class="px-4 pb-6">
-        <ul class="space-y-6">
+        <ul class="flex flex-col gap-6 mt-6">
             <template x-for="item in feed">
                 <li class="group relative flex gap-x-4">
                     <div class="group-last:hidden absolute -bottom-6 left-0 top-0 flex w-6 justify-center">
