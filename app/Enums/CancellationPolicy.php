@@ -8,17 +8,11 @@ enum CancellationPolicy: string
     case MODERATE = 'moderate';
     case STRICT = 'strict';
 
-    /**
-     * @return float
-     */
     public function refundFactor(): float
     {
-        return .3;
+        return .7;
     }
 
-    /**
-     * @return string
-     */
     public function timeWindow(): string
     {
         return match ($this) {

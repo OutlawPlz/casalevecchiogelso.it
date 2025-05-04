@@ -164,4 +164,9 @@ class Reservation extends Model
             get: fn () => $this->check_in->sub($this->cancellation_policy->timeWindow())
         );
     }
+
+    public function hasBeenPaid(): bool
+    {
+        return $this->inStatus(ReservationStatus::CONFIRMED) && ! empty($this->payment_intents);
+    }
 }

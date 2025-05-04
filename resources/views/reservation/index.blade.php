@@ -6,7 +6,7 @@
  */
 @endphp
 
-@use('App\Enums\ReservationStatus')
+@use('App\Enums\ReservationStatus as Status')
 
 <x-app-layout>
     <x-slot name="header">
@@ -24,7 +24,7 @@
                         href="{{ route('reservation.show', [$reservation]) }}"
                         class="flex justify-between flex space-x-4 p-4 sm:p-6"
                     >
-                        <div @class(['line-through decoration-zinc-500' => $reservation->inStatus(ReservationStatus::REJECTED)])>
+                        <div @class(['line-through decoration-zinc-500' => $reservation->inStatus(Status::REJECTED, Status::CANCELLED)])>
                             <h4 class="text-xl capitalize">{{ $reservation->check_in->diffForHumans() }}</h4>
 
                             <div class="flex flex-col md:flex-row md:space-x-4 mt-1">

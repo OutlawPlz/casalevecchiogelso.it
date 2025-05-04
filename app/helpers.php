@@ -66,23 +66,6 @@ function refund_factor(Reservation $reservation, ?Carbon $date = null): float
     return $refundFactor;
 }
 
-function refund_amount(Reservation $reservation, ?Carbon $date = null, ?int $tot = null): int
-{
-    if (! $date) $date = now();
-
-    $refundFactor = 1;
-
-    if ($reservation->inProgress()) $refundFactor = 0;
-
-    if ($date->isBetween(...$reservation->refundPeriod)) {
-        $refundFactor = $reservation->cancellation_policy->refundFactor();
-    }
-
-    $tot ??= $reservation->tot;
-
-     return $tot * $refundFactor;
-}
-
 function money_formatter(int $cents, ?string $currency = null): string
 {
     $currency ??= config('services.stripe.currency');

@@ -12,28 +12,31 @@ use function App\Helpers\money_formatter;
 
 class RefundGuest
 {
-    protected StripeClient $stripe;
-
-    /**
-     * @param Reservation $reservation
-     * @param int $cents
-     * @return void
-     * @throws ApiErrorException
-     */
-    public function __invoke(Reservation $reservation, int $cents = 0): void
+    public function __invoke(Reservation $reservation, int $cents, string $paymentIntent): void
     {
-        $this->stripe = App::make(StripeClient::class);
-
-        /** @var User|null $authUser */
+        $stripe = App::make(StripeClient::class);
+        /** @var ?User $authUser */
         $authUser = Auth::user();
 
-        $refund = $this->stripe->refunds->create([
-            'payment_intent' => $reservation->payment_intent,
+        $refund = $stripe->refunds->create([
+            'payment_intent' => $paymentIntent,
             'amount' => $cents,
             'metadata' => [
                 'reservation' => $reservation->ulid,
             ],
         ]);
+
+        $paymentIntents = $reservation->payment_intents;
+
+        array_walk($paymentIntents, function (&$paymentIntent) use ($refund) {
+            if ($paymentIntent['id'] === $refund->payment_intent) {
+                $paymentIntent['refunds'] = [
+                    'id' => $refund->id,
+                    'amount' => $refund->amount,
+                    'status' => $refund->status,
+                ];
+            }
+        });
 
         $formattedAmount = money_formatter($refund->amount);
 

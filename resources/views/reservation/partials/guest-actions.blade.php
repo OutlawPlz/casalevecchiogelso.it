@@ -1,12 +1,26 @@
 @php
 /** @var \App\Models\Reservation $reservation */
 use App\Enums\ReservationStatus as Status;
+use function App\Helpers\datetime_formatter
 @endphp
 
 <div class="flex flex-col gap-4">
     @switch($reservation->status)
+        @case(Status::QUOTE)
+            <div class="prose-sm">
+                <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
+                <p class="text-zinc-600">
+                    {{ __('The host has received your request and will respond as soon as possible.') }}
+                    {{ __('If you have any questions or curiosities, use the chat to contact the host.') }}
+                </p>
+            </div>
+
+            @break
+
         @case(Status::PENDING)
             <div class="prose-sm text-zinc-700">
+                <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
+
                 <p>
                     {{ __('Your request has been pre-approved.') }}
                     {{ __('Add a payment method to confirm it.') }}
@@ -17,7 +31,6 @@ use App\Enums\ReservationStatus as Status;
                     {{ __('You have 24 hours to confirm your reservation.') }}
                     {{ __('Approval expires at :datetime.', ['datetime' => datetime_formatter($reservation->checkout_session['expires_at'])]) }}
                 </p>
-
             </div>
 
             <a
@@ -41,8 +54,10 @@ use App\Enums\ReservationStatus as Status;
 
         @case(Status::CONFIRMED)
             <div class="prose-sm text-zinc-700">
+                <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }} 🍾 🥳</h3>
+
                 <p>
-                    {{ __('Booking confirmed, see you in :month!', ['month' => $reservation->check_in->translatedFormat('F')]) }} 🍾 🥳
+                    {{ __('Booking confirmed, see you in :month!', ['month' => $reservation->check_in->translatedFormat('F')]) }}
                     {{ __('If you have any questions, don\'t hesitate to ask.') }}
                 </p>
             </div>
@@ -66,6 +81,22 @@ use App\Enums\ReservationStatus as Status;
                 </svg>
                 <span>{{ __('Cancel the booking') }}</span>
             </a>
+
+            @break
+
+        @case(Status::REJECTED)
+            <div class="prose-sm">
+                <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
+                <p>{{ __('You rejected this request.') }}</p>
+            </div>
+
+            @break
+
+        @case(Status::CANCELLED)
+            <div class="prose-sm">
+                <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
+                <p>{{ __('This booking has been cancelled.') }}</p>
+            </div>
 
             @break
     @endswitch

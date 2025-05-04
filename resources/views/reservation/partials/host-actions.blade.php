@@ -24,7 +24,7 @@ use function App\Helpers\datetime_formatter;
     @switch($reservation->status)
         @case(Status::QUOTE)
             <div>
-                <div class="prose-sm text-zinc-700">
+                <div class="prose-sm text-zinc-600">
                     <p>
                         {{ __(':name would like to book your accommodation for :nights nights.', ['name' => $reservation->name, 'nights' => $reservation->nights]) }}
                         {{ __('Let them know if you can host them, or reject the request.') }}
@@ -51,24 +51,24 @@ use function App\Helpers\datetime_formatter;
                         method="POST"
                     >
                         @csrf
-                        <div>
-                            <h2 class="font-semibold text-xl text-zinc-900">{{ __('Pre-approve') }}</h2>
+                        <div class="prose">
+                            <h3>{{ __('Pre-approve') }}</h3>
 
-                            <p class="mt-2 text-zinc-500">
-                                {{ __('Do you want to pre-approve the request?') }} <br>
+                            <p class="text-zinc-600">
+                                {{ __('Do you want to pre-approve the request?') }}
                                 {{ __('The guest will have 24 hours to confirm the reservation.') }}
                             </p>
+                        </div>
 
-                            <div class="border rounded-lg py-2.5 mt-6 px-4">
-                                <div>
-                                    <span class="font-semibold">{{ $reservation->user->name }}</span>
-                                    <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
-                                </div>
+                        <div class="border rounded-lg py-2.5 mt-6 px-4">
+                            <div>
+                                <span class="font-semibold">{{ $reservation->user->name }}</span>
+                                <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
+                            </div>
 
-                                <div class="text-zinc-600">
-                                    {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
-                                    {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
-                                </div>
+                            <div class="text-zinc-600">
+                                {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
+                                {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
                             </div>
                         </div>
 
@@ -110,9 +110,9 @@ use function App\Helpers\datetime_formatter;
                     method="POST"
                 >
                     @csrf
-                    <div>
-                        <h2 class="text-lg font-semibold text-zinc-900">{{ __('Reject') }}</h2>
-                        <p class="mt-1 text-zinc-600">{{ __('Are you sure you want to decline this booking?') }}</p>
+                    <div class="prose">
+                        <h3>{{ __('Reject') }}</h3>
+                        <p class="text-zinc-600">{{ __('Are you sure you want to decline this booking?') }}</p>
                     </div>
 
                     <div class="mt-6 flex justify-end space-x-3">
@@ -137,6 +137,24 @@ use function App\Helpers\datetime_formatter;
 
             @break
 
+        @case(Status::PENDING)
+            <p class="prose-sm">
+                {{ __('The request has been pre-approved.') }}
+                {{ __('The guest has 24 hours to confirm the reservation.') }}
+                {{ __('Approval expires at :datetime.', ['datetime' => datetime_formatter($reservation->checkout_session['expires_at'])]) }}
+            </p>
+
+            <a
+                class="hover:underline flex items-center gap-2"
+                href="{{ route('change_request.create', [$reservation]) }}"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819" />
+                </svg>
+                <span>{{ __('Change the booking') }}</span>
+            </a>
+            @break
+
         @case(Status::CONFIRMED)
             <a
                 class="hover:underline flex items-center gap-2"
@@ -157,6 +175,16 @@ use function App\Helpers\datetime_formatter;
                 </svg>
                 <span>{{ __('Cancel the booking') }}</span>
             </a>
+
+            @break
+
+        @case(Status::REJECTED)
+            <p class="prose-sm">{{ __('You rejected this request.') }}</p>
+
+            @break
+
+        @case(Status::CANCELLED)
+            <p class="prose-sm">{{ __('This booking has been cancelled.') }}</p>
 
             @break
     @endswitch

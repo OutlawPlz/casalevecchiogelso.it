@@ -9,14 +9,18 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Event;
+use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
+use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use function App\Helpers\money_formatter;
@@ -83,6 +87,28 @@ class StripeController extends Controller
             ->log('The reservation has been confirmed.');
     }
 
+    protected function handleCheckoutSessionExpired(Event $event): void
+    {
+        /** @var string $ulid */
+        $ulid = $event->data->object->metadata->reservation;
+        /** @var Reservation $reservation */
+        $reservation = Reservation::query()->where('ulid', $ulid)->firstOrFail();
+
+        $reservation->update([
+            'checkout_session' => null,
+            'status' => ReservationStatus::QUOTE,
+        ]);
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+            ])
+            ->log("The pre-approval has expired.");
+
+        // TODO: Notify the guest and the host that pre-approval has expired..
+    }
+
     protected function handlePaymentIntentPaymentFailed(Event $event): void
     {
         /** @var PaymentIntent $paymentIntent */
@@ -92,6 +118,10 @@ class StripeController extends Controller
             ->where('ulid', $paymentIntent->metadata->reservation)
             ->firstOrFail();
 
+        // TODO: Handle failure. Notify the user and setup a retry.
+
+        $amount = money_formatter($paymentIntent->amount);
+
         activity()
             ->performedOn($reservation)
             ->withProperties([
@@ -100,10 +130,13 @@ class StripeController extends Controller
                 'message' => $paymentIntent->last_payment_error->message,
                 'doc_url' => $paymentIntent->last_payment_error->doc_url,
             ])
-            ->log("Payment failed due to {$paymentIntent->last_payment_error->type}.");
+            ->log("A payment of $amount failed due to {$paymentIntent->last_payment_error->type}.");
     }
 
-    protected function handlePaymentIntentCreated(Event $event): void
+    /**
+     * @throws ApiErrorException
+     */
+    protected function handlePaymentIntentSucceeded(Event $event): void
     {
         /** @var PaymentIntent $paymentIntent */
         $paymentIntent = $event->data->object;
@@ -111,43 +144,45 @@ class StripeController extends Controller
         $reservation = Reservation::query()
             ->where('ulid', $paymentIntent->metadata->reservation)
             ->firstOrFail();
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
+
+        $charge = $stripe->charges->retrieve(
+            $paymentIntent->latest_charge,
+            ['expand' => ['balance_transaction']]
+        );
 
         $paymentIntents = $reservation->payment_intents;
 
-        $newPaymentIntent = [
+        $succeededPayment = [
             'id' => $paymentIntent->id,
             'customer' => $paymentIntent->customer,
             'status' => $paymentIntent->status,
             'amount' => $paymentIntent->amount,
+            'stripe_fee' => $charge->balance_transaction->fee,
+            'net_amount' => $charge->balance_transaction->net,
+            'receipt_url' => $charge->receipt_url,
+            'charge' => $charge->id,
         ];
 
         if (property_exists($paymentIntent->metadata, 'change_request')) {
-            $newPaymentIntent['change_request'] = $paymentIntent->metadata->change_request;
+            $succeededPayment['change_request'] = $paymentIntent->metadata->change_request;
         }
 
-        $paymentIntents[] = $newPaymentIntent;
+        $paymentIntents[] = $succeededPayment;
 
         $reservation->update(['payment_intents' => $paymentIntents]);
-    }
 
-    protected function handlePaymentIntentCanceled(Event $event): void
-    {
-        /** @var PaymentIntent $paymentIntent */
-        $paymentIntent = $event->data->object;
-        /** @var Reservation $reservation */
-        $reservation = Reservation::query()
-            ->where('ulid', $paymentIntent->metadata->reservation)
-            ->firstOrFail();
+        $amount = money_formatter($paymentIntent->amount);
 
-        $paymentIntents = $reservation->payment_intents;
-
-        array_walk($paymentIntents, function (&$item) use ($paymentIntent) {
-            if ($item['id'] === $paymentIntent->id) $item = array_merge($item, [
-                'status' => $paymentIntent->status,
-            ]);
-        });
-
-        $reservation->update(['payment_intents' => $paymentIntents]);
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'payment_intent' => $paymentIntent->id,
+                'amount' => $paymentIntent->amount,
+            ])
+            ->log("The guest successfully paid $amount.");
     }
 
     /**
@@ -174,10 +209,6 @@ class StripeController extends Controller
             ->log("The payout of $amount has been credited.");
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handlePayoutCanceled(Event $event): void
     {
         /** @var Payout $payout */
@@ -196,10 +227,6 @@ class StripeController extends Controller
             ->log('The payout has been cancelled.');
     }
 
-    /**
-     * @param Event $event
-     * @return void
-     */
     protected function handleCustomerDeleted(Event $event): void
     {
         $user = User::query()
@@ -209,10 +236,6 @@ class StripeController extends Controller
         $user->update(['stripe_id' => null]);
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handleProductUpdated(Event $event): void
     {
         /** @var \Stripe\Product $product */
@@ -223,19 +246,11 @@ class StripeController extends Controller
         Product::query()->updateOrCreate(['stripe_id' => $product->id], $attributes);
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handleProductCreated(Event $event): void
     {
         $this->handleProductUpdated($event);
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handleProductDeleted(Event $event): void
     {
         /** @var \Stripe\Product $product */
@@ -244,10 +259,6 @@ class StripeController extends Controller
         Product::query()->where('stripe_id', $product->id)->delete();
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handlePriceUpdated(Event $event): void
     {
         /** @var \Stripe\Price $price */
@@ -258,19 +269,11 @@ class StripeController extends Controller
         Price::query()->updateOrCreate(['stripe_id' => $price->id], $attributes);
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handlePriceCreated(Event $event): void
     {
         $this->handlePriceUpdated($event);
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handlePriceDeleted(Event $event): void
     {
         /** @var \Stripe\Price $price */
@@ -279,15 +282,10 @@ class StripeController extends Controller
         Price::query()->where('stripe_id', $price->id)->delete();
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handleChargeRefundUpdated(Event $event): void
     {
         /** @var Refund $refund */
         $refund = $event->data->object;
-
         /** @var Reservation $reservation */
         $reservation = Reservation::query()
             ->where('ulid', $refund->metadata->reservation)
@@ -310,27 +308,5 @@ class StripeController extends Controller
                 'amount' => $refund->amount,
             ])
             ->log($message);
-    }
-
-    protected function handleCheckoutSessionExpired(Event $event): void
-    {
-        /** @var string $ulid */
-        $ulid = $event->data->object->metadata->reservation;
-        /** @var Reservation $reservation */
-        $reservation = Reservation::query()->where('ulid', $ulid)->firstOrFail();
-
-        $reservation->update([
-            'checkout_session' => null,
-            'status' => ReservationStatus::QUOTE,
-        ]);
-
-        activity()
-            ->performedOn($reservation)
-            ->withProperties([
-                'reservation' => $reservation->ulid,
-            ])
-            ->log("The pre-approval has expired.");
-
-        // TODO: Notify the guest and the host that pre-approval has expired..
     }
 }

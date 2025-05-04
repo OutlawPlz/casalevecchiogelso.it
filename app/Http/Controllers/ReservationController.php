@@ -13,9 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Stripe\Exception\ApiErrorException;
 use function App\Helpers\is_overnight_stay;
-use function App\Helpers\refund_amount;
+use function App\Helpers\refund_factor;
 
 class ReservationController extends Controller
 {
@@ -90,32 +89,56 @@ class ReservationController extends Controller
 
     public function delete(Request $request, Reservation $reservation): View|RedirectResponse
     {
-        if (! $reservation->inStatus(ReservationStatus::CONFIRMED)) {
-            return redirect()->route('reservation.show', [$reservation]);
-        }
-
         /** @var User $authUser */
         $authUser = $request->user();
+
+        $refundFactor = refund_factor($reservation);
+
+        $refundAmount = array_reduce(
+            $reservation->payment_intents,
+            fn($amount, $paymentIntent) => $amount + ($paymentIntent['amount'] * $refundFactor),
+            0
+        );
 
         return view('reservation.delete', [
             'authUser' => $authUser,
             'reservation' => $reservation,
-            'refundAmount' => refund_amount($reservation),
+            'refundAmount' => $refundAmount,
         ]);
     }
 
-    /**
-     * @throws ApiErrorException
-     */
-    public function destroy(Reservation $reservation): RedirectResponse
+    public function destroy(Request $request, Reservation $reservation): RedirectResponse
     {
-        $amount = refund_amount($reservation);
+        $attributes = $request->validate([
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
 
-        if ($amount) (new RefundGuest)($reservation, $amount);
+        $refundFactor = refund_factor($reservation);
+
+        if ($reservation->hasBeenPaid() && $refundFactor) {
+            foreach ($reservation->payment_intents as $paymentIntent) {
+                $amount = $paymentIntent['amount'] * $refundFactor;
+
+                (new RefundGuest)($reservation, (int) $amount, $paymentIntent['id']);
+            }
+        }
 
         $reservation->update(['status' => ReservationStatus::CANCELLED]);
 
         // TODO: Send notification to host and guest.
+
+        /** @var ?User $authUser */
+        $authUser = $request->user();
+
+        activity()
+            ->performedOn($reservation)
+            ->causedBy($authUser)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'user' => $authUser?->email,
+                'message' => $attributes['reason'],
+            ])
+            ->log("The $authUser?->role cancelled the reservation.");
 
         return redirect()->route('reservation.show', [$reservation]);
     }

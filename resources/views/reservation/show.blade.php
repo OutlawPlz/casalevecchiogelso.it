@@ -1,8 +1,9 @@
 @php
-/**
- * @var \App\Models\Reservation $reservation
- * @var \App\Models\User $authUser
- */
+    /**
+     * @var \App\Models\Reservation $reservation
+     * @var \App\Models\User $authUser
+     */
+    use function App\Helpers\datetime_formatter;
 @endphp
 
 <x-app-layout>
@@ -25,7 +26,7 @@
             <div class="sticky top-0 bg-white flex items-center justify-between p-4 border-b">
                 <h3 class="text-xl font-semibold">{{ __('Details') }}</h3>
 
-                <x-ui-close x-on:click="isDetailsVisible = false" />
+                <x-ui-close x-on:click="isDetailsVisible = false"/>
             </div>
 
             <div class="px-4">
@@ -72,13 +73,27 @@
                 </div>
 
                 <div class="py-6 border-b">
-                    <div class="font-semibold">{{ __('Cancellation policy') }}</div>
-                    <p class="text-zinc-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at blandit sem. Nullam lobortis enim sit amet sem hendrerit, ut elementum lectus bibendum. Mauris quis lorem laoreet, porttitor arcu eu, pulvinar augue.</p>
+                    <div class="prose-sm">
+                        <h3 class="font-semibold">{{ __('Cancellation policy') }}</h3>
+                        <p class="text-zinc-600">
+                            {{ __('To obtain a full refund, you must cancel the reservation by :date.', [
+                                    'date' => datetime_formatter($reservation->dueDate, timeFormat: IntlDateFormatter::NONE)
+                            ]) }}
+
+                            {{ __('If you cancel the reservation within :days before check-in, you will be refunded :percentage% of the total.', [
+                                    'days' => $reservation->cancellation_policy->timeWindow(),
+                                    'percentage' => $reservation->cancellation_policy->refundFactor() * 100
+                            ]) }}
+
+                            {{ __('After the check-in date, you will not be entitled to a refund.') }}
+                        </p>
+
+                    </div>
                 </div>
             </div>
         </aside>
 
-        <x-chat :channel="$reservation->ulid" />
+        <x-chat :channel="$reservation->ulid"/>
 
         @host
         <aside
@@ -86,7 +101,7 @@
             :class="{ 'block': isFeedVisible, 'hidden': ! isFeedVisible }"
             class="absolute right-0 z-10 inset-y-0 md:static hidden overflow-y-scroll w-11/12 md:w-1/4 shrink-0 bg-white shadow-lg"
         >
-            <x-reservation-feed :$reservation />
+            <x-reservation-feed :$reservation/>
         </aside>
         @endhost
     </div>
@@ -99,7 +114,9 @@
             x-on:change="$dispatch('translate-chat', $event.target.value)"
         >
             @foreach(App\Services\GoogleTranslate::languages() as $language)
-                <label class="has-checked:ring-zinc-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-zinc-100">
+                <label
+                    class="has-checked:ring-zinc-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-zinc-100"
+                >
                     <input class="hidden" type="radio" name="language" value="{{ $language['code'] }}">
                     <span>{{ $language['name'] }}</span>
                 </label>

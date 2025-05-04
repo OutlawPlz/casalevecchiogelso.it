@@ -83,5 +83,24 @@ Route::get('auth/token', [TokenAuthenticationController::class, 'store'])->name(
 Route::post('/locale-preference', LocalePreferenceController::class)->name('locale-preference');
 
 Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
-    return $request->user()->paymentMethods();
+
+    return $stripe->charges->retrieve('ch_3RL3tbAKSJP4UmE211VI3XkL');
+
+    return $stripe->refunds->all(['payment_intent' => 'pi_3RL3tbAKSJP4UmE21ylQd6L1']);
+
+    $paymentMethod = $request->user()->paymentMethods()[0];
+
+    $reservation = Reservation::query()->find(3);
+
+    return $paymentIntent = $stripe->paymentIntents->create([
+        'amount' => $reservation->tot,
+        'confirm' => true,
+        'off_session' => true,
+        'customer' => $reservation->user->stripe_id,
+        'payment_method' => $paymentMethod->id,
+        'currency' => config('services.stripe.currency'),
+        'metadata' => [
+            'reservation' => $reservation->ulid,
+        ]
+    ]);
 });

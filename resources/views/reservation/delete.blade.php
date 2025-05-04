@@ -38,7 +38,7 @@
                 <x-field
                     id="reason"
                     :label="__('Reason')"
-                    :error="$errors->first('reason')"
+                    error="reason"
                 >
                     <x-textarea
                         name="reason"
