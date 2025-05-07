@@ -26,6 +26,7 @@ class ReservationFactory extends Factory
             'check_in' => today()->addWeek(),
             'check_out' => today()->addWeeks(2),
             'summary' => fake()->sentence(),
+            'due_date' => today()->addWeeks(2)->sub('5 days'),
             'price_list' => [
                 [
                     'product' => 'prod_QFGF5ANGoEMpOI',

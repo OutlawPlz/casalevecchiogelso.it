@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\RefundGuest;
+use App\Enums\CancellationPolicy;
+use App\Enums\ChangeRequestStatus;
 use App\Enums\ReservationStatus;
 use App\Models\Product;
 use App\Models\Reservation;
@@ -13,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Stripe\Exception\ApiErrorException;
 use function App\Helpers\is_overnight_stay;
 use function App\Helpers\refund_factor;
 
@@ -55,12 +58,16 @@ class ReservationController extends Controller
         /** @var ?User $authUser */
         $authUser = $request->user();
 
+        $cancellationPolicy = CancellationPolicy::from(config('reservation.cancellation_policy'));
+
         $reservation->fill([
             'ulid' => Str::ulid(),
             'name' => $authUser->name,
             'email' => $authUser->email,
             'user_id' => $authUser?->id,
-            'price_list' => $priceList
+            'price_list' => $priceList,
+            'cancellation_policy' => $cancellationPolicy,
+            'due_date' => $reservation->check_in->sub($cancellationPolicy->timeWindow()),
         ]);
 
         $calendar->sync();
@@ -81,9 +88,15 @@ class ReservationController extends Controller
         /** @var User $authUser */
         $authUser = $request->user();
 
+        $changeRequest = $reservation
+            ->changeRequests()
+            ->whereIn('status', [ChangeRequestStatus::PENDING, ChangeRequestStatus::DRAFT])
+            ->first();
+
         return view('reservation.show', [
             'authUser' => $authUser,
             'reservation' => $reservation,
+            'changeRequest' => $changeRequest,
         ]);
     }
 
@@ -96,7 +109,13 @@ class ReservationController extends Controller
 
         $refundAmount = array_reduce(
             $reservation->payment_intents,
-            fn($amount, $paymentIntent) => $amount + ($paymentIntent['amount'] * $refundFactor),
+            fn ($amount, $paymentIntent) => $amount + ($paymentIntent['amount'] * $refundFactor),
+            0
+        );
+
+        $paidAmount = array_reduce(
+            $reservation->payment_intents,
+            fn ($amount, $paymentIntent) => $amount + $paymentIntent['amount'],
             0
         );
 
@@ -104,24 +123,22 @@ class ReservationController extends Controller
             'authUser' => $authUser,
             'reservation' => $reservation,
             'refundAmount' => $refundAmount,
+            'paid' => $paidAmount,
         ]);
     }
 
+    /**
+     * @throws ApiErrorException
+     */
     public function destroy(Request $request, Reservation $reservation): RedirectResponse
     {
         $attributes = $request->validate([
             'reason' => ['required', 'string', 'max:255'],
         ]);
 
-        $refundFactor = refund_factor($reservation);
+        $refundAmount = $reservation->amountPaid() * refund_factor($reservation);
 
-        if ($reservation->hasBeenPaid() && $refundFactor) {
-            foreach ($reservation->payment_intents as $paymentIntent) {
-                $amount = $paymentIntent['amount'] * $refundFactor;
-
-                (new RefundGuest)($reservation, (int) $amount, $paymentIntent['id']);
-            }
-        }
+        if ($refundAmount) (new RefundGuest)($reservation, (int) $refundAmount);
 
         $reservation->update(['status' => ReservationStatus::CANCELLED]);
 

@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('reservation_id')->constrained()->cascadeOnDelete();
-            $table->dateTime('check_in')->index();
-            $table->dateTime('check_out')->index();
-            $table->integer('guest_count')->unsigned();
-            $table->json('price_list');
+            $table->json('from')->nullable();
+            $table->json('to')->nullable();
             $table->text('reason')->nullable();
             $table->string('status')->default('draft')->index();
             $table->string('checkout_session')->nullable();

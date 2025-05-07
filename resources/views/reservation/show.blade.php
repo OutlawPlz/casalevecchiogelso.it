@@ -29,6 +29,14 @@
                 <x-ui-close x-on:click="isDetailsVisible = false"/>
             </div>
 
+            @if($changeRequest)
+                <div class="px-4">
+                    <div class="py-6 border-b">
+                        @include('reservation.partials.change-request')
+                    </div>
+                </div>
+            @endif
+
             <div class="px-4">
                 <div class="py-6 border-b">
                     @include('reservation.partials.host-actions')
@@ -77,7 +85,7 @@
                         <h3 class="font-semibold">{{ __('Cancellation policy') }}</h3>
                         <p class="text-zinc-600">
                             {{ __('To obtain a full refund, you must cancel the reservation by :date.', [
-                                    'date' => datetime_formatter($reservation->dueDate, timeFormat: IntlDateFormatter::NONE)
+                                    'date' => datetime_formatter($reservation->due_date, timeFormat: IntlDateFormatter::NONE)
                             ]) }}
 
                             {{ __('If you cancel the reservation within :days before check-in, you will be refunded :percentage% of the total.', [

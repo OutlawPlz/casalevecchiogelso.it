@@ -84,13 +84,23 @@ Route::post('/locale-preference', LocalePreferenceController::class)->name('loca
 
 Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
 
-    return $stripe->charges->retrieve('ch_3RL3tbAKSJP4UmE211VI3XkL');
+    // return $stripe->charges->retrieve('ch_3RL3tbAKSJP4UmE211VI3XkL');
 
-    return $stripe->refunds->all(['payment_intent' => 'pi_3RL3tbAKSJP4UmE21ylQd6L1']);
+    // return $stripe->refunds->all(['payment_intent' => 'pi_3RL3tbAKSJP4UmE21ylQd6L1']);
 
-    $paymentMethod = $request->user()->paymentMethods()[0];
+    $reservation = Reservation::query()->find(5);
 
-    $reservation = Reservation::query()->find(3);
+    $changeRequest = \App\Models\ChangeRequest::query()->find(3);
+
+    $reservation->apply($changeRequest)->save();
+
+    $changeRequest->update(['status' => \App\Enums\ChangeRequestStatus::CONFIRMED]);
+
+    return $reservation;
+
+    return (new \App\Actions\RefundGuest)($reservation, 50000);
+
+    $paymentMethod = $reservation->user->paymentMethods()[0];
 
     return $paymentIntent = $stripe->paymentIntents->create([
         'amount' => $reservation->tot,

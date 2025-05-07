@@ -43,26 +43,30 @@ class ChangeRequestController extends Controller
     public function store(Request $request, Reservation $reservation, Calendar $calendar, StripeClient $stripe): array
     {
         $attributes = $request->validate(self::rules());
-
-        $changeRequest = new ChangeRequest($attributes);
-
-        $priceList = Product::defaultPriceList();
-
-        array_walk($priceList, function (&$line) use ($reservation) {
-            if (is_overnight_stay($line['product'])) $line['quantity'] = $reservation->nights;
-        });
-
         /** @var ?User $authUser */
         $authUser = $request->user();
 
-        $changeRequest->fill([
+        $reason = $attributes['reason']; unset($attributes['reason']);
+
+        $changeRequest = ChangeRequest::for($reservation)->fill([
             'user_id' => $authUser?->id,
-            'price_list' => $priceList,
+            'reason' => $reason,
+            'to' => $attributes,
         ]);
+
+        $priceList = Product::defaultPriceList();
+
+        array_walk($priceList, function (&$line) use ($changeRequest) {
+            if (is_overnight_stay($line['product'])) $line['quantity'] = $changeRequest->toReservation->nights;
+        });
+
+        $changeRequest->fill(['to' => $attributes + ['price_list' => $priceList]]);
 
         $calendar->sync();
 
-        if ($calendar->isNotAvailable($changeRequest->check_in, $changeRequest->check_out, ignore: $reservation)) {
+        [$checkIn, $checkOut] = $changeRequest->toReservation->reservedPeriod;
+
+        if ($calendar->isNotAvailable($checkIn, $checkOut, ignore: $reservation)) {
             throw ValidationException::withMessages([
                 'unavailable_dates' => __('The selected dates are not available.')
             ]);
@@ -81,7 +85,7 @@ class ChangeRequestController extends Controller
                 'reservation' => $reservation->ulid,
                 'user' => $authUser?->email,
             ])
-            ->log("The $authUser?->role :properties.user has made a change request.");
+            ->log("The $authUser?->role has made a change request.");
 
         return ['redirect' => route('reservation.show', [$reservation])];
     }

@@ -138,12 +138,4 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
         return $paymentMethods->data;
     }
-
-    /**
-     * @throws ApiErrorException
-     */
-    public function hasPaymentMethod(?string $type = null): bool
-    {
-        return ! empty($this->paymentMethods($type));
-    }
 }

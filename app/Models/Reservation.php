@@ -35,7 +35,7 @@ use Illuminate\Support\Collection;
  * @property-read User $user
  * @property-read Collection<Message> $messages
  * @property-read CarbonImmutable[] $refundPeriod
- * @property-read CarbonImmutable $dueDate
+ * @property-read CarbonImmutable $due_date
  */
 class Reservation extends Model
 {
@@ -55,6 +55,7 @@ class Reservation extends Model
         'payment_intents',
         'cancellation_policy',
         'checkout_session',
+        'due_date',
     ];
 
     final public function __construct(array $attributes = [])
@@ -83,6 +84,7 @@ class Reservation extends Model
             'cancellation_policy' => CancellationPolicy::class,
             'checkout_session' => 'array',
             'payment_intents' => 'array',
+            'due_date' => 'immutable_datetime',
         ];
     }
 
@@ -149,24 +151,22 @@ class Reservation extends Model
 
     public function apply(ChangeRequest $changeRequest): self
     {
-        $this->fill([
-            'check_in' => $changeRequest->check_in,
-            'check_out' => $changeRequest->check_out,
-            'guest_count' => $changeRequest->guest_count,
-        ]);
+        $this->fill($changeRequest->to);
 
         return $this;
     }
 
-    protected function dueDate(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->check_in->sub($this->cancellation_policy->timeWindow())
-        );
-    }
-
     public function hasBeenPaid(): bool
     {
-        return $this->inStatus(ReservationStatus::CONFIRMED) && ! empty($this->payment_intents);
+        return $this->amountPaid() === $this->tot;
+    }
+
+    public function amountPaid(): int
+    {
+        return array_reduce(
+            $this->payment_intents,
+            fn ($tot, $paymentIntent) => $tot + $paymentIntent['amount'] - $paymentIntent['amount_refunded'],
+            0
+        );
     }
 }

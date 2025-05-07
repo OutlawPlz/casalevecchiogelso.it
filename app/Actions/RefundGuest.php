@@ -12,43 +12,49 @@ use function App\Helpers\money_formatter;
 
 class RefundGuest
 {
-    public function __invoke(Reservation $reservation, int $cents, string $paymentIntent): void
+    /**
+     * @throws ApiErrorException
+     */
+    public function __invoke(Reservation $reservation, int $cents): void
     {
+        if ($reservation->amountPaid() < $cents) {
+            throw new \RuntimeException('The refund amount is greater than the total amount paid.');
+        }
+
+        /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
         /** @var ?User $authUser */
         $authUser = Auth::user();
 
-        $refund = $stripe->refunds->create([
-            'payment_intent' => $paymentIntent,
-            'amount' => $cents,
-            'metadata' => [
-                'reservation' => $reservation->ulid,
-            ],
-        ]);
-
         $paymentIntents = $reservation->payment_intents;
 
-        array_walk($paymentIntents, function (&$paymentIntent) use ($refund) {
-            if ($paymentIntent['id'] === $refund->payment_intent) {
-                $paymentIntent['refunds'] = [
-                    'id' => $refund->id,
+        foreach ($paymentIntents as $paymentIntent) {
+            $refundAmount = min($cents, $paymentIntent['amount']);
+
+            $refund = $stripe->refunds->create([
+                'payment_intent' => $paymentIntent['id'],
+                'amount' => $refundAmount,
+                'metadata' => [
+                    'reservation' => $reservation->ulid,
+                ],
+            ]);
+
+            $formattedAmount = money_formatter($refund->amount);
+
+            activity()
+                ->causedBy($authUser)
+                ->performedOn($reservation)
+                ->withProperties([
+                    'user' => $authUser?->email,
+                    'reservation' => $reservation->ulid,
+                    'refund' => $refund->id,
                     'amount' => $refund->amount,
-                    'status' => $refund->status,
-                ];
-            }
-        });
+                ])
+                ->log("A refund of $formattedAmount has been created.");
 
-        $formattedAmount = money_formatter($refund->amount);
+            $cents -= $refundAmount;
 
-        activity()
-            ->causedBy($authUser)
-            ->performedOn($reservation)
-            ->withProperties([
-                'user' => $authUser?->email,
-                'reservation' => $reservation->ulid,
-                'refund' => $refund->id,
-                'amount' => $refund->amount,
-            ])
-            ->log("A refund of $formattedAmount has been created.");
+            if (! $cents) break;
+        }
     }
 }

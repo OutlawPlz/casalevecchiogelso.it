@@ -3,7 +3,9 @@
      * @var \App\Models\User $authUser
      * @var \App\Models\Reservation $reservation
      * @var int $refundAmount
+     * @var int $paid
      */
+    use function App\Helpers\money_formatter;
 @endphp
 
 <x-app-layout>
@@ -62,15 +64,15 @@
                 @endhost
             </p>
 
-            <div class="mt-6 grid grid-cols-2 items-center max-w-sm" x-data>
+            <div class="mt-6 grid grid-cols-2 items-center max-w-sm">
                 <div>
                     <span class="text-zinc-600">Paid</span> <br>
-                    <span class="text-2xl" x-currency="{{ $reservation->tot }}"></span>
+                    <span class="text-2xl">{{ money_formatter($paid) }}</span>
                 </div>
 
                 <div>
                     <span class="text-zinc-600">{{ __('Refund') }}</span> <br>
-                    <span class="text-2xl" x-currency="{{ $refundAmount }}"></span>
+                    <span class="text-2xl">{{ money_formatter($refundAmount) }}</span>
                 </div>
             </div>
 

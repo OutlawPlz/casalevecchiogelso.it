@@ -11,7 +11,7 @@ use function App\Helpers\datetime_formatter;
 <div class="flex flex-col gap-4">
     <div>
         <div>
-            <span class="font-bold">{{ $reservation->user->name }}</span>
+            <span class="font-semibold">{{ $reservation->user->name }}</span>
             <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
         </div>
 
@@ -60,7 +60,7 @@ use function App\Helpers\datetime_formatter;
                             </p>
                         </div>
 
-                        <div class="border rounded-lg py-2.5 mt-6 px-4">
+                        <div class="border rounded-lg py-2.5 mt-4 px-4">
                             <div>
                                 <span class="font-semibold">{{ $reservation->user->name }}</span>
                                 <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>

@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\Reservation;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use DateInterval;
 use DateMalformedPeriodStringException;
 use DatePeriod;
@@ -51,9 +52,9 @@ function get_overnight_stay(array $priceList): array
     return $overnightStay;
 }
 
-function refund_factor(Reservation $reservation, ?Carbon $date = null): float
+function refund_factor(Reservation $reservation, ?CarbonInterface $date = null): float
 {
-    if (! $date) $date = now();
+    $date ??= now();
 
     $refundFactor = 1;
 

@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Event;
@@ -159,6 +158,7 @@ class StripeController extends Controller
             'customer' => $paymentIntent->customer,
             'status' => $paymentIntent->status,
             'amount' => $paymentIntent->amount,
+            'amount_refunded' => $charge->amount_refunded,
             'stripe_fee' => $charge->balance_transaction->fee,
             'net_amount' => $charge->balance_transaction->net,
             'receipt_url' => $charge->receipt_url,
@@ -185,10 +185,6 @@ class StripeController extends Controller
             ->log("The guest successfully paid $amount.");
     }
 
-    /**
-     * @param  Event  $event
-     * @return void
-     */
     protected function handlePayoutPaid(Event $event): void
     {
         /** @var Payout $payout */
@@ -282,7 +278,10 @@ class StripeController extends Controller
         Price::query()->where('stripe_id', $price->id)->delete();
     }
 
-    protected function handleChargeRefundUpdated(Event $event): void
+    /**
+     * @throws ApiErrorException
+     */
+    protected function handleRefundUpdated(Event $event): void
     {
         /** @var Refund $refund */
         $refund = $event->data->object;
@@ -290,6 +289,25 @@ class StripeController extends Controller
         $reservation = Reservation::query()
             ->where('ulid', $refund->metadata->reservation)
             ->firstOrFail();
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
+
+        $charge = $stripe->charges->retrieve($refund->charge, ['expand' => ['balance_transaction']]);
+
+        $paymentIntents = $reservation->payment_intents;
+
+        array_walk($paymentIntents, function (&$paymentIntent) use ($charge) {
+            if ($paymentIntent['id'] === $charge->payment_intent) {
+                $paymentIntent = array_merge($paymentIntent, [
+                    'amount' => $charge->amount,
+                    'amount_refunded' => $charge->amount_refunded,
+                    'stripe_fee' => $charge->balance_transaction->fee,
+                    'net_amount' => $charge->balance_transaction->net,
+                ]);
+            }
+        });
+
+        $reservation->update(['payment_intents' => $paymentIntents]);
 
         $message = match ($refund->status) {
             'pending' => 'The refund process is pending.',

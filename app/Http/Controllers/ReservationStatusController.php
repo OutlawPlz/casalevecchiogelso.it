@@ -84,7 +84,7 @@ class ReservationStatusController extends Controller
             ])
             ->log("The $authUser->role :properties.user cancelled the reservation.");
 
-        (new RefundGuest)($reservation);
+        // (new RefundGuest)($reservation);
 
         return redirect()->back();
     }
