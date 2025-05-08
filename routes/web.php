@@ -3,14 +3,13 @@
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\BillingPortalController;
-use App\Http\Controllers\ChangeRequestController;
+use App\Http\Controllers\ChangeRequest\ChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Reservation\ApproveReservationController;
-use App\Http\Controllers\Reservation\ConfirmReservationController;
-use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\ReservationStatusController;
 use App\Http\Controllers\StripeController;
 use App\Models\Message;
@@ -84,7 +83,7 @@ Route::post('/locale-preference', LocalePreferenceController::class)->name('loca
 
 Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
 
-    // return $stripe->charges->retrieve('ch_3RL3tbAKSJP4UmE211VI3XkL');
+    return $stripe->charges->retrieve('ch_3RMEFLAKSJP4UmE20ggUQT0o', ['expand' => ['balance_transaction']]);
 
     // return $stripe->refunds->all(['payment_intent' => 'pi_3RL3tbAKSJP4UmE21ylQd6L1']);
 

@@ -145,6 +145,8 @@ class StripeController extends Controller
             ->firstOrFail();
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
+        /** @var User $user */
+        $user = User::query()->where('stripe_id', $paymentIntent->customer)->firstOrFail();
 
         $charge = $stripe->charges->retrieve(
             $paymentIntent->latest_charge,
@@ -177,12 +179,14 @@ class StripeController extends Controller
 
         activity()
             ->performedOn($reservation)
+            ->causedBy($user)
             ->withProperties([
                 'reservation' => $reservation->ulid,
-                'payment_intent' => $paymentIntent->id,
+                'user' => $user->email,
                 'amount' => $paymentIntent->amount,
+                'payment_intent' => $paymentIntent->id,
             ])
-            ->log("The guest successfully paid $amount.");
+            ->log("The $user->role paid $amount.");
     }
 
     protected function handlePayoutPaid(Event $event): void

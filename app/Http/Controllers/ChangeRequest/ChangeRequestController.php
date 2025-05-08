@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\ChangeRequest;
 
 use App\Enums\ReservationStatus as Status;
+use App\Http\Controllers\Controller;
 use App\Models\ChangeRequest;
 use App\Models\Product;
 use App\Models\Reservation;

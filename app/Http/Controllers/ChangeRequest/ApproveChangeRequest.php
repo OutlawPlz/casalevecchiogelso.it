@@ -73,6 +73,6 @@ class ApproveChangeRequest extends Controller
                 'change_request' => $changeRequest->id,
                 'user' => $authUser?->email,
             ])
-            ->log("The $authUser->role :properties.user has pre-approved the change request.");
+            ->log("The $authUser->role :properties.user has approved the change request.");
     }
 }
