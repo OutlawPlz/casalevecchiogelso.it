@@ -58,6 +58,26 @@
             <p class="text-zinc-600">{{ __('You are about to confirm the modification.') }}</p>
         </div>
 
+        <div class="border rounded-lg p-4 mt-4">
+            <div class="flex gap-3">
+                <div class="w-12 font-semibold">{{ __('From') }}:</div>
+                <div class="text-zinc-600">
+                    {{ $changeRequest->fromReservation->check_in->format('d M') }} - {{ $changeRequest->fromReservation->check_out->format('d M') }} ({{ $changeRequest->fromReservation->nights }} {{ __('nights') }}) <br>
+                    {{ $changeRequest->fromReservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $changeRequest->fromReservation->tot }}"></span>
+                </div>
+            </div>
+
+            <hr class="my-4 -mx-4">
+
+            <div class="flex gap-3">
+                <div class="w-12 font-semibold">{{ __('To') }}:</div>
+                <div class="text-zinc-600">
+                    {{ $changeRequest->toReservation->check_in->format('d M') }} - {{ $changeRequest->toReservation->check_out->format('d M') }} ({{ $changeRequest->toReservation->nights }} {{ __('nights') }}) <br>
+                    {{ $changeRequest->toReservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $changeRequest->toReservation->tot }}"></span>
+                </div>
+            </div>
+        </div>
+
         <div class="flex justify-end mt-4 gap-3">
             <button class="ghost" x-on:click="$dispatch('close')">{{ __('Close') }}</button>
             <button class="primary">{{ __('Confirm') }}</button>

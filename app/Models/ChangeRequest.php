@@ -86,6 +86,11 @@ class ChangeRequest extends Model
         );
     }
 
+    public function priceDifference(): int
+    {
+        return $this->toReservation->tot - $this->fromReservation->tot;
+    }
+
     public static function for(Reservation $reservation): static
     {
         return new static([

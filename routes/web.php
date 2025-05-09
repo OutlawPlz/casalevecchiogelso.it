@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\BillingPortalController;
+use App\Http\Controllers\ChangeRequest\ApproveChangeRequest;
 use App\Http\Controllers\ChangeRequest\ChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
@@ -50,8 +51,13 @@ Route::group([
     Route::post('/reservations/{reservation:ulid}/approve', ApproveReservationController::class)->name('reservation.approve');
 
     /* ----- Change Request ----- */
-    Route::get('/reservations/{reservation:ulid}/change', [ChangeRequestController::class, 'create'])->name('change_request.create');
-    Route::post('/reservations/{reservation:ulid}/change', [ChangeRequestController::class, 'store'])->name('change_request.store');
+    Route::scopeBindings()
+        ->group(function () {
+            Route::get('/reservations/{reservation:ulid}/change-requests/create', [ChangeRequestController::class, 'create'])->name('change_request.create');
+            Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('change_request.show');
+            Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])->name('change_request.store');
+            Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)->name('change_request.approve');
+    });
 
     /* ----- Message ----- */
     Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index')

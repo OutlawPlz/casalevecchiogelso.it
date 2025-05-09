@@ -20,6 +20,38 @@ use function App\Helpers\refund_factor;
 
 class ChangeRequestController extends Controller
 {
+    public function show(Request $request, Reservation $reservation, ChangeRequest $changeRequest): View
+    {
+        /** @var ?User $authUser */
+        $authUser = $request->user();
+
+        $refundFactor = refund_factor($reservation, $changeRequest->created_at);
+
+        if ($authUser?->isHost()) $refundFactor = 1;
+
+        $refundAmount = 0;
+
+        if ($changeRequest->reservation->hasBeenPaid()
+            && $changeRequest->priceDifference() < 0) {
+            $refundAmount = $changeRequest->priceDifference() * -$refundFactor;
+        }
+
+        $amountDue = 0;
+
+        if ($changeRequest->reservation->hasBeenPaid()
+            && $changeRequest->priceDifference() > 0) {
+            $amountDue = $changeRequest->priceDifference();
+        }
+
+        return view('change_request.show', [
+            'reservation' => $reservation,
+            'authUser' => $authUser,
+            'changeRequest' => $changeRequest,
+            'refundAmount' => $refundAmount,
+            'amountDue' => $amountDue,
+        ]);
+    }
+
     public function create(Request $request, Reservation $reservation, Calendar $calendar): View
     {
         /** @var ?User $authUser */

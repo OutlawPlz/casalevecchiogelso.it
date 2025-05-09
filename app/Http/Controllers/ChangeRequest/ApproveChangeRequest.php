@@ -33,7 +33,7 @@ class ApproveChangeRequest extends Controller
             return;
         }
 
-        $priceDelta = $changeRequest->toReservation->tot - $reservation->tot;
+        $priceDelta = $changeRequest->priceDifference();
 
         if ($priceDelta < 0) {
             $amount = $priceDelta * refund_factor($reservation, $changeRequest->created_at);
