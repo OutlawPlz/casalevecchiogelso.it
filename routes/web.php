@@ -51,12 +51,11 @@ Route::group([
     Route::post('/reservations/{reservation:ulid}/approve', ApproveReservationController::class)->name('reservation.approve');
 
     /* ----- Change Request ----- */
-    Route::scopeBindings()
-        ->group(function () {
-            Route::get('/reservations/{reservation:ulid}/change-requests/create', [ChangeRequestController::class, 'create'])->name('change_request.create');
-            Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('change_request.show');
-            Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])->name('change_request.store');
-            Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)->name('change_request.approve');
+    Route::scopeBindings()->group(function () {
+        Route::get('/reservations/{reservation:ulid}/change-requests/create', [ChangeRequestController::class, 'create'])->name('change_request.create');
+        Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('change_request.show');
+        Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])->name('change_request.store');
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)->name('change_request.approve');
     });
 
     /* ----- Message ----- */

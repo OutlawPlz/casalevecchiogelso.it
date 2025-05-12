@@ -32,13 +32,12 @@
 </div>
 
 <div class="flex flex-col gap-4 mt-6">
-    <button
-        x-data x-on:click.prevent="$dispatch('open-modal', 'confirm-change')"
-        type="button"
-        class="primary w-full justify-center"
+    <a
+        href="{{ route('change_request.show', [$reservation, $changeRequest]) }}"
+        class="button primary w-full justify-center"
     >
         {{ __('Confirm the change') }}
-    </button>
+    </a>
 
     <button
         x-data x-on:click.prevent="$dispatch('open-modal', 'reject-change')"
@@ -50,40 +49,6 @@
         <span>{{ __('Reject the change') }}</span>
     </button>
 </div>
-
-<x-modal name="confirm-change" class="max-w-xl">
-    <div class="p-6">
-        <div class="prose">
-            <h3>{{ __('Confirm the modification') }}</h3>
-            <p class="text-zinc-600">{{ __('You are about to confirm the modification.') }}</p>
-        </div>
-
-        <div class="border rounded-lg p-4 mt-4">
-            <div class="flex gap-3">
-                <div class="w-12 font-semibold">{{ __('From') }}:</div>
-                <div class="text-zinc-600">
-                    {{ $changeRequest->fromReservation->check_in->format('d M') }} - {{ $changeRequest->fromReservation->check_out->format('d M') }} ({{ $changeRequest->fromReservation->nights }} {{ __('nights') }}) <br>
-                    {{ $changeRequest->fromReservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $changeRequest->fromReservation->tot }}"></span>
-                </div>
-            </div>
-
-            <hr class="my-4 -mx-4">
-
-            <div class="flex gap-3">
-                <div class="w-12 font-semibold">{{ __('To') }}:</div>
-                <div class="text-zinc-600">
-                    {{ $changeRequest->toReservation->check_in->format('d M') }} - {{ $changeRequest->toReservation->check_out->format('d M') }} ({{ $changeRequest->toReservation->nights }} {{ __('nights') }}) <br>
-                    {{ $changeRequest->toReservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $changeRequest->toReservation->tot }}"></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex justify-end mt-4 gap-3">
-            <button class="ghost" x-on:click="$dispatch('close')">{{ __('Close') }}</button>
-            <button class="primary">{{ __('Confirm') }}</button>
-        </div>
-    </div>
-</x-modal>
 
 <x-modal name="reject-change" class="max-w-xl">
     <div class="p-6">

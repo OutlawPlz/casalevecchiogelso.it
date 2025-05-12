@@ -16,12 +16,12 @@
         @stack('scripts')
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col bg-zinc-100">
+        <div class="min-h-screen flex flex-col">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-            <header class="bg-white shadow-sm">
+            <header class="shadow-sm">
                 <div class="p-4 sm:px-6">
                     {{ $header }}
                 </div>
