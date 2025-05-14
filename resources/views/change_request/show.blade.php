@@ -91,25 +91,101 @@
             </div>
         @endif
 
-        <form
-            method="POST"
-            action="{{ route('change_request.approve', [$reservation, $changeRequest]) }}"
-            class="mt-6 flex gap-3"
-        >
-
-            @if($refundAmount)
-                <button class="primary">{{ __('Confirm and refund') }}</button>
-            @elseif($amountDue)
-                <button class="primary">
+        <div class="flex gap-3 mt-6">
+            <button
+                x-data x-on:click="$dispatch('open-modal', 'confirm')"
+                class="primary"
+            >
+                @if($refundAmount)
+                    {{ __('Confirm and refund') }}
+                @elseif($amountDue)
                     {{ $changeRequest->user->isHost()
                         ? __('Confirm and pay')
                         : __('Confirm and charge') }}
-                </button>
-            @else
-                <button class="primary">{{ __('Confirm') }}</button>
-            @endif
+                @else
+                    {{ __('Confirm') }}
+                @endif
+            </button>
+
+            <button x-data x-on:click="$dispatch('open-modal', 'reject')">{{ __('Reject') }}</button>
 
             <a href="{{ route('reservation.show', [$reservation]) }}" class="button ghost">{{ __('Back') }}</a>
-        </form>
+        </div>
+
+        <x-modal
+            class="max-w-xl mx-auto"
+            name="confirm"
+        >
+            <form
+                x-data="{
+                    loading: false,
+
+                    async submit() {
+                        this.loading = true;
+
+                        await axios.post('{{ route('change_request.approve', [$reservation, $changeRequest]) }}')
+                            .then()
+                            .catch();
+
+                        this.loading = false;
+                    },
+                }"
+                class="p-6"
+            >
+                <div class="prose">
+                    <h3>{{ __('Confirm the modification') }}</h3>
+                    <p class="text-zinc-600">
+                        @if($amountDue)
+                            {{ $changeRequest->user->isHost()
+                                ? __('By confirming the request, the guest will be immediately charged an amount of :amount.', ['amount' => money_formatter($amountDue)])
+                                : __('By confirming the request, you\'ll be immediately charged an amount of :amount.', ['amount' => money_formatter($amountDue)]) }}
+                        @endif
+
+                        @if($refundAmount)
+                            {{ $changeRequest->user->isHost()
+                                ? __('According to cancellation policy, the guest will receive a refund amount of :amount.', ['amount' => money_formatter($refundAmount)])
+                                : __('According to cancellation policy, you\'ll receive a refund amount of :amount.', ['amount' => money_formatter($refundAmount)]) }}
+                        @endif
+                    </p>
+                </div>
+
+                <div class="mt-6 flex gap-3 justify-end">
+                    <button class="ghost" type="button" x-on:click="$dispatch('close')">{{ __('Close') }}</button>
+                    <button class="primary">{{ __('Confirm') }}</button>
+                </div>
+            </form>
+        </x-modal>
+
+        <x-modal
+            class="max-w-xl mx-auto"
+            name="reject"
+        >
+            <form
+                x-data="{
+                    loading = false,
+
+                    async submit() {
+                        this.loading = true;
+
+                        await axios.post('{{ route('change_request.reject', [$reservation, $changeRequest]) }}')
+                            .then()
+                            .catch();
+
+                        this.loading = false:
+                    },
+                }"
+                class="p-6"
+            >
+                <div class="prose">
+                    <h3>{{ __('Reject the modification') }}</h3>
+                    <p class="text-zinc-600">{{ __('Are you sure you want to decline this modification?') }}</p>
+                </div>
+
+                <div class="mt-6 flex gap-3 justify-end">
+                    <button class="ghost" type="button" x-on:click="$dispatch('close')">{{ __('Close') }}</button>
+                    <button class="primary">{{ __('Reject') }}</button>
+                </div>
+            </form>
+        </x-modal>
     </div>
 </x-app-layout>

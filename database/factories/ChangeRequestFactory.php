@@ -31,7 +31,7 @@ class ChangeRequestFactory extends Factory
                     'quantity' => 7,
                 ],
             ],
-            'status' => ChangeRequestStatus::DRAFT,
+            'status' => ChangeRequestStatus::PENDING,
         ];
     }
 }

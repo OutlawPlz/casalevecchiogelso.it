@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\ChangeRequest\ApproveChangeRequest;
 use App\Http\Controllers\ChangeRequest\ChangeRequestController;
+use App\Http\Controllers\ChangeRequest\RejectChangeRequest;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
@@ -56,6 +57,7 @@ Route::group([
         Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('change_request.show');
         Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])->name('change_request.store');
         Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)->name('change_request.approve');
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequest::class)->name('change_request.reject');
     });
 
     /* ----- Message ----- */
@@ -97,8 +99,6 @@ Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeC
     $changeRequest = \App\Models\ChangeRequest::query()->find(3);
 
     $reservation->apply($changeRequest)->save();
-
-    $changeRequest->update(['status' => \App\Enums\ChangeRequestStatus::CONFIRMED]);
 
     return $reservation;
 

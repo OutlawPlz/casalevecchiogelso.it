@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\ChangeRequest;
 
-use App\Actions\ApproveReservation;
+use App\Actions\ApproveChangeRequest as Approve;
 use App\Actions\ChargeGuest;
 use App\Actions\RefundGuest;
 use App\Enums\ReservationStatus as Status;
 use App\Http\Controllers\Controller;
 use App\Models\ChangeRequest;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Stripe\Exception\ApiErrorException;
 use function App\Helpers\refund_factor;
 
@@ -23,33 +21,19 @@ class ApproveChangeRequest extends Controller
     {
         $reservation = $changeRequest->reservation;
 
-        if ($reservation->inStatus(Status::QUOTE)) {
-            $reservation->apply($changeRequest)->save();
-
-            $changeRequest->update(['status' => Status::COMPLETED]);
-
-            (new ApproveReservation)($reservation);
-
-            return;
-        }
-
         $priceDelta = $changeRequest->priceDifference();
+
+        if ($reservation->inStatus(Status::QUOTE)) $priceDelta = 0;
 
         if ($priceDelta < 0) {
             $amount = $priceDelta * refund_factor($reservation, $changeRequest->created_at);
 
             (new RefundGuest)($reservation, (int) $amount);
 
-            $reservation->apply($changeRequest)->save();
-
-            $changeRequest->update(['status' => Status::COMPLETED]);
+            (new Approve)($changeRequest);
         }
 
-        if ($priceDelta === 0) {
-            $reservation->apply($changeRequest)->save();
-
-            $changeRequest->update(['status' => Status::COMPLETED]);
-        }
+        if ($priceDelta === 0) (new Approve)($changeRequest);
 
         if ($priceDelta > 0) {
             $options = [
@@ -61,18 +45,5 @@ class ApproveChangeRequest extends Controller
 
             (new ChargeGuest)($reservation->user, $priceDelta, $options);
         }
-
-        /** @var ?User $authUser */
-        $authUser = Auth::user();
-
-        activity()
-            ->performedOn($reservation)
-            ->causedBy($authUser)
-            ->withProperties([
-                'reservation' => $reservation->ulid,
-                'change_request' => $changeRequest->id,
-                'user' => $authUser?->email,
-            ])
-            ->log("The $authUser->role :properties.user has approved the change request.");
     }
 }

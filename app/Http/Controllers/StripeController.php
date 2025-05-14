@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReservationStatus;
+use App\Actions\ApproveChangeRequest;
+use App\Models\ChangeRequest;
 use App\Models\Price;
 use App\Models\Product;
 use App\Models\Reservation;
@@ -167,8 +169,14 @@ class StripeController extends Controller
             'charge' => $charge->id,
         ];
 
+        /** @var ?ChangeRequest $changeRequest */
+        $changeRequest = null;
+
         if (property_exists($paymentIntent->metadata, 'change_request')) {
-            $succeededPayment['change_request'] = $paymentIntent->metadata->change_request;
+            $changeRequest = ChangeRequest::query()
+                ->find($paymentIntent->metadata->change_request);
+
+            $succeededPayment['change_request'] = $changeRequest->id;
         }
 
         $paymentIntents[] = $succeededPayment;
@@ -187,6 +195,8 @@ class StripeController extends Controller
                 'payment_intent' => $paymentIntent->id,
             ])
             ->log("The $user->role paid $amount.");
+
+        if ($changeRequest) (new ApproveChangeRequest)($changeRequest);
     }
 
     protected function handlePayoutPaid(Event $event): void

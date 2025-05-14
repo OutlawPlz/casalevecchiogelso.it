@@ -4,9 +4,6 @@ namespace App\Enums;
 
 enum ChangeRequestStatus: string
 {
-    /** The guest asked to change a reservation. */
-    case DRAFT = 'draft';
-
     /** The host has approved the change. */
     case PENDING = 'pending';
 
@@ -16,6 +13,9 @@ enum ChangeRequestStatus: string
     /** The guest canceled the change. */
     case CANCELLED = 'cancelled';
 
-    /** The change is completed. */
-    case CONFIRMED = 'confirmed';
+    /** The change request has expired. */
+    case EXPIRED = 'expired';
+
+    /** The change has been approved. */
+    case APPROVED = 'approved';
 }

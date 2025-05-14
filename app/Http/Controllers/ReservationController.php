@@ -90,7 +90,7 @@ class ReservationController extends Controller
 
         $changeRequest = $reservation
             ->changeRequests()
-            ->whereIn('status', [ChangeRequestStatus::PENDING, ChangeRequestStatus::DRAFT])
+            ->where('status', ChangeRequestStatus::PENDING)
             ->first();
 
         return view('reservation.show', [
