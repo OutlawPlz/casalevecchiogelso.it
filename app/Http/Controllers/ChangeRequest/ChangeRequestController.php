@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ChangeRequest;
 
+use App\Enums\ChangeRequestStatus;
 use App\Enums\ReservationStatus as Status;
 use App\Http\Controllers\Controller;
 use App\Models\ChangeRequest;
@@ -78,6 +79,7 @@ class ChangeRequestController extends Controller
         $reason = $attributes['reason']; unset($attributes['reason']);
 
         $changeRequest = ChangeRequest::for($reservation)->fill([
+            'status' => ChangeRequestStatus::PENDING,
             'user_id' => $authUser?->id,
             'reason' => $reason,
             'to' => $attributes,

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->json('from')->nullable();
             $table->json('to')->nullable();
             $table->text('reason')->nullable();
-            $table->string('status')->default('draft')->index();
+            $table->string('status')->index();
             $table->string('checkout_session')->nullable();
             $table->timestamps();
         });
