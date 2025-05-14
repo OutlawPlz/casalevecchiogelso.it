@@ -8,6 +8,7 @@ use App\Actions\RefundGuest;
 use App\Enums\ReservationStatus as Status;
 use App\Http\Controllers\Controller;
 use App\Models\ChangeRequest;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Stripe\Exception\ApiErrorException;
 use function App\Helpers\refund_factor;
@@ -17,10 +18,8 @@ class ApproveChangeRequest extends Controller
     /**
      * @throws ApiErrorException
      */
-    public function __invoke(Request $request, ChangeRequest $changeRequest): void
+    public function __invoke(Request $request, Reservation $reservation, ChangeRequest $changeRequest): void
     {
-        $reservation = $changeRequest->reservation;
-
         $priceDelta = $changeRequest->priceDifference();
 
         if ($reservation->inStatus(Status::QUOTE)) $priceDelta = 0;

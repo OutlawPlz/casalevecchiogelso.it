@@ -116,11 +116,14 @@
                         this.loading = false;
                     },
                 }"
+                x-on:submit.prevent="submit"
                 class="p-6"
             >
                 <div class="prose">
                     <h3>{{ __('Confirm the modification') }}</h3>
                     <p class="text-zinc-600">
+                        {{ __('Are you sure you want to confirm this modification?') }}
+
                         @if($amountDue)
                             {{ $changeRequest->user->isHost()
                                 ? __('By confirming the request, the guest will be immediately charged an amount of :amount.', ['amount' => money_formatter($amountDue)])
@@ -148,7 +151,7 @@
         >
             <form
                 x-data="{
-                    loading = false,
+                    loading: false,
 
                     async submit() {
                         this.loading = true;
@@ -157,9 +160,10 @@
                             .then()
                             .catch();
 
-                        this.loading = false:
+                        this.loading = false;
                     },
                 }"
+                x-on:submit.prevent="submit"
                 class="p-6"
             >
                 <div class="prose">
