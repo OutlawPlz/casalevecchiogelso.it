@@ -54,10 +54,10 @@
     </div>
 </div>
 
-@foreach($reservation->payment_intents as $paymentIntent)
+@foreach($reservation->payments as $payment)
     <a
         class="hover:underline flex items-center gap-2 mt-4"
-        href="{{ $paymentIntent['receipt_url'] }}"
+        href="{{ $payment->receipt_url }}"
     >
         <svg
             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"

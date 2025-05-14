@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Reservation;
-use DateInterval;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

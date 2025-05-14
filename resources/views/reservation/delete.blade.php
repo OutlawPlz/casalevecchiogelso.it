@@ -3,7 +3,6 @@
      * @var \App\Models\User $authUser
      * @var \App\Models\Reservation $reservation
      * @var int $refundAmount
-     * @var int $paid
      */
     use function App\Helpers\money_formatter;
 @endphp
@@ -67,7 +66,7 @@
             <div class="mt-6 grid grid-cols-2 items-center max-w-sm">
                 <div>
                     <span class="text-zinc-600">Paid</span> <br>
-                    <span class="text-2xl">{{ money_formatter($paid) }}</span>
+                    <span class="text-2xl">{{ money_formatter($reservation->amountPaid()) }}</span>
                 </div>
 
                 <div>

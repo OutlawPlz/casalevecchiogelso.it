@@ -28,7 +28,6 @@ use Illuminate\Support\Collection;
  * @property array<int, string>|null $visited_at
  * @property CarbonImmutable|null $replied_at
  * @property string|null $payment_intent
- * @property array $payment_intents
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
  * @property CarbonImmutable $created_at
  * @property-read Collection<ChangeRequest> $changeRequests
@@ -36,6 +35,7 @@ use Illuminate\Support\Collection;
  * @property-read Collection<Message> $messages
  * @property-read CarbonImmutable[] $refundPeriod
  * @property-read CarbonImmutable $due_date
+ * @property-read Collection<Payment> $payments
  */
 class Reservation extends Model
 {
@@ -52,7 +52,6 @@ class Reservation extends Model
         'status',
         'visited_at',
         'replied_at',
-        'payment_intents',
         'cancellation_policy',
         'checkout_session',
         'due_date',
@@ -66,7 +65,6 @@ class Reservation extends Model
             'check_in' => $today,
             'check_out' => $today,
             'guest_count' => 1,
-            'payment_intents' => '[]',
         ];
 
         parent::__construct($attributes);
@@ -83,7 +81,6 @@ class Reservation extends Model
             'replied_at' => 'immutable_datetime',
             'cancellation_policy' => CancellationPolicy::class,
             'checkout_session' => 'array',
-            'payment_intents' => 'array',
             'due_date' => 'immutable_datetime',
         ];
     }
@@ -163,10 +160,14 @@ class Reservation extends Model
 
     public function amountPaid(): int
     {
-        return array_reduce(
-            $this->payment_intents,
-            fn ($tot, $paymentIntent) => $tot + $paymentIntent['amount'] - $paymentIntent['amount_refunded'],
-            0
+        return $this->payments->reduce(
+            fn ($amount, Payment $payment) => $amount + $payment->amountPaid
+            , 0
         );
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 }

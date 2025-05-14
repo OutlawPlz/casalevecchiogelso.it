@@ -107,23 +107,12 @@ class ReservationController extends Controller
 
         $refundFactor = refund_factor($reservation);
 
-        $refundAmount = array_reduce(
-            $reservation->payment_intents,
-            fn ($amount, $paymentIntent) => $amount + ($paymentIntent['amount'] * $refundFactor),
-            0
-        );
-
-        $paidAmount = array_reduce(
-            $reservation->payment_intents,
-            fn ($amount, $paymentIntent) => $amount + $paymentIntent['amount'],
-            0
-        );
+        $refundAmount = $reservation->amountPaid() * $refundFactor;
 
         return view('reservation.delete', [
             'authUser' => $authUser,
             'reservation' => $reservation,
             'refundAmount' => $refundAmount,
-            'paid' => $paidAmount,
         ]);
     }
 

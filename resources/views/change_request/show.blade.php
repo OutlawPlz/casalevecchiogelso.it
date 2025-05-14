@@ -18,23 +18,9 @@
                 {{ __('You have 24 hours to confirm the change request.') }}
                 {{ __('If you don\'t respond, the reservation will remain unchanged.') }}
             </p>
-
-            <p class="text-zinc-600">
-                @if($amountDue)
-                    {{ $changeRequest->user->isHost()
-                        ? __('By confirming the request, the guest will be immediately charged an amount of :amount.', ['amount' => money_formatter($amountDue)])
-                        : __('By confirming the request, you\'ll be immediately charged an amount of :amount.', ['amount' => money_formatter($amountDue)]) }}
-                @endif
-
-                @if($refundAmount)
-                    {{ $changeRequest->user->isHost()
-                        ? __('According to cancellation policy, the guest will receive a refund amount of :amount.', ['amount' => money_formatter($refundAmount)])
-                        : __('According to cancellation policy, you\'ll receive a refund amount of :amount.', ['amount' => money_formatter($refundAmount)]) }}
-                @endif
-            </p>
         </div>
 
-        <div class="border rounded-lg p-4 mt-4">
+        <div class="border rounded-lg p-4 mt-6">
             <div class="flex gap-3">
                 <div class="w-12 font-semibold">{{ __('From') }}:</div>
                 <div class="text-zinc-600">

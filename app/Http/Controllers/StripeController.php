@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Enums\ReservationStatus;
 use App\Actions\ApproveChangeRequest;
 use App\Models\ChangeRequest;
+use App\Models\Payment;
 use App\Models\Price;
 use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Event;
@@ -21,7 +21,6 @@ use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
-use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use function App\Helpers\money_formatter;
@@ -141,47 +140,28 @@ class StripeController extends Controller
     {
         /** @var PaymentIntent $paymentIntent */
         $paymentIntent = $event->data->object;
+
         /** @var Reservation $reservation */
         $reservation = Reservation::query()
             ->where('ulid', $paymentIntent->metadata->reservation)
             ->firstOrFail();
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
-        /** @var User $user */
-        $user = User::query()->where('stripe_id', $paymentIntent->customer)->firstOrFail();
 
-        $charge = $stripe->charges->retrieve(
-            $paymentIntent->latest_charge,
-            ['expand' => ['balance_transaction']]
-        );
+        $payment = Payment::makeFrom($paymentIntent);
 
-        $paymentIntents = $reservation->payment_intents;
-
-        $succeededPayment = [
-            'id' => $paymentIntent->id,
-            'customer' => $paymentIntent->customer,
-            'status' => $paymentIntent->status,
-            'amount' => $paymentIntent->amount,
-            'amount_refunded' => $charge->amount_refunded,
-            'stripe_fee' => $charge->balance_transaction->fee,
-            'net_amount' => $charge->balance_transaction->net,
-            'receipt_url' => $charge->receipt_url,
-            'charge' => $charge->id,
-        ];
+        $reservation->payments()->save($payment);
 
         /** @var ?ChangeRequest $changeRequest */
         $changeRequest = null;
 
         if (property_exists($paymentIntent->metadata, 'change_request')) {
             $changeRequest = ChangeRequest::query()
-                ->find($paymentIntent->metadata->change_request);
-
-            $succeededPayment['change_request'] = $changeRequest->id;
+                ->findOrNew($paymentIntent->metadata->change_request);
         }
 
-        $paymentIntents[] = $succeededPayment;
-
-        $reservation->update(['payment_intents' => $paymentIntents]);
+        /** @var User $user */
+        $user = User::query()
+            ->where('stripe_id', $paymentIntent->customer)
+            ->firstOrFail();
 
         $amount = money_formatter($paymentIntent->amount);
 
@@ -292,36 +272,18 @@ class StripeController extends Controller
         Price::query()->where('stripe_id', $price->id)->delete();
     }
 
-    /**
-     * @throws ApiErrorException
-     */
     protected function handleRefundUpdated(Event $event): void
     {
         /** @var Refund $refund */
         $refund = $event->data->object;
-        /** @var Reservation $reservation */
-        $reservation = Reservation::query()
-            ->where('ulid', $refund->metadata->reservation)
+
+        /** @var Payment $payment */
+        $payment = Payment::query()
+            ->where('payment_intent', $refund->payment_intent)
+            ->with('reservation')
             ->firstOrFail();
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
 
-        $charge = $stripe->charges->retrieve($refund->charge, ['expand' => ['balance_transaction']]);
-
-        $paymentIntents = $reservation->payment_intents;
-
-        array_walk($paymentIntents, function (&$paymentIntent) use ($charge) {
-            if ($paymentIntent['id'] === $charge->payment_intent) {
-                $paymentIntent = array_merge($paymentIntent, [
-                    'amount' => $charge->amount,
-                    'amount_refunded' => $charge->amount_refunded,
-                    'stripe_fee' => $charge->balance_transaction->fee,
-                    'net_amount' => $charge->balance_transaction->net,
-                ]);
-            }
-        });
-
-        $reservation->update(['payment_intents' => $paymentIntents]);
+        $payment->update(['amount_refunded' => $refund->amount]);
 
         $message = match ($refund->status) {
             'pending' => 'The refund process is pending.',
@@ -333,9 +295,9 @@ class StripeController extends Controller
         };
 
         activity()
-            ->performedOn($reservation)
+            ->performedOn($payment->reservation)
             ->withProperties([
-                'reservation' => $reservation->ulid,
+                'reservation' => $payment->reservation->ulid,
                 'refund' => $refund->id,
                 'amount' => $refund->amount,
             ])

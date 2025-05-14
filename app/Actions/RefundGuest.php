@@ -17,27 +17,13 @@ class RefundGuest
      */
     public function __invoke(Reservation $reservation, int $cents): void
     {
-        if ($reservation->amountPaid() < $cents) {
-            throw new \RuntimeException('The refund amount is greater than the total amount paid.');
-        }
-
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
         /** @var ?User $authUser */
         $authUser = Auth::user();
 
-        $paymentIntents = $reservation->payment_intents;
+        foreach ($reservation->payments as $payment) {
+            $amount = min($cents, $payment->amount);
 
-        foreach ($paymentIntents as $paymentIntent) {
-            $refundAmount = min($cents, $paymentIntent['amount']);
-
-            $refund = $stripe->refunds->create([
-                'payment_intent' => $paymentIntent['id'],
-                'amount' => $refundAmount,
-                'metadata' => [
-                    'reservation' => $reservation->ulid,
-                ],
-            ]);
+            $refund = $payment->refund($amount);
 
             $formattedAmount = money_formatter($refund->amount);
 
@@ -52,7 +38,7 @@ class RefundGuest
                 ])
                 ->log("A refund of $formattedAmount has been created.");
 
-            $cents -= $refundAmount;
+            $cents -= $amount;
 
             if (! $cents) break;
         }
