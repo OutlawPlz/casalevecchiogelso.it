@@ -3,9 +3,9 @@
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\BillingPortalController;
-use App\Http\Controllers\ChangeRequest\ApproveChangeRequest;
+use App\Http\Controllers\ChangeRequest\ApproveChangeRequestController;
 use App\Http\Controllers\ChangeRequest\ChangeRequestController;
-use App\Http\Controllers\ChangeRequest\RejectChangeRequest;
+use App\Http\Controllers\ChangeRequest\RejectChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
@@ -56,8 +56,8 @@ Route::group([
         Route::get('/reservations/{reservation:ulid}/change-requests/create', [ChangeRequestController::class, 'create'])->name('change_request.create');
         Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('change_request.show');
         Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])->name('change_request.store');
-        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)->name('change_request.approve');
-        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequest::class)->name('change_request.reject');
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequestController::class)->name('change_request.approve');
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequestController::class)->name('change_request.reject');
     });
 
     /* ----- Message ----- */

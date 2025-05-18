@@ -8,7 +8,7 @@
 
 <x-app-layout>
     <div
-        class="absolute inset-0 flex"
+        class="absolute inset-0 flex bg-zinc-50"
         x-data="{
             isDetailsVisible: false,
             isFeedVisible: false,
