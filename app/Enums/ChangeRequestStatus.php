@@ -4,13 +4,12 @@ namespace App\Enums;
 
 enum ChangeRequestStatus: string
 {
-    /** The host has approved the change. */
     case PENDING = 'pending';
 
-    /** The host rejected the change. */
+    /** The change has been rejected. */
     case REJECTED = 'rejected';
 
-    /** The guest canceled the change. */
+    /** The change request creator has canceled it. */
     case CANCELLED = 'cancelled';
 
     /** The change request has expired. */

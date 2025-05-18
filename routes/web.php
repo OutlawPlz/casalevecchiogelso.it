@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\ChangeRequest\ApproveChangeRequest;
+use App\Http\Controllers\ChangeRequest\CancelChangeRequest;
 use App\Http\Controllers\ChangeRequest\ChangeRequestController;
 use App\Http\Controllers\ChangeRequest\RejectChangeRequest;
 use App\Http\Controllers\LocalePreferenceController;
@@ -53,11 +54,24 @@ Route::group([
 
     /* ----- Change Request ----- */
     Route::scopeBindings()->group(function () {
-        Route::get('/reservations/{reservation:ulid}/change-requests/create', [ChangeRequestController::class, 'create'])->name('change_request.create');
-        Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])->name('change_request.show');
-        Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])->name('change_request.store');
-        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)->name('change_request.approve');
-        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequest::class)->name('change_request.reject');
+        Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])
+            ->name('change_request.show')
+            ->can('view', 'changeRequest');
+        Route::get('/reservations/{reservation:ulid}/change-requests/create', [ChangeRequestController::class, 'create'])
+            ->name('change_request.create')
+            ->can('create', 'changeRequest');
+        Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])
+            ->name('change_request.store')
+            ->can('create', 'changeRequest');
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)
+            ->name('change_request.approve')
+            ->can('approve', 'changeRequest');
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequest::class)
+            ->name('change_request.reject')
+            ->can('reject', 'changeRequest');
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/cancel', CancelChangeRequest::class)
+            ->name('change_request.cancel')
+            ->can('cancel', 'changeRequest');
     });
 
     /* ----- Message ----- */

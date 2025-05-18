@@ -4,8 +4,6 @@ namespace App\Models;
 
 use App\Enums\CancellationPolicy;
 use App\Enums\ReservationStatus;
-use App\Traits\HasPriceList;
-use App\Traits\HasStartEndDates;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,16 +28,24 @@ use Illuminate\Support\Collection;
  * @property string|null $payment_intent
  * @property array{id:string,url:string,expires_at:int}|null $checkout_session
  * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $check_in
+ * @property CarbonImmutable $check_out
+ * @property array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}[] $price_list
  * @property-read Collection<ChangeRequest> $changeRequests
  * @property-read User $user
  * @property-read Collection<Message> $messages
  * @property-read CarbonImmutable[] $refundPeriod
  * @property-read CarbonImmutable $due_date
  * @property-read Collection<Payment> $payments
+ * @property-read int $nights
+ * @property-read CarbonImmutable[] $reservedPeriod
+ * @property-read CarbonImmutable[] $checkInPreparationTime
+ * @property-read CarbonImmutable[] $checkOutPreparationTime
+ * @property-read int $tot
  */
 class Reservation extends Model
 {
-    use HasFactory, HasPriceList, HasStartEndDates;
+    use HasFactory;
 
     protected $fillable = [
         'ulid',
@@ -55,6 +61,9 @@ class Reservation extends Model
         'cancellation_policy',
         'checkout_session',
         'due_date',
+        'check_in',
+        'check_out',
+        'price_list',
     ];
 
     final public function __construct(array $attributes = [])
@@ -82,6 +91,9 @@ class Reservation extends Model
             'cancellation_policy' => CancellationPolicy::class,
             'checkout_session' => 'array',
             'due_date' => 'immutable_datetime',
+            'check_in' => 'immutable_datetime',
+            'check_out' => 'immutable_datetime',
+            'price_list' => 'array',
         ];
     }
 
@@ -169,5 +181,85 @@ class Reservation extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    protected function nights(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                return date_diff($this->check_in, $this->check_out)->d;
+            }
+        );
+    }
+
+    protected function reservedPeriod(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => [$this->check_in, $this->check_out]
+        );
+    }
+
+    protected function checkInPreparationTime(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $preparationTime = config('reservation.preparation_time');
+
+                if (! $preparationTime) return [];
+
+                return [
+                    $this->check_in->sub($preparationTime),
+                    $this->check_in
+                ];
+            }
+        );
+    }
+
+    protected function checkOutPreparationTime(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $preparationTime = config('reservation.preparation_time');
+
+                if (! $preparationTime) return [];
+
+                return [
+                    $this->check_out,
+                    $this->check_out->add($preparationTime)
+                ];
+            }
+        );
+    }
+
+    public function inProgress(): bool
+    {
+        return now()->between($this->check_in, $this->check_out);
+    }
+
+    public function toLineItems(): array
+    {
+        $order = [];
+
+        foreach ($this->price_list as $line) {
+            $order[] = [
+                'price' => $line['price'],
+                'quantity' => $line['quantity'],
+            ];
+        }
+
+        return $order;
+    }
+
+    protected function tot(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                return array_reduce(
+                    $this->price_list,
+                    fn ($tot, $line) => $tot + ($line['unit_amount'] * $line['quantity']),
+                    0
+                );
+            }
+        );
     }
 }
