@@ -89,7 +89,7 @@
                         ? __('Confirm and pay')
                         : __('Confirm and charge') }}
                 @else
-                    {{ __('Confirm') }}
+                    {{ __('Confirm the modification') }}
                 @endif
             </button>
 

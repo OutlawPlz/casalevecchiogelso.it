@@ -3,10 +3,10 @@
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\BillingPortalController;
-use App\Http\Controllers\ChangeRequest\ApproveChangeRequest;
+use App\Http\Controllers\ChangeRequest\ApproveChangeRequestController;
 use App\Http\Controllers\ChangeRequest\CancelChangeRequest;
 use App\Http\Controllers\ChangeRequest\ChangeRequestController;
-use App\Http\Controllers\ChangeRequest\RejectChangeRequest;
+use App\Http\Controllers\ChangeRequest\RejectChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
@@ -63,10 +63,10 @@ Route::group([
         Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])
             ->name('change_request.store')
             ->can('create', 'changeRequest');
-        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequest::class)
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequestController::class)
             ->name('change_request.approve')
             ->can('approve', 'changeRequest');
-        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequest::class)
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequestController::class)
             ->name('change_request.reject')
             ->can('reject', 'changeRequest');
         Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/cancel', CancelChangeRequest::class)

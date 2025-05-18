@@ -36,30 +36,6 @@
         href="{{ route('change_request.show', [$reservation, $changeRequest]) }}"
         class="button primary w-full justify-center"
     >
-        {{ __('Confirm the change') }}
+        {{ __('View the change') }}
     </a>
-
-    <button
-        x-data x-on:click.prevent="$dispatch('open-modal', 'reject-change')"
-        type="button"
-        class="clear hover:underline flex items-center gap-2 cursor-pointer">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
-        </svg>
-        <span>{{ __('Reject the change') }}</span>
-    </button>
 </div>
-
-<x-modal name="reject-change" class="max-w-xl">
-    <div class="p-6">
-        <div class="prose">
-            <h3>{{ __('Reject the modification') }}</h3>
-            <p class="text-zinc-600">{{ __('Are you sure you want to reject this change?') }}</p>
-        </div>
-
-        <div class="flex justify-end mt-4 gap-3">
-            <button class="ghost" x-on:click="$dispatch('close')">{{ __('Close') }}</button>
-            <button class="primary">{{ __('Reject') }}</button>
-        </div>
-    </div>
-</x-modal>

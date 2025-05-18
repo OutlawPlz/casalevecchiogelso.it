@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Stripe\Exception\ApiErrorException;
 use function App\Helpers\refund_factor;
 
-class ApproveChangeRequest extends Controller
+class ApproveChangeRequestController extends Controller
 {
     /**
      * @throws ApiErrorException
