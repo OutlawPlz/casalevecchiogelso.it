@@ -18,20 +18,18 @@ class ChargeGuest
 
         if (! $paymentMethods) throw new \RuntimeException('The user does not have any payment methods.');
 
-        $defaultOptions = [
+        $parameters = array_merge([
             'amount' => $amount,
             'confirm' => true,
             'off_session' => true,
             'customer' => $user->stripe_id,
             'payment_method' => $paymentMethods[0]->id,
             'currency' => config('services.stripe.currency'),
-        ];
-
-        $options = array_merge($defaultOptions, $options);
+        ], $options);
 
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
-        $stripe->paymentIntents->create($options);
+        $stripe->paymentIntents->create($parameters);
     }
 }

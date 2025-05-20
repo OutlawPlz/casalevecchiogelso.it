@@ -56,8 +56,6 @@ class ChangeRequestController extends Controller
 
         $refundFactor = refund_factor($reservation);
 
-        if ($authUser?->isHost()) $refundFactor = 1;
-
         return view('change_request.create', [
             'authUser' => $authUser,
             'reservation' => $reservation,

@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\Reservation;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use DateInterval;
@@ -11,6 +12,7 @@ use DatePeriod;
 use DateTime;
 use DateTimeInterface;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use IntlDateFormatter;
 use NumberFormatter;
 
@@ -52,11 +54,13 @@ function get_overnight_stay(array $priceList): array
     return $overnightStay;
 }
 
-function refund_factor(Reservation $reservation, ?CarbonInterface $date = null): float
+function refund_factor(Reservation $reservation, ?CarbonInterface $date = null, ?User $causer = null): float
 {
     $date ??= now();
 
     $refundFactor = 1;
+
+    if ($causer?->isHost()) return $refundFactor;
 
     if ($reservation->inProgress()) $refundFactor = 0;
 

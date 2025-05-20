@@ -100,55 +100,6 @@ class ReservationController extends Controller
         ]);
     }
 
-    public function delete(Request $request, Reservation $reservation): View|RedirectResponse
-    {
-        /** @var User $authUser */
-        $authUser = $request->user();
-
-        $refundFactor = refund_factor($reservation);
-
-        $refundAmount = $reservation->amountPaid() * $refundFactor;
-
-        return view('reservation.delete', [
-            'authUser' => $authUser,
-            'reservation' => $reservation,
-            'refundAmount' => $refundAmount,
-        ]);
-    }
-
-    /**
-     * @throws ApiErrorException
-     */
-    public function destroy(Request $request, Reservation $reservation): RedirectResponse
-    {
-        $attributes = $request->validate([
-            'reason' => ['required', 'string', 'max:255'],
-        ]);
-
-        $refundAmount = $reservation->amountPaid() * refund_factor($reservation);
-
-        if ($refundAmount) (new RefundGuest)($reservation, (int) $refundAmount);
-
-        $reservation->update(['status' => ReservationStatus::CANCELLED]);
-
-        // TODO: Send notification to host and guest.
-
-        /** @var ?User $authUser */
-        $authUser = $request->user();
-
-        activity()
-            ->performedOn($reservation)
-            ->causedBy($authUser)
-            ->withProperties([
-                'reservation' => $reservation->ulid,
-                'user' => $authUser?->email,
-                'message' => $attributes['reason'],
-            ])
-            ->log("The $authUser?->role cancelled the reservation.");
-
-        return redirect()->route('reservation.show', [$reservation]);
-    }
-
     public static function rules(): array
     {
         $date = now()->addDays(2)->format('Y-m-d');

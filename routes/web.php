@@ -11,6 +11,7 @@ use App\Http\Controllers\LocalePreferenceController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Reservation\ApproveReservationController;
+use App\Http\Controllers\Reservation\CancelReservationController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\ReservationStatusController;
@@ -39,18 +40,20 @@ Route::group([
     /* ----- Reservation ----- */
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservation.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservation.store');
-    Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])->name('reservation.show')
+    Route::get('/reservations/{reservation:ulid}', [ReservationController::class, 'show'])
+        ->name('reservation.show')
         ->can('view', 'reservation');
-    Route::get('/reservations/{reservation:ulid}/cancel', [ReservationController::class, 'delete'])->name('reservation.delete')
-        ->can('view', 'reservation');
-    Route::delete('/reservations/{reservation:ulid}', [ReservationController::class, 'destroy'])->name('reservation.destroy')
-        ->can('destroy', 'reservation');
-    Route::post('/reservations/{reservation:ulid}/status', ReservationStatusController::class)->name('reservation.status')
-        ->can('update', 'reservation');
-    Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)->name('reservation.feed')
+    Route::get('/reservations/{reservation:ulid}/feed', ReservationFeedController::class)
+        ->name('reservation.feed')
         ->can('viewAny', [Activity::class, 'reservation']);
-
-    Route::post('/reservations/{reservation:ulid}/approve', ApproveReservationController::class)->name('reservation.approve');
+    Route::post('/reservations/{reservation:ulid}/approve', ApproveReservationController::class)
+        ->name('reservation.approve');
+    Route::get('/reservations/{reservation:ulid}/cancel', [CancelReservationController::class, 'show'])
+        ->name('reservation.cancellation_form')
+        ->can('cancel', 'reservation');
+    Route::post('/reservations/{reservation:ulid}/cancel', [CancelReservationController::class, 'store'])
+        ->name('reservation.cancel')
+        ->can('cancel', 'reservation');
 
     /* ----- Change Request ----- */
     Route::scopeBindings()->group(function () {
@@ -75,11 +78,14 @@ Route::group([
     });
 
     /* ----- Message ----- */
-    Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])->name('message.index')
+    Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])
+        ->name('message.index')
         ->can('viewAny', [Message::class, 'reservation']);
-    Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])->name('message.store')
+    Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])
+        ->name('message.store')
         ->can('create', [Message::class, 'reservation']);
-    Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])->name('message.show')
+    Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])
+        ->name('message.show')
         ->can('view', [Message::class, 'reservation']);
 
     /* ----- Billing portal ----- */
