@@ -85,7 +85,7 @@
             </a>
 
             <a
-                href="{{ route('reservation.delete', [$reservation]) }}"
+                href="{{ route('reservation.cancellation_form', [$reservation]) }}"
                 class="hover:underline flex items-center gap-2"
             >
                 <svg

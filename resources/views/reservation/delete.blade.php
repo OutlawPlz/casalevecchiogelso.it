@@ -15,7 +15,7 @@
     </x-slot>
 
     <section class="max-w-3xl mx-auto p-4 md:p-6 space-y-8 md:space-y-12">
-        <div>
+        <div class="prose">
             <h2 class="mt text-2xl">{{ __('Why do you need to cancel?') }}</h2>
 
             <p class="mt-2 text-zinc-600">
@@ -29,7 +29,7 @@
 
             <form
                 id="cancellation-form"
-                action="{{ route('reservation.destroy', [$reservation]) }}"
+                action="{{ route('reservation.cancel', [$reservation]) }}"
                 method="POST"
                 class="mt-6"
             >
@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div>
+        <div class="prose">
             <h2 class="mt text-2xl">{{ __('Confirm cancellation') }}</h2>
 
             <p class="mt-2 text-zinc-600">
@@ -75,19 +75,19 @@
                 </div>
             </div>
 
-            <h2 class="mt-6 text-lg">{{ __('Cancellation policy') }}</h2>
-
-            <p class="mt-2 text-zinc-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at blandit sem. Nullam lobortis enim sit amet sem hendrerit, ut elementum lectus bibendum. Mauris quis lorem laoreet, porttitor arcu eu, pulvinar augue.</p>
-
-            <div class="flex items-center gap-2 mt-6">
-                <button class="primary" form="cancellation-form">
-                    {{ __('Confirm cancellation') }}
-                </button>
-
-                <a href="{{ route('reservation.show', [$reservation]) }}" class="button ghost">
-                    <span>{{ __('Back') }}</span>
-                </a>
+            <div class="mt-6">
+                @include('reservation.partials.cancellation-policy')
             </div>
+        </div>
+
+        <div class="flex items-center gap-2 mt-6">
+            <button class="primary" form="cancellation-form">
+                {{ __('Confirm cancellation') }}
+            </button>
+
+            <a href="{{ route('reservation.show', [$reservation]) }}" class="button ghost">
+                <span>{{ __('Back') }}</span>
+            </a>
         </div>
     </section>
 </x-app-layout>

@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Enums\ReservationStatus;
+use App\Enums\ReservationStatus as Status;
 use App\Models\Reservation;
 use App\Models\User;
 
@@ -16,5 +16,15 @@ class ReservationPolicy
     public function cancel(User $user, Reservation $reservation): bool
     {
         return $user->isHost() || $reservation->user()->is($user);
+    }
+
+    public function reject(User $user, Reservation $reservation): bool
+    {
+        return $user->isHost() && $reservation->inStatus(Status::QUOTE, Status::PENDING);
+    }
+
+    public function approve(User $user, Reservation $reservation): bool
+    {
+        return $user->isHost() && $reservation->inStatus(Status::QUOTE);
     }
 }

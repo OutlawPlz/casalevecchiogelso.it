@@ -19,9 +19,11 @@ class CancelReservationController
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $refundFactor = refund_factor($reservation);
+        $refundFactor = refund_factor($reservation, causer: $authUser);
 
-        $refundAmount = $reservation->amountPaid() * $refundFactor;
+        $daysLeft = date_diff(now(), $reservation->check_out)->d;
+
+        $refundAmount = $reservation->amountPaid() * $refundFactor * ($daysLeft / $reservation->nights);
 
         return view('reservation.delete', [
             'authUser' => $authUser,
@@ -42,7 +44,9 @@ class CancelReservationController
 
         $refundFactor = refund_factor($reservation, causer: $authUser);
 
-        $refundAmount = $reservation->amountPaid() * $refundFactor;
+        $daysLeft = date_diff(now(), $reservation->check_out)->d;
+
+        $refundAmount = $reservation->amountPaid() * $refundFactor * ($daysLeft / $reservation->nights);
 
         if ($refundAmount) (new RefundGuest)($reservation, (int) $refundAmount);
 
@@ -67,6 +71,6 @@ class CancelReservationController
     {
         return [
             'reason' => ['required', 'string', 'max:255'],
-        ]
+        ];
     }
 }
