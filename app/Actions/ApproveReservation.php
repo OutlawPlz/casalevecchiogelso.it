@@ -17,10 +17,6 @@ class ApproveReservation
      */
     public function __invoke(Reservation $reservation): void
     {
-        if (! $reservation->inStatus(ReservationStatus::QUOTE)) {
-            throw new \RuntimeException("Reservations with the \"{$reservation->status->value}\" status cannot be approved.");
-        }
-
         $checkoutSession = $this->createSetupIntent($reservation);
 
         $reservation->update([

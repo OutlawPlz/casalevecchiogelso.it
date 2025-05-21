@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\TokenAuthenticationController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\ChangeRequest\ApproveChangeRequestController;
-use App\Http\Controllers\ChangeRequest\CancelChangeRequest;
+use App\Http\Controllers\ChangeRequest\CancelChangeRequestController;
 use App\Http\Controllers\ChangeRequest\ChangeRequestController;
 use App\Http\Controllers\ChangeRequest\RejectChangeRequestController;
 use App\Http\Controllers\LocalePreferenceController;
@@ -17,7 +17,6 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationFeedController;
 use App\Http\Controllers\StripeController;
 use App\Models\Message;
-use App\Models\Reservation;
 use Illuminate\Support\Facades\Route;
 use Spatie\Activitylog\Models\Activity;
 
@@ -75,7 +74,7 @@ Route::group([
         Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequestController::class)
             ->name('change_request.reject')
             ->can('reject', 'changeRequest');
-        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/cancel', CancelChangeRequest::class)
+        Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/cancel', CancelChangeRequestController::class)
             ->name('change_request.cancel')
             ->can('cancel', 'changeRequest');
     });
@@ -111,33 +110,8 @@ Route::get('auth/token', [TokenAuthenticationController::class, 'store'])->name(
 /* ----- Locale preference ----- */
 Route::post('/locale-preference', LocalePreferenceController::class)->name('locale-preference');
 
-Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
+Route::get('/test', function (\Stripe\StripeClient $stripe) {
+    $user = \App\Models\User::query()->first();
 
-    return $stripe->charges->retrieve('ch_3RMEFLAKSJP4UmE20ggUQT0o', ['expand' => ['balance_transaction']]);
-
-    // return $stripe->refunds->all(['payment_intent' => 'pi_3RL3tbAKSJP4UmE21ylQd6L1']);
-
-    $reservation = Reservation::query()->find(5);
-
-    $changeRequest = \App\Models\ChangeRequest::query()->find(3);
-
-    $reservation->apply($changeRequest)->save();
-
-    return $reservation;
-
-    return (new \App\Actions\RefundGuest)($reservation, 50000);
-
-    $paymentMethod = $reservation->user->paymentMethods()[0];
-
-    return $paymentIntent = $stripe->paymentIntents->create([
-        'amount' => $reservation->tot,
-        'confirm' => true,
-        'off_session' => true,
-        'customer' => $reservation->user->stripe_id,
-        'payment_method' => $paymentMethod->id,
-        'currency' => config('services.stripe.currency'),
-        'metadata' => [
-            'reservation' => $reservation->ulid,
-        ]
-    ]);
+    return (new \App\Actions\ChargeGuest)($user, 100, ['payment_method' => 'pm_card_visa']);
 });

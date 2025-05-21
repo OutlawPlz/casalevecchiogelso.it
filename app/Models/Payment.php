@@ -88,23 +88,12 @@ class Payment extends Model
      */
     public static function makeFrom(PaymentIntent $paymentIntent): static
     {
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
-
-        $charge = $stripe->charges->retrieve(
-            $paymentIntent->latest_charge,
-            ['expand' => ['balance_transaction']]
-        );
-
         return new static([
             'payment_intent' => $paymentIntent->id,
             'status' => $paymentIntent->status,
             'amount' => $paymentIntent->amount,
             'customer' => $paymentIntent->customer,
-            'amount_refunded' => $charge->amount_refunded,
-            'charge' => $charge->id,
-            'fee' => $charge->balance_transaction->fee,
-            'receipt_url' => $charge->receipt_url,
+
         ]);
     }
 

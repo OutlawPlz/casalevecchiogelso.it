@@ -32,7 +32,7 @@ class ApproveChangeRequest
                 'change_request' => $changeRequest->id,
                 'user' => $authUser?->email,
             ])
-            ->log("The $authUser->role has approved the change request.");
+            ->log("The $authUser?->role has approved the change request.");
 
         if ($reservation->inStatus(Status::QUOTE)) {
             (new ApproveReservation)($reservation);

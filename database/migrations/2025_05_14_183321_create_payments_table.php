@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('reservation_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('change_request_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUlid('reservation_ulid')->constrained();
+            $table->foreignUlid('change_request_ulid')->nullable()->constrained();
             $table->string('payment_intent')->unique();
             $table->string('charge')->index();
             $table->string('customer')->index();

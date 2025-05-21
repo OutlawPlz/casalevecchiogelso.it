@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CancellationPolicy;
 use App\Enums\ReservationStatus;
 use Carbon\CarbonImmutable;
+use Database\Factories\ReservationFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,7 @@ use Illuminate\Support\Collection;
  */
 class Reservation extends Model
 {
+    /** @use HasFactory<ReservationFactory> */
     use HasFactory;
 
     protected $fillable = [

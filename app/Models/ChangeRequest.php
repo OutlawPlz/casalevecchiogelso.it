@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ChangeRequestStatus;
-use App\Traits\HasPriceList;
-use App\Traits\HasStartEndDates;
 use Carbon\CarbonImmutable;
+use Database\Factories\ChangeRequestFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ChangeRequest extends Model
 {
+    /** @use HasFactory<ChangeRequestFactory> */
     use HasFactory;
 
     protected $fillable = [

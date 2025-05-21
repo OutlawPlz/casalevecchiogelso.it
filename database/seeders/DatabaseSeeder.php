@@ -20,17 +20,13 @@ class DatabaseSeeder extends Seeder
         Price::syncFromStripe();
         Product::syncFromStripe();
 
-        User::factory()->create([
-            'name' => 'Host User',
-            'email' => 'host@example.com',
-            'role' => 'host',
-        ]);
+        User::factory()
+            ->host()
+            ->create();
 
         User::factory()
+            ->guest()
             ->has(Reservation::factory())
-            ->create([
-                'name' => 'Guest User',
-                'email' => 'guest@example.com',
-            ]);
+            ->create();
     }
 }

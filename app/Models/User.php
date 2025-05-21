@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+ use Database\Factories\UserFactory;
  use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,10 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
  use Illuminate\Http\RedirectResponse;
  use Illuminate\Notifications\Notifiable;
- use Illuminate\Support\Collection;
  use Illuminate\Support\Facades\App;
  use Stripe\Exception\ApiErrorException;
-use Stripe\StripeClient;
+ use Stripe\PaymentMethod;
+ use Stripe\StripeClient;
 
 /**
  * @property int $id
@@ -24,6 +25,7 @@ use Stripe\StripeClient;
  */
 class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     protected $fillable = [
@@ -73,9 +75,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             'email' => $this->email,
         ]);
 
-        $this->stripe_id = $customer->id;
-
-        $this->save();
+        $this->forceFill(['stripe_id' => $customer->id])->save();
 
         return $this->stripe_id;
     }
@@ -121,6 +121,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     }
 
     /**
+     * @return PaymentMethod[]
      * @throws ApiErrorException
      */
     public function paymentMethods(?string $type = null, $parameters = []): array
@@ -137,5 +138,23 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         );
 
         return $paymentMethods->data;
+    }
+
+    /**
+     * @throws ApiErrorException
+     */
+    public function defaultPaymentMethod(): ?PaymentMethod
+    {
+        if (! $this->hasStripeId()) return null;
+
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
+
+        $customer = $stripe->customers->retrieve(
+            $this->stripe_id,
+            ['expand' => ['invoice_settings.default_payment_method']]
+        );
+
+        return $customer->invoice_settings?->default_payment_method;
     }
 }

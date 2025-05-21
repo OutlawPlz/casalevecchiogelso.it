@@ -12,6 +12,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Event;
@@ -21,6 +22,7 @@ use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
+use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use function App\Helpers\money_formatter;
@@ -146,17 +148,26 @@ class StripeController extends Controller
             ->where('ulid', $paymentIntent->metadata->reservation)
             ->firstOrFail();
 
-        $payment = Payment::makeFrom($paymentIntent);
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
 
-        $reservation->payments()->save($payment);
+        $charge = $stripe->charges->retrieve(
+            $paymentIntent->latest_charge,
+            ['expand' => ['balance_transaction']]
+        );
 
-        /** @var ?ChangeRequest $changeRequest */
-        $changeRequest = null;
-
-        if (property_exists($paymentIntent->metadata, 'change_request')) {
-            $changeRequest = ChangeRequest::query()
-                ->findOrNew($paymentIntent->metadata->change_request);
-        }
+        Payment::query()
+            ->where('payment_intent', $paymentIntent->id)
+            ->update([
+                'reservation_ulid' => $paymentIntent->metadata->reservation,
+                'change_request_ulid' => @$paymentIntent->metadata->change_request,
+                'status' => $paymentIntent->status,
+                'amount' => $paymentIntent->amount,
+                'amount_refunded' => $charge->amount_refunded,
+                'charge' => $charge->id,
+                'fee' => $charge->balance_transaction->fee,
+                'receipt_url' => $charge->receipt_url,
+            ]);
 
         /** @var User $user */
         $user = User::query()
@@ -175,6 +186,9 @@ class StripeController extends Controller
                 'payment_intent' => $paymentIntent->id,
             ])
             ->log("The $user->role paid $amount.");
+
+        /** @var ?ChangeRequest $changeRequest */
+        $changeRequest = ChangeRequest::query()->find(@$paymentIntent->metadata->change_request);
 
         if ($changeRequest) (new ApproveChangeRequest)($changeRequest);
     }
