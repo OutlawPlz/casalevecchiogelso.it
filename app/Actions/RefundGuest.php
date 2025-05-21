@@ -2,26 +2,39 @@
 
 namespace App\Actions;
 
-use App\Models\Reservation;
+use App\Models\Payment;
 use App\Models\User;
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
-use Stripe\StripeClient;
+use Throwable;
 use function App\Helpers\money_formatter;
 
 class RefundGuest
 {
     /**
+     * @param Collection<Payment> $payments
+     * @param int $cents
+     * @return void
      * @throws ApiErrorException
+     * @throws ValidationException|Throwable
      */
-    public function __invoke(Reservation $reservation, int $cents): void
+    public function __invoke(Collection $payments, int $cents): void
     {
+        if ($payments->sum('amountPaid') > $cents) {
+            throw ValidationException::withMessages([
+                'refund_amount' => 'The amount to refund is greater than the amount paid.',
+            ]);
+        }
+
         /** @var ?User $authUser */
         $authUser = Auth::user();
 
-        foreach ($reservation->payments as $payment) {
-            $amount = min($cents, $payment->amount);
+        foreach ($payments as $payment) {
+            if (! $payment->amountPaid) continue;
+
+            $amount = min($cents, $payment->amountPaid);
 
             $refund = $payment->refund($amount);
 
@@ -29,10 +42,10 @@ class RefundGuest
 
             activity()
                 ->causedBy($authUser)
-                ->performedOn($reservation)
+                ->performedOn($payment->reservation)
                 ->withProperties([
                     'user' => $authUser?->email,
-                    'reservation' => $reservation->ulid,
+                    'reservation' => $payment->reservation_ulid,
                     'refund' => $refund->id,
                     'amount' => $refund->amount,
                 ])

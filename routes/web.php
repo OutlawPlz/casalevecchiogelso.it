@@ -113,5 +113,7 @@ Route::post('/locale-preference', LocalePreferenceController::class)->name('loca
 Route::get('/test', function (\Stripe\StripeClient $stripe) {
     $user = \App\Models\User::query()->first();
 
-    return (new \App\Actions\ChargeGuest)($user, 100, ['payment_method' => 'pm_card_visa']);
+    $payment = (new \App\Actions\ChargeGuest)($user, 1000, 'pm_card_visa');
+
+    return $payment->refund(5000);
 });

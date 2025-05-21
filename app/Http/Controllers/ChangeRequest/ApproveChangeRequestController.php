@@ -27,7 +27,7 @@ class ApproveChangeRequestController extends Controller
         if ($priceDelta < 0) {
             $amount = $priceDelta * refund_factor($reservation, $changeRequest->created_at);
 
-            (new RefundGuest)($reservation, (int) $amount);
+            (new RefundGuest)($reservation->payments, (int) $amount);
 
             (new Approve)($changeRequest);
         }

@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
+ * @property string $ulid
  * @property int $reservation_id
  * @property int $user_id
  * @property array{check_in:string,check_out:string,guest_count:int,price_list:array} $from
@@ -30,6 +32,7 @@ class ChangeRequest extends Model
     use HasFactory;
 
     protected $fillable = [
+        'ulid',
         'reservation_id',
         'user_id',
         'from',
@@ -94,6 +97,7 @@ class ChangeRequest extends Model
     public static function for(Reservation $reservation): static
     {
         return new static([
+            'ulid' => Str::ulid(),
             'reservation_id' => $reservation->id,
             'from' => [
                 'check_in' => $reservation->check_in,

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
  use Illuminate\Http\RedirectResponse;
  use Illuminate\Notifications\Notifiable;
+ use Illuminate\Support\Collection;
  use Illuminate\Support\Facades\App;
  use Stripe\Exception\ApiErrorException;
  use Stripe\PaymentMethod;
@@ -22,6 +23,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property ?string $stripe_id
  * @property string $role
  * @property string $locale
+ * @property-read Collection<Payment> $payments
  */
 class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
@@ -156,5 +158,10 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         );
 
         return $customer->invoice_settings?->default_payment_method;
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'customer', 'stripe_id');
     }
 }

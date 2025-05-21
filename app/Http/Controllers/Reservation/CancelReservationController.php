@@ -48,7 +48,7 @@ class CancelReservationController
 
         $refundAmount = $reservation->amountPaid() * $refundFactor * ($daysLeft / $reservation->nights);
 
-        if ($refundAmount) (new RefundGuest)($reservation, (int) $refundAmount);
+        if ($refundAmount) (new RefundGuest)($reservation->payments, (int) $refundAmount);
 
         $reservation->update(['status' => ReservationStatus::CANCELLED]);
 

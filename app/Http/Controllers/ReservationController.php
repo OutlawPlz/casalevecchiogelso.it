@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\RefundGuest;
 use App\Enums\CancellationPolicy;
 use App\Enums\ChangeRequestStatus;
-use App\Enums\ReservationStatus;
 use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Services\Calendar;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Stripe\Exception\ApiErrorException;
 use function App\Helpers\is_overnight_stay;
-use function App\Helpers\refund_factor;
 
 class ReservationController extends Controller
 {

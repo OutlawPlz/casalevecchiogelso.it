@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignUlid('reservation_ulid')->constrained();
-            $table->foreignUlid('change_request_ulid')->nullable()->constrained();
-            $table->string('payment_intent')->unique();
-            $table->string('charge')->index();
             $table->string('customer')->index();
+            $table->foreignUlid('reservation_ulid')->nullable();
+            $table->foreignUlid('change_request_ulid')->nullable();
+            $table->string('payment_intent')->unique();
+            $table->string('charge')->index()->nullable();
             $table->unsignedInteger('amount')->default(0);
             $table->unsignedInteger('amount_refunded')->default(0);
             $table->unsignedInteger('fee')->default(0);
             $table->string('status');
             $table->string('receipt_url')->nullable();
+            $table->json('refunds')->nullable();
             $table->timestamps();
         });
     }
