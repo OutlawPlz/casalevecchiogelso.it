@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Str;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\Refund;
@@ -21,10 +20,10 @@ use Stripe\StripeClient;
  * @property int $amount
  * @property int $amount_refunded
  * @property int $fee
- * @property int $reservation_ulid
+ * @property string $reservation_ulid
  * @property string $customer
  * @property string $charge
- * @property int $change_request_ulid
+ * @property string $change_request_ulid
  * @property string $receipt_url
  * @property array $refunds
  * @property-read Reservation $reservation
@@ -134,5 +133,31 @@ class Payment extends Model
         $this->save();
 
         return $refund;
+    }
+
+    public function syncFromStripe(): bool
+    {
+        if (! $this->payment_intent) return false;
+
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
+
+        $paymentIntent = $stripe->paymentIntents->retrieve(
+            'pi_3RMEFLAKSJP4UmE20jY687Vr',
+            ['expand' => ['latest_charge.balance_transaction', 'latest_charge.refunds']]
+        );
+
+        return $this
+            ->forceFill([
+                'amount' => $paymentIntent->amount,
+                'customer' => $paymentIntent->customer,
+                'status' => $paymentIntent->status,
+                'reservation_ulid' => @$paymentIntent->metadata->reservation,
+                'change_request_ulid' => @$paymentIntent->metadata->change_request,
+                'receipt_url' => $paymentIntent->latest_charge?->receipt_url,
+                'amount_refunded' => $paymentIntent->latest_charge?->amount_refunded,
+                'fee' => $paymentIntent->latest_charge?->balance_transaction->fee,
+            ])
+            ->save();
     }
 }

@@ -5,8 +5,8 @@ namespace App\Actions;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
 use Stripe\Exception\ApiErrorException;
-use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 
 class ChargeGuest

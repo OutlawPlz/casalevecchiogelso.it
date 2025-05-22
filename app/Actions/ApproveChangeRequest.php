@@ -29,7 +29,7 @@ class ApproveChangeRequest
             ->causedBy($authUser)
             ->withProperties([
                 'reservation' => $reservation->ulid,
-                'change_request' => $changeRequest->id,
+                'change_request' => $changeRequest->ulid,
                 'user' => $authUser?->email,
             ])
             ->log("The $authUser?->role has approved the change request.");

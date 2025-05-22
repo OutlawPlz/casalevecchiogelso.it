@@ -38,11 +38,11 @@ class ApproveChangeRequestController extends Controller
             $options = [
                 'metadata' => [
                     'reservation' => $reservation->ulid,
-                    'change_request' => $changeRequest->id,
+                    'change_request' => $changeRequest->ulid,
                 ]
             ];
 
-            (new ChargeGuest)($reservation->user, $priceDelta, $options);
+            (new ChargeGuest)($reservation->user, $priceDelta, options: $options);
         }
     }
 }

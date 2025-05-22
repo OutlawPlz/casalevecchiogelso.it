@@ -174,10 +174,11 @@ class Reservation extends Model
 
     public function amountPaid(): int
     {
-        return $this->payments->reduce(
-            fn ($amount, Payment $payment) => $amount + $payment->amountPaid
-            , 0
+        $payments = $this->payments->filter(
+            fn (Payment $payment) => $payment->status === 'succeeded'
         );
+
+        return $payments->sum('amountPaid');
     }
 
     public function payments(): HasMany

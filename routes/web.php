@@ -113,7 +113,10 @@ Route::post('/locale-preference', LocalePreferenceController::class)->name('loca
 Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
     $user = \App\Models\User::query()->first();
 
-    return $user->defaultPaymentMethod();
+    return $stripe->paymentIntents->retrieve(
+        'pi_3RMEFLAKSJP4UmE20jY687Vr',
+        ['expand' => ['latest_charge.balance_transaction', 'latest_charge.refunds']]
+    );
 
     $payment = (new \App\Actions\ChargeGuest)($user, 1000, 'pm_card_visa');
 

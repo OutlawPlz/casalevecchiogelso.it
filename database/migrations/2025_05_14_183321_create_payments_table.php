@@ -19,11 +19,13 @@ return new class extends Migration
             $table->string('payment_intent')->unique();
             $table->string('charge')->index()->nullable();
             $table->unsignedInteger('amount')->default(0);
+            $table->unsignedInteger('amount_captured')->default(0);
             $table->unsignedInteger('amount_refunded')->default(0);
             $table->unsignedInteger('fee')->default(0);
             $table->string('status');
             $table->string('receipt_url')->nullable();
             $table->json('refunds')->nullable();
+            $table->uuid('idempotency_key')->nullable();
             $table->timestamps();
         });
     }

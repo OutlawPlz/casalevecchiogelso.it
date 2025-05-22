@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReservationStatus;
 use App\Actions\ApproveChangeRequest;
-use App\Models\ChangeRequest;
 use App\Models\Payment;
 use App\Models\Price;
 use App\Models\Product;
@@ -12,7 +11,6 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Event;
@@ -22,7 +20,6 @@ use Stripe\PaymentIntent;
 use Stripe\Payout;
 use Stripe\Refund;
 use Stripe\Stripe;
-use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use function App\Helpers\money_format;
@@ -115,20 +112,20 @@ class StripeController extends Controller
     {
         /** @var PaymentIntent $paymentIntent */
         $paymentIntent = $event->data->object;
-        /** @var Reservation $reservation */
-        $reservation = Reservation::query()
-            ->where('ulid', $paymentIntent->metadata->reservation)
-            ->firstOrFail();
+
+        $payment = Payment::query()->firstOrCreate(['payment_intent' => $paymentIntent->id]);
+
+        $payment->syncFromStripe();
 
         // TODO: Handle failure. Notify the user and setup a retry.
 
-        $amount = money_format($paymentIntent->amount);
+        $amount = money_format($payment->amount);
 
         activity()
-            ->performedOn($reservation)
+            ->performedOn($payment->reservation)
             ->withProperties([
-                'reservation' => $reservation->ulid,
-                'payment_intent' => $paymentIntent->id,
+                'reservation' => $payment->reservation_ulid,
+                'payment_intent' => $payment->payment_intent,
                 'message' => $paymentIntent->last_payment_error->message,
                 'doc_url' => $paymentIntent->last_payment_error->doc_url,
             ])
@@ -140,57 +137,24 @@ class StripeController extends Controller
      */
     protected function handlePaymentIntentSucceeded(Event $event): void
     {
-        /** @var PaymentIntent $paymentIntent */
-        $paymentIntent = $event->data->object;
+        $payment = Payment::query()->firstOrCreate(['payment_intent' => $event->data->object->id]);
 
-        /** @var Reservation $reservation */
-        $reservation = Reservation::query()
-            ->where('ulid', $paymentIntent->metadata->reservation)
-            ->firstOrFail();
+        $payment->syncFromStripe();
 
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
-
-        $charge = $stripe->charges->retrieve(
-            $paymentIntent->latest_charge,
-            ['expand' => ['balance_transaction']]
-        );
-
-        Payment::query()
-            ->where('payment_intent', $paymentIntent->id)
-            ->update([
-                'reservation_ulid' => $paymentIntent->metadata->reservation,
-                'change_request_ulid' => @$paymentIntent->metadata->change_request,
-                'status' => $paymentIntent->status,
-                'amount' => $paymentIntent->amount,
-                'amount_refunded' => $charge->amount_refunded,
-                'charge' => $charge->id,
-                'fee' => $charge->balance_transaction->fee,
-                'receipt_url' => $charge->receipt_url,
-            ]);
-
-        /** @var User $user */
-        $user = User::query()
-            ->where('stripe_id', $paymentIntent->customer)
-            ->firstOrFail();
-
-        $amount = money_format($paymentIntent->amount);
+        $amount = money_format($payment->amount);
 
         activity()
-            ->performedOn($reservation)
-            ->causedBy($user)
+            ->performedOn($payment->reservation)
+            ->causedBy($payment->user)
             ->withProperties([
-                'reservation' => $reservation->ulid,
-                'user' => $user->email,
-                'amount' => $paymentIntent->amount,
-                'payment_intent' => $paymentIntent->id,
+                'reservation' => $payment->reservation_ulid,
+                'user' => $payment->user->email,
+                'amount' => $payment->amount,
+                'payment_intent' => $payment->payment_intent,
             ])
-            ->log("The $user->role paid $amount.");
+            ->log("The {$payment->user->role} paid $amount.");
 
-        /** @var ?ChangeRequest $changeRequest */
-        $changeRequest = ChangeRequest::query()->find(@$paymentIntent->metadata->change_request);
-
-        if ($changeRequest) (new ApproveChangeRequest)($changeRequest);
+        if ($payment->changeRequest) (new ApproveChangeRequest)($payment->changeRequest);
     }
 
     protected function handlePayoutPaid(Event $event): void
@@ -290,14 +254,21 @@ class StripeController extends Controller
     {
         /** @var Refund $refund */
         $refund = $event->data->object;
-
         /** @var Payment $payment */
         $payment = Payment::query()
             ->where('payment_intent', $refund->payment_intent)
             ->with('reservation')
             ->firstOrFail();
 
-        $payment->update(['amount_refunded' => $refund->amount]);
+        array_walk($payment->refunds, function (&$item) use ($refund) {
+            if ($item['id'] === $refund->id) $item = [
+                'id' => $refund->id,
+                'amount' => $refund->amount,
+                'status' => $refund->status,
+            ];
+        });
+
+        $payment->save();
 
         $message = match ($refund->status) {
             'pending' => 'The refund process is pending.',
