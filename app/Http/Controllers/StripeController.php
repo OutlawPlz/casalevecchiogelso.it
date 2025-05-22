@@ -7,6 +7,7 @@ use App\Actions\ApproveChangeRequest;
 use App\Models\Payment;
 use App\Models\Price;
 use App\Models\Product;
+use App\Models\Refund;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\PaymentIntent;
 use Stripe\Payout;
-use Stripe\Refund;
+use Stripe\Refund as StripeRefund;
 use Stripe\Stripe;
 use Stripe\Webhook;
 use UnexpectedValueException;
@@ -108,16 +109,21 @@ class StripeController extends Controller
         // TODO: Notify the guest and the host that pre-approval has expired..
     }
 
+    protected function handlePaymentIntentCreated(Event $event): void
+    {
+        $payment = Payment::query()->firstOrCreate(['payment_intent' => $event->data->object->id]);
+
+        $payment->syncFromStripe();
+    }
+
     protected function handlePaymentIntentPaymentFailed(Event $event): void
     {
         /** @var PaymentIntent $paymentIntent */
         $paymentIntent = $event->data->object;
 
-        $payment = Payment::query()->firstOrCreate(['payment_intent' => $paymentIntent->id]);
+        $payment = Payment::query()->where('payment_intent', $event->data->object->id)->firstOrFail();
 
         $payment->syncFromStripe();
-
-        // TODO: Handle failure. Notify the user and setup a retry.
 
         $amount = money_format($payment->amount);
 
@@ -137,7 +143,7 @@ class StripeController extends Controller
      */
     protected function handlePaymentIntentSucceeded(Event $event): void
     {
-        $payment = Payment::query()->firstOrCreate(['payment_intent' => $event->data->object->id]);
+        $payment = Payment::query()->where('payment_intent', $event->data->object->id)->firstOrFail();
 
         $payment->syncFromStripe();
 
@@ -250,41 +256,57 @@ class StripeController extends Controller
         Price::query()->where('stripe_id', $price->id)->delete();
     }
 
-    protected function handleRefundUpdated(Event $event): void
+    protected function handleRefundCreated(Event $event): void
     {
-        /** @var Refund $refund */
-        $refund = $event->data->object;
-        /** @var Payment $payment */
-        $payment = Payment::query()
-            ->where('payment_intent', $refund->payment_intent)
-            ->with('reservation')
-            ->firstOrFail();
+        /** @var StripeRefund $stripeRefund */
+        $stripeRefund = $event->data->object;
 
-        array_walk($payment->refunds, function (&$item) use ($refund) {
-            if ($item['id'] === $refund->id) $item = [
-                'id' => $refund->id,
-                'amount' => $refund->amount,
-                'status' => $refund->status,
-            ];
-        });
+        $payment = Payment::query()->where('payment_intent', $stripeRefund->payment_intent)->firstOrFail();
 
-        $payment->save();
+        $refund = Refund::makeFrom($stripeRefund);
 
-        $message = match ($refund->status) {
-            'pending' => 'The refund process is pending.',
-            'requires_action' => "The refund process requires action ({$refund->next_action->type}).",
-            'succeeded' => 'The refund process is completed.',
-            'failed' => "The refund failed due to $refund->failure_reason.",
-            'cancelled' => "The refund was canceled due to $refund->failure_reason.",
-            default => throw new \RuntimeException("Unhandled refund status: $refund->status"),
-        };
+        $payment->refunds()->save($refund);
+
+        $payment->syncFromStripe();
+
+        $formattedAmount = money_format($refund->amount);
 
         activity()
             ->performedOn($payment->reservation)
             ->withProperties([
-                'reservation' => $payment->reservation->ulid,
+                'reservation' => $payment->reservation_ulid,
                 'refund' => $refund->id,
                 'amount' => $refund->amount,
+            ])
+            ->log("A refund of $formattedAmount has been created.");
+    }
+
+    protected function handleRefundUpdated(Event $event): void
+    {
+        /** @var StripeRefund $stripeRefund */
+        $stripeRefund = $event->data->object;
+
+        $refund = Refund::query()->where('stripe_id', $stripeRefund->id)->firstOrFail();
+
+        $refund->update(['status' => $stripeRefund->status]);
+
+        $refund->payment->syncFromStripe();
+
+        $message = match ($stripeRefund->status) {
+            'pending' => 'The refund process is pending.',
+            'requires_action' => "The refund process requires action ({$stripeRefund->next_action->type}).",
+            'succeeded' => 'The refund process is completed.',
+            'failed' => "The refund failed due to $stripeRefund->failure_reason.",
+            'cancelled' => "The refund was canceled due to $stripeRefund->failure_reason.",
+            default => throw new \RuntimeException("Unhandled refund status: $stripeRefund->status"),
+        };
+
+        activity()
+            ->performedOn($refund->payment->reservation)
+            ->withProperties([
+                'reservation' => $refund->payment->reservation_ulid,
+                'refund' => $stripeRefund->id,
+                'amount' => $stripeRefund->amount,
             ])
             ->log($message);
     }

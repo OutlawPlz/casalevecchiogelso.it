@@ -3,13 +3,11 @@
 namespace App\Actions;
 
 use App\Models\Payment;
-use App\Models\User;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
-use Throwable;
-use function App\Helpers\money_format;
+use Stripe\StripeClient;
 
 class RefundGuest
 {
@@ -18,7 +16,7 @@ class RefundGuest
      * @param int $cents
      * @return void
      * @throws ApiErrorException
-     * @throws ValidationException|Throwable
+     * @throws ValidationException
      */
     public function __invoke(Collection $payments, int $cents): void
     {
@@ -28,28 +26,21 @@ class RefundGuest
             ]);
         }
 
-        /** @var ?User $authUser */
-        $authUser = Auth::user();
+        /** @var StripeClient $stripe */
+        $stripe = App::make(StripeClient::class);
 
         foreach ($payments as $payment) {
             if (! $payment->amountPaid) continue;
 
             $amount = min($cents, $payment->amountPaid);
 
-            $refund = $payment->refund($amount);
-
-            $formattedAmount = money_format($refund->amount);
-
-            activity()
-                ->causedBy($authUser)
-                ->performedOn($payment->reservation)
-                ->withProperties([
-                    'user' => $authUser?->email,
+            $stripe->refunds->create([
+                'payment_intent' => $payment->payment_intent,
+                'amount' => $amount,
+                'metadata' => [
                     'reservation' => $payment->reservation_ulid,
-                    'refund' => $refund->id,
-                    'amount' => $refund->amount,
-                ])
-                ->log("A refund of $formattedAmount has been created.");
+                ],
+            ]);
 
             $cents -= $amount;
 

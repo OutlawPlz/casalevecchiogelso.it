@@ -5,8 +5,8 @@ namespace App\Actions;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Str;
 use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 
 class ChargeGuest
@@ -14,7 +14,7 @@ class ChargeGuest
     /**
      * @throws ApiErrorException
      */
-    public function __invoke(User $user, int $amount, ?string $paymentMethod = null, array $options = []): Payment
+    public function __invoke(User $user, int $amount, ?string $paymentMethod = null, array $options = []): PaymentIntent
     {
         $paymentMethod ??= $user->defaultPaymentMethod()?->id;
 
@@ -30,12 +30,6 @@ class ChargeGuest
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
-        $paymentIntent = $stripe->paymentIntents->create($parameters);
-
-        $payment = Payment::makeFrom($paymentIntent);
-
-        $user->payments()->save($payment);
-
-        return $payment;
+        return $stripe->paymentIntents->create($parameters);
     }
 }

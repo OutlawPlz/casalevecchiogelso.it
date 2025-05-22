@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\App;
 use Stripe\Exception\ApiErrorException;
-use Stripe\PaymentIntent;
-use Stripe\Refund;
+use Stripe\Refund as StripeRefund;
 use Stripe\StripeClient;
 
 /**
@@ -18,6 +18,7 @@ use Stripe\StripeClient;
  * @property string $payment_intent
  * @property string $status
  * @property int $amount
+ * @property int $amount_captured
  * @property int $amount_refunded
  * @property int $fee
  * @property string $reservation_ulid
@@ -25,7 +26,6 @@ use Stripe\StripeClient;
  * @property string $charge
  * @property string $change_request_ulid
  * @property string $receipt_url
- * @property array $refunds
  * @property-read Reservation $reservation
  * @property-read ?ChangeRequest $changeRequest
  * @property-read User $user
@@ -41,6 +41,7 @@ class Payment extends Model
         'payment_intent',
         'status',
         'amount',
+        'amount_captured',
         'amount_refunded',
         'fee',
         'reservation_ulid',
@@ -48,16 +49,7 @@ class Payment extends Model
         'charge',
         'receipt_url',
         'change_request_ulid',
-        'refunds',
     ];
-
-    /**
-     * @return string[]
-     */
-    protected function casts(): array
-    {
-        return ['refunds' => 'array'];
-    }
 
     final public function __construct(array $attributes = [])
     {
@@ -93,48 +85,6 @@ class Payment extends Model
         );
     }
 
-    /**
-     * @throws ApiErrorException
-     */
-    public static function makeFrom(PaymentIntent $paymentIntent): static
-    {
-        return new static([
-            'payment_intent' => $paymentIntent->id,
-            'status' => $paymentIntent->status,
-            'amount' => $paymentIntent->amount,
-            'customer' => $paymentIntent->customer,
-            'reservation_ulid' => @$paymentIntent->metadata->reservation,
-            'change_request_ulid' => @$paymentIntent->metadata->change_request,
-        ]);
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    public function refund(int $amount): Refund
-    {
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
-
-        $refund = $stripe->refunds->create([
-            'payment_intent' => $this->payment_intent,
-            'amount' => $amount,
-            'metadata' => [
-                'reservation' => $this->reservation_ulid,
-            ],
-        ]);
-
-        $this->refunds[] = [
-            'id' => $refund->id,
-            'status' => $refund->status,
-            'amount' => $refund->amount,
-        ];
-
-        $this->save();
-
-        return $refund;
-    }
-
     public function syncFromStripe(): bool
     {
         if (! $this->payment_intent) return false;
@@ -155,9 +105,15 @@ class Payment extends Model
                 'reservation_ulid' => @$paymentIntent->metadata->reservation,
                 'change_request_ulid' => @$paymentIntent->metadata->change_request,
                 'receipt_url' => $paymentIntent->latest_charge?->receipt_url,
-                'amount_refunded' => $paymentIntent->latest_charge?->amount_refunded,
-                'fee' => $paymentIntent->latest_charge?->balance_transaction->fee,
+                'amount_captured' => $paymentIntent->latest_charge->amount_captured ?? 0,
+                'amount_refunded' => $paymentIntent->latest_charge->amount_refunded ?? 0,
+                'fee' => $paymentIntent->latest_charge->balance_transaction->fee ?? 0,
             ])
             ->save();
+    }
+
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Refund::class);
     }
 }

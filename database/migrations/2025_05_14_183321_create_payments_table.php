@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignUlid('reservation_ulid')->nullable();
             $table->foreignUlid('change_request_ulid')->nullable();
             $table->string('payment_intent')->unique();
-            $table->string('charge')->index()->nullable();
             $table->unsignedInteger('amount')->default(0);
             $table->unsignedInteger('amount_captured')->default(0);
             $table->unsignedInteger('amount_refunded')->default(0);
