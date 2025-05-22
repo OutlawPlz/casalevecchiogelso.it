@@ -23,8 +23,6 @@ return new class extends Migration
             $table->unsignedInteger('fee')->default(0);
             $table->string('status');
             $table->string('receipt_url')->nullable();
-            $table->json('refunds')->nullable();
-            $table->uuid('idempotency_key')->nullable();
             $table->timestamps();
         });
     }

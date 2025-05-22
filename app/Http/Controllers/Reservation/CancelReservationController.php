@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Reservation;
 
-use App\Actions\RefundGuest;
+use App\Actions\Refund;
 use App\Enums\ReservationStatus;
 use App\Models\Reservation;
 use App\Models\User;
@@ -48,7 +48,7 @@ class CancelReservationController
 
         $refundAmount = $reservation->amountPaid() * $refundFactor * ($daysLeft / $reservation->nights);
 
-        if ($refundAmount) (new RefundGuest)($reservation->payments, (int) $refundAmount);
+        if ($refundAmount) (new Refund)($reservation->payments, (int) $refundAmount);
 
         $reservation->update(['status' => ReservationStatus::CANCELLED]);
 

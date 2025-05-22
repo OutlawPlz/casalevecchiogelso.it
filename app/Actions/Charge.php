@@ -2,30 +2,30 @@
 
 namespace App\Actions;
 
-use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 
-class ChargeGuest
+class Charge
 {
     /**
      * @throws ApiErrorException
      */
-    public function __invoke(User $user, int $amount, ?string $paymentMethod = null, array $options = []): PaymentIntent
+    public function __invoke(User $user, int $amount, array $parameters = []): PaymentIntent
     {
-        $paymentMethod ??= $user->defaultPaymentMethod()?->id;
+        if (! array_key_exists('payment_method', $parameters)) {
+            $parameters['payment_method'] = $user->defaultPaymentMethod()?->id;
+        }
 
         $parameters = array_merge([
             'amount' => $amount,
             'confirm' => true,
             'off_session' => true,
             'customer' => $user->stripe_id,
-            'payment_method' => $paymentMethod,
             'currency' => config('services.stripe.currency'),
-        ], $options);
+        ], $parameters);
 
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
