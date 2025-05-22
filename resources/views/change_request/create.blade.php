@@ -88,7 +88,7 @@
                 </x-field>
 
                 <div class="mt-6">
-                    <span class="text-3xl" x-currency="overnightStay.unit_amount"></span>
+                    <span class="text-3xl" x-money="overnightStay.unit_amount"></span>
                     <span> / {{ __('night') }}</span>
                 </div>
 
@@ -121,19 +121,19 @@
                             <template x-if="isOvernightStay(line)">
                                 <div class="flex justify-between">
                                     <div class="underline">
-                                        <span x-currency="line.unit_amount"></span> x <span
+                                        <span x-money="line.unit_amount"></span> x <span
                                             x-text="line.quantity"
                                         ></span> {{ __('nights') }}
                                     </div>
 
-                                    <div x-currency="line.quantity * line.unit_amount"></div>
+                                    <div x-money="line.quantity * line.unit_amount"></div>
                                 </div>
                             </template>
 
                             <template x-if="! isOvernightStay(line)">
                                 <div class="flex justify-between">
                                     <span class="underline" x-text="line.name"></span>
-                                    <span x-currency="line.unit_amount * line.quantity"></span>
+                                    <span x-money="line.unit_amount * line.quantity"></span>
                                 </div>
                             </template>
                         </div>
@@ -144,7 +144,7 @@
 
                 <div class="flex justify-between font-bold text-lg">
                     <span>Tot.</span>
-                    <span x-currency="tot"></span>
+                    <span x-money="tot"></span>
                 </div>
             </form>
         </div>
@@ -159,25 +159,25 @@
 
                     <div class="text-zinc-600">
                         {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
-                        {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
+                        {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-money="{{ $reservation->tot }}"></span>
                     </div>
                 </div>
 
                 <div class="flex justify-between mt-6">
                     <span class="underline">{{ __('Original price') }}</span>
-                    <span x-currency="{{ $reservation->tot }}"></span>
+                    <span x-money="{{ $reservation->tot }}"></span>
                 </div>
 
                 <div class="flex justify-between mt-2">
                     <span class="underline">{{ __('New price') }}</span>
-                    <span x-currency="tot"></span>
+                    <span x-money="tot"></span>
                 </div>
 
                 <hr class="my-6">
 
                 <div class="flex justify-between font-bold text-lg">
                     <span>{{ __('Price difference') }}</span>
-                    <span x-currency="tot - {{ $reservation->tot }}"></span>
+                    <span x-money="tot - {{ $reservation->tot }}"></span>
                 </div>
 
                 @if($reservation->hasBeenPaid())
@@ -185,7 +185,7 @@
                         <div class="mt-2">
                             <div class="flex justify-between">
                                 <span>{{ __('Refund') }}</span>
-                                <span x-currency="(tot - {{ $reservation->tot }}) * -{{ $refundFactor }}"></span>
+                                <span x-money="(tot - {{ $reservation->tot }}) * -{{ $refundFactor }}"></span>
                             </div>
 
                             <p class="help-message mt-2">{{ __('According to cancellation policy, you\'ll receive the specified refund amount.' ) }}</p>

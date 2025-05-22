@@ -17,6 +17,8 @@ class BillingPortalController extends Controller
         /** @var ?User $authUser */
         $authUser = $request->user();
 
-        return $authUser->redirectToBillingPortal();
+        $url = $authUser->createBillingPortalSession()->url;
+
+        return redirect($url);
     }
 }

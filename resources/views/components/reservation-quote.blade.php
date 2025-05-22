@@ -44,7 +44,7 @@
         }"
     >
         <div>
-            <span class="text-3xl" x-currency="overnightStay.unit_amount"></span>
+            <span class="text-3xl" x-money="overnightStay.unit_amount"></span>
             <span> / {{ __('night') }}</span>
         </div>
 
@@ -82,15 +82,15 @@
         <div class="space-y-2">
             <div class="flex justify-between">
                 <span class="underline">
-                    <span x-currency="overnightStay.unit_amount"></span> x <span x-text="nights"></span> {{ __('nights') }}
+                    <span x-money="overnightStay.unit_amount"></span> x <span x-text="nights"></span> {{ __('nights') }}
                 </span>
-                <span x-currency="nights * overnightStay.unit_amount"></span>
+                <span x-money="nights * overnightStay.unit_amount"></span>
             </div>
 
             <template x-for="(line, index) of priceList" :key="index">
                 <div class="flex justify-between">
                     <span class="underline" x-text="line.name"></span>
-                    <span x-currency="line.unit_amount * line.quantity"></span>
+                    <span x-money="line.unit_amount * line.quantity"></span>
                 </div>
             </template>
         </div>
@@ -99,7 +99,7 @@
 
         <div class="flex justify-between font-bold text-lg">
             <span>Tot.</span>
-            <span x-currency="tot"></span>
+            <span x-money="tot"></span>
         </div>
 
         <div class="mt-4">

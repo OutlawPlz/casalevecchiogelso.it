@@ -4,7 +4,7 @@
      * @var \App\Models\ChangeRequest $changeRequest
      * @var \App\Models\Reservation $reservation
      */
-    use function App\Helpers\money_formatter;
+    use function App\Helpers\money_format;
 @endphp
 
 <x-app-layout>
@@ -28,7 +28,7 @@
                     - {{ $changeRequest->fromReservation->check_out->format('d M') }}
                     ({{ $changeRequest->fromReservation->nights }} {{ __('nights') }}) <br>
                     {{ $changeRequest->fromReservation->guest_count }} {{ __('guests') }} • Tot.
-                    <span>{{ money_formatter($changeRequest->fromReservation->tot) }}</span>
+                    <span>{{ money_format($changeRequest->fromReservation->tot) }}</span>
                 </div>
             </div>
 
@@ -41,46 +41,46 @@
                     - {{ $changeRequest->toReservation->check_out->format('d M') }}
                     ({{ $changeRequest->toReservation->nights }} {{ __('nights') }}) <br>
                     {{ $changeRequest->toReservation->guest_count }} {{ __('guests') }} • Tot.
-                    <span>{{ money_formatter($changeRequest->toReservation->tot) }}</span>
+                    <span>{{ money_format($changeRequest->toReservation->tot) }}</span>
                 </div>
             </div>
         </div>
 
         <div class="flex justify-between mt-6">
             <span class="underline">{{ __('Original price') }}</span>
-            <span>{{ money_formatter($changeRequest->fromReservation->tot) }}</span>
+            <span>{{ money_format($changeRequest->fromReservation->tot) }}</span>
         </div>
 
         <div class="flex justify-between mt-2">
             <span class="underline">{{ __('New price') }}</span>
-            <span>{{ money_formatter($changeRequest->toReservation->tot) }}</span>
+            <span>{{ money_format($changeRequest->toReservation->tot) }}</span>
         </div>
 
         <hr class="my-6">
 
         <div class="flex justify-between font-semibold text-lg">
             <span>{{ __('Price difference') }}</span>
-            <span>{{ money_formatter($changeRequest->priceDifference()) }}</span>
+            <span>{{ money_format($changeRequest->priceDifference()) }}</span>
         </div>
 
         @if($refundAmount)
             <div class="mt-2 flex justify-between">
                 <span class="underline">{{ __('Refund') }}</span>
-                <span>{{ money_formatter($refundAmount) }}</span>
+                <span>{{ money_format($refundAmount) }}</span>
             </div>
         @endif
 
         @if($amountDue)
             <div class="mt-2 flex justify-between">
                 <span class="underline">{{ __('Amount due') }}</span>
-                <span>{{ money_formatter($amountDue) }}</span>
+                <span>{{ money_format($amountDue) }}</span>
             </div>
         @endif
 
         <div class="flex gap-3 mt-6">
             <button
-                x-data x-on:click="$dispatch('open-modal', 'confirm')"
-                class="primary"
+                    x-data x-on:click="$dispatch('open-modal', 'confirm')"
+                    class="primary"
             >
                 @if($refundAmount)
                     {{ __('Confirm and refund') }}
@@ -99,11 +99,11 @@
         </div>
 
         <x-modal
-            class="max-w-xl mx-auto"
-            name="confirm"
+                class="max-w-xl mx-auto"
+                name="confirm"
         >
             <form
-                x-data="{
+                    x-data="{
                     loading: false,
 
                     async submit() {
@@ -116,8 +116,8 @@
                         this.loading = false;
                     },
                 }"
-                x-on:submit.prevent="submit"
-                class="p-6"
+                    x-on:submit.prevent="submit"
+                    class="p-6"
             >
                 <div class="prose">
                     <h3>{{ __('Confirm the modification') }}</h3>
@@ -126,14 +126,14 @@
 
                         @if($amountDue)
                             {{ $changeRequest->user->isHost()
-                                ? __('By confirming the request, the guest will be immediately charged an amount of :amount.', ['amount' => money_formatter($amountDue)])
-                                : __('By confirming the request, you\'ll be immediately charged an amount of :amount.', ['amount' => money_formatter($amountDue)]) }}
+                                ? __('By confirming the request, the guest will be immediately charged an amount of :amount.', ['amount' => money_format($amountDue)])
+                                : __('By confirming the request, you\'ll be immediately charged an amount of :amount.', ['amount' => money_format($amountDue)]) }}
                         @endif
 
                         @if($refundAmount)
                             {{ $changeRequest->user->isHost()
-                                ? __('According to cancellation policy, the guest will receive a refund amount of :amount.', ['amount' => money_formatter($refundAmount)])
-                                : __('According to cancellation policy, you\'ll receive a refund amount of :amount.', ['amount' => money_formatter($refundAmount)]) }}
+                                ? __('According to cancellation policy, the guest will receive a refund amount of :amount.', ['amount' => money_format($refundAmount)])
+                                : __('According to cancellation policy, you\'ll receive a refund amount of :amount.', ['amount' => money_format($refundAmount)]) }}
                         @endif
                     </p>
                 </div>
@@ -146,11 +146,11 @@
         </x-modal>
 
         <x-modal
-            class="max-w-xl mx-auto"
-            name="reject"
+                class="max-w-xl mx-auto"
+                name="reject"
         >
             <form
-                x-data="{
+                    x-data="{
                     loading: false,
 
                     async submit() {
@@ -163,8 +163,8 @@
                         this.loading = false;
                     },
                 }"
-                x-on:submit.prevent="submit"
-                class="p-6"
+                    x-on:submit.prevent="submit"
+                    class="p-6"
             >
                 <div class="prose">
                     <h3>{{ __('Reject the modification') }}</h3>

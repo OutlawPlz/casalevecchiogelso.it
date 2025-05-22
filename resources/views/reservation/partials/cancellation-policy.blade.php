@@ -2,14 +2,14 @@
     /**
      * @var \App\Models\Reservation $reservation
      */
-    use function App\Helpers\datetime_formatter;
+    use function App\Helpers\date_format;
 @endphp
 
 <h3 class="font-semibold">{{ __('Cancellation policy') }}</h3>
 
 <p class="text-zinc-600">
     {{ __('To obtain a full refund, you must cancel the reservation by :date.', [
-            'date' => datetime_formatter($reservation->due_date, timeFormat: IntlDateFormatter::NONE)
+            'date' => date_format($reservation->due_date, time: null)
     ]) }}
 
     {{ __('If you cancel the reservation within :days before check-in, you will be refunded :percentage% of the total.', [

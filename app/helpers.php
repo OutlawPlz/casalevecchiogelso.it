@@ -4,7 +4,6 @@ namespace App\Helpers;
 
 use App\Models\Reservation;
 use App\Models\User;
-use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use DateInterval;
 use DateMalformedPeriodStringException;
@@ -12,7 +11,6 @@ use DatePeriod;
 use DateTime;
 use DateTimeInterface;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use IntlDateFormatter;
 use NumberFormatter;
 
@@ -71,7 +69,7 @@ function refund_factor(Reservation $reservation, ?CarbonInterface $date = null, 
     return $refundFactor;
 }
 
-function money_formatter(int $cents, ?string $currency = null): string
+function money_format(int $cents, ?string $currency = null): string
 {
     $currency ??= config('services.stripe.currency');
 
@@ -80,16 +78,17 @@ function money_formatter(int $cents, ?string $currency = null): string
     return $formatter->formatCurrency($cents / 100, $currency);
 }
 
-/**
- * @throws \DateInvalidTimeZoneException
- */
-function datetime_formatter(
+function date_format(
     DateTimeInterface|int $datetime,
-    int $dateFormat = IntlDateFormatter::SHORT,
-    int $timeFormat = IntlDateFormatter::SHORT
+    ?int $date = IntlDateFormatter::SHORT,
+    ?int $time = IntlDateFormatter::SHORT
 ): string
 {
-    $formatter = new IntlDateFormatter(config('app.locale'), $dateFormat, $timeFormat);
+    $formatter = new IntlDateFormatter(
+        config('app.locale'),
+        $date ?? IntlDateFormatter::NONE,
+        $time ?? IntlDateFormatter::NONE
+    );
 
     if (is_int($datetime)) $datetime = new DateTime("@$datetime");
 

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
 use Throwable;
-use function App\Helpers\money_formatter;
+use function App\Helpers\money_format;
 
 class RefundGuest
 {
@@ -38,7 +38,7 @@ class RefundGuest
 
             $refund = $payment->refund($amount);
 
-            $formattedAmount = money_formatter($refund->amount);
+            $formattedAmount = money_format($refund->amount);
 
             activity()
                 ->causedBy($authUser)

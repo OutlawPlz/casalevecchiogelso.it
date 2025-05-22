@@ -14,7 +14,7 @@ window.differenceInDays = differenceInDays;
 
 Alpine.plugin([intersect, persist]);
 
-window.currencyFormatter = new Intl.NumberFormat(
+window.moneyFormatter = new Intl.NumberFormat(
     document.documentElement.lang || undefined,
     {style: 'currency', currency: 'EUR'}
 );
@@ -24,14 +24,17 @@ window.dateTimeFormatter = new Intl.DateTimeFormat(
     {dateStyle: 'short', timeStyle: 'short'}
 );
 
+window.$money = (cents) => moneyFormatter.format(cents / 100);
+window.$date = (dateTimeString) => dateTimeFormatter.format(Date.parse(dateTimeString));
+
 Alpine.directive(
-    'currency',
+    'money',
     (el, {expression}, {evaluateLater, effect}) => {
         const getAmount = evaluateLater(expression);
 
         effect(() => {
             getAmount((cents) => {
-                el.textContent = currencyFormatter.format(cents / 100);
+                el.textContent = moneyFormatter.format(cents / 100);
             })
         });
     }

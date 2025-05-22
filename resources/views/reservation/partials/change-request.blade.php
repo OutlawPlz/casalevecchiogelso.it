@@ -16,7 +16,7 @@
         <div class="w-12 font-semibold">{{ __('From') }}:</div>
         <div class="text-zinc-600">
             {{ $changeRequest->fromReservation->check_in->format('d M') }} - {{ $changeRequest->fromReservation->check_out->format('d M') }} ({{ $changeRequest->fromReservation->nights }} {{ __('nights') }}) <br>
-            {{ $changeRequest->fromReservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $changeRequest->fromReservation->tot }}"></span>
+            {{ $changeRequest->fromReservation->guest_count }} {{ __('guests') }} • Tot. <span x-money="{{ $changeRequest->fromReservation->tot }}"></span>
         </div>
     </div>
 
@@ -26,7 +26,7 @@
         <div class="w-12 font-semibold">{{ __('To') }}:</div>
         <div class="text-zinc-600">
             {{ $changeRequest->toReservation->check_in->format('d M') }} - {{ $changeRequest->toReservation->check_out->format('d M') }} ({{ $changeRequest->toReservation->nights }} {{ __('nights') }}) <br>
-            {{ $changeRequest->toReservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $changeRequest->toReservation->tot }}"></span>
+            {{ $changeRequest->toReservation->guest_count }} {{ __('guests') }} • Tot. <span x-money="{{ $changeRequest->toReservation->tot }}"></span>
         </div>
     </div>
 </div>

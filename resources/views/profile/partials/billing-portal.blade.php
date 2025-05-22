@@ -9,7 +9,7 @@
         </p>
     </header>
 
-    <form method="POST" action="{{ route('billing_portal') }}" class="mt-6 space-y-6">
+    <form method="POST" action="{{ route('billing_portal') }}" class="mt-6">
         @csrf
 
         <button class="primary">{{ __('Access') }}</button>

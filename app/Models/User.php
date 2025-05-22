@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  use Illuminate\Notifications\Notifiable;
  use Illuminate\Support\Collection;
  use Illuminate\Support\Facades\App;
+ use Stripe\BillingPortal\Session;
  use Stripe\Exception\ApiErrorException;
  use Stripe\PaymentMethod;
  use Stripe\StripeClient;
@@ -105,7 +106,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     /**
      * @throws ApiErrorException
      */
-    public function redirectToBillingPortal($returnUrl = null, array $options = []): RedirectResponse
+    public function createBillingPortalSession(?string $returnUrl = null, array $options = []): Session
     {
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
@@ -114,12 +115,10 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             throw new \RuntimeException(class_basename($this).' is not a Stripe customer yet. See the createAsStripeCustomer method.');
         }
 
-        $url = $stripe->billingPortal->sessions->create([
+        return $stripe->billingPortal->sessions->create([
             'customer' => $this->stripe_id,
-            'return_url' => $returnUrl ?? route('home'),
-        ], $options)['url'];
-
-        return redirect($url);
+            'return_url' => $returnUrl ?? back()->getTargetUrl(),
+        ], $options);
     }
 
     /**

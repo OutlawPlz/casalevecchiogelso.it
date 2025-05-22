@@ -9,10 +9,10 @@
         <div class="flex justify-between" x-data>
             @if($loop->first)
                 <div class="underline">
-                    <span x-currency="{{ $line['unit_amount'] }}"></span> x {{ $line['quantity'] }} {{ __('nights') }}
+                    <span x-money="{{ $line['unit_amount'] }}"></span> x {{ $line['quantity'] }} {{ __('nights') }}
                 </div>
                 <div>
-                    <span x-currency="{{ $line['quantity'] * $line['unit_amount'] }}"></span>
+                    <span x-money="{{ $line['quantity'] * $line['unit_amount'] }}"></span>
                 </div>
             @else
                 <span class="underline">
@@ -21,7 +21,7 @@
                     x {{ $line['quantity'] }}
                     @endif
                 </span>
-                <span x-currency="{{ $line['quantity'] * $line['unit_amount'] }}"></span>
+                <span x-money="{{ $line['quantity'] * $line['unit_amount'] }}"></span>
             @endif
         </div>
     @endforeach
@@ -31,5 +31,5 @@
 
 <div class="flex justify-between font-bold text-lg">
     <span>Tot.</span>
-    <span x-currency="{{ $reservation->tot }}"></span>
+    <span x-money="{{ $reservation->tot }}"></span>
 </div>

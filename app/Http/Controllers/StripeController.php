@@ -25,7 +25,7 @@ use Stripe\Stripe;
 use Stripe\StripeClient;
 use Stripe\Webhook;
 use UnexpectedValueException;
-use function App\Helpers\money_formatter;
+use function App\Helpers\money_format;
 
 class StripeController extends Controller
 {
@@ -122,7 +122,7 @@ class StripeController extends Controller
 
         // TODO: Handle failure. Notify the user and setup a retry.
 
-        $amount = money_formatter($paymentIntent->amount);
+        $amount = money_format($paymentIntent->amount);
 
         activity()
             ->performedOn($reservation)
@@ -174,7 +174,7 @@ class StripeController extends Controller
             ->where('stripe_id', $paymentIntent->customer)
             ->firstOrFail();
 
-        $amount = money_formatter($paymentIntent->amount);
+        $amount = money_format($paymentIntent->amount);
 
         activity()
             ->performedOn($reservation)
@@ -202,7 +202,7 @@ class StripeController extends Controller
             ->where('ulid', $payout->metadata->reservation)
             ->firstOrFail();
 
-        $amount = money_formatter($payout->amount);
+        $amount = money_format($payout->amount);
 
         activity()
             ->performedOn($reservation)

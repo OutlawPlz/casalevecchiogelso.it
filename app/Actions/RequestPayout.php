@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
-use function App\Helpers\money_formatter;
+use function App\Helpers\money_format;
 
 class RequestPayout
 {
@@ -31,7 +31,7 @@ class RequestPayout
 
         $balanceTransaction = $paymentIntent->latest_charge->balance_transaction;
 
-        $amount = money_formatter($balanceTransaction->net);
+        $amount = money_format($balanceTransaction->net);
 
         if ($balanceTransaction->net < config('stripe.min_payout_amount')) {
             activity()

@@ -1,7 +1,7 @@
 @php
     /** @var \App\Models\Reservation $reservation */
     use App\Enums\ReservationStatus as Status;
-    use function App\Helpers\datetime_formatter
+    use function App\Helpers\date_format
 @endphp
 
 <div class="flex flex-col gap-4">
@@ -21,15 +21,15 @@
             <div class="prose-sm text-zinc-700">
                 <h3 class="capitalize font-semibold">{{ __($reservation->status->value) }}</h3>
 
-                <p class="text-zinc-600">
+                <p>
                     {{ __('Your request has been pre-approved.') }}
                     {{ __('Add a payment method to confirm it.') }}
-                    {{ __('The total will be charged to you on :date.', ['date' => datetime_formatter($reservation->due_date, timeFormat: IntlDateFormatter::NONE)]) }}
-                </p class="text-zinc-600">
+                    {{ __('The total will be charged to you on :date.', ['date' => date_format($reservation->due_date, time: null)]) }}
+                </p>
 
                 <p>
                     {{ __('You have 24 hours to confirm your reservation.') }}
-                    {{ __('Approval expires at :datetime.', ['datetime' => datetime_formatter($reservation->checkout_session['expires_at'])]) }}
+                    {{ __('Approval expires at :datetime.', ['datetime' => date_format($reservation->checkout_session['expires_at'])]) }}
                 </p>
             </div>
 

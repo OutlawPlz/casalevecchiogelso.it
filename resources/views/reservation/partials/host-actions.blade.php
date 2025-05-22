@@ -1,9 +1,9 @@
 @php
-/**
- * @var App\Models\User $authUser
- * @var App\Models\Reservation $reservation
- */
-use function App\Helpers\datetime_formatter;
+    /**
+     * @var App\Models\User $authUser
+     * @var App\Models\Reservation $reservation
+     */
+    use function App\Helpers\date_format;
 @endphp
 
 @use('\App\Enums\ReservationStatus as Status')
@@ -16,8 +16,9 @@ use function App\Helpers\datetime_formatter;
         </div>
 
         <div class="text-zinc-600">
-            {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
-            {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
+            {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }}
+            ({{ $reservation->nights }} {{ __('nights') }}) <br>
+            {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-money="{{ $reservation->tot }}"></span>
         </div>
     </div>
 
@@ -32,7 +33,7 @@ use function App\Helpers\datetime_formatter;
 
                     <p>
                         {{ __('You have 24 hours to pre-approve the request.') }}
-                        {{ __('The request will expires at :datetime.', ['datetime' => datetime_formatter($reservation->created_at->addDay())]) }}
+                        {{ __('The request will expires at :datetime.', ['datetime' => date_format($reservation->created_at->addDay())]) }}
                     </p>
                 </div>
 
@@ -63,12 +64,18 @@ use function App\Helpers\datetime_formatter;
                         <div class="border rounded-lg py-2.5 mt-4 px-4">
                             <div>
                                 <span class="font-semibold">{{ $reservation->user->name }}</span>
-                                <span class="tracking-wider text-zinc-600 uppercase pl-1 text-xs">{{ $reservation->status }}</span>
+                                <span
+                                    class="tracking-wider text-zinc-600 uppercase pl-1 text-xs"
+                                >{{ $reservation->status }}</span>
                             </div>
 
                             <div class="text-zinc-600">
-                                {{ $reservation->check_in->format('d M') }} - {{ $reservation->check_out->format('d M') }} ({{ $reservation->nights }} {{ __('nights') }}) <br>
-                                {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span x-currency="{{ $reservation->tot }}"></span>
+                                {{ $reservation->check_in->format('d M') }}
+                                - {{ $reservation->check_out->format('d M') }}
+                                ({{ $reservation->nights }} {{ __('nights') }}) <br>
+                                {{ $reservation->guest_count }} {{ __('guests') }} • Tot. <span
+                                    x-money="{{ $reservation->tot }}"
+                                ></span>
                             </div>
                         </div>
 
@@ -96,9 +103,16 @@ use function App\Helpers\datetime_formatter;
             <button
                 x-data x-on:click.prevent="$dispatch('open-modal', 'reject')"
                 type="button"
-                class="clear hover:underline flex items-center gap-2 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                class="clear hover:underline flex items-center gap-2 cursor-pointer"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6"
+                >
+                    <path
+                        stroke-linecap="round" stroke-linejoin="round"
+                        d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+                    />
                 </svg>
                 <span>{{ __('Reject the booking') }}</span>
             </button>
@@ -141,15 +155,21 @@ use function App\Helpers\datetime_formatter;
             <p class="prose-sm text-zinc-600">
                 {{ __('The request has been pre-approved.') }}
                 {{ __('The guest has 24 hours to confirm the reservation.') }}
-                {{ __('Approval expires at :datetime.', ['datetime' => datetime_formatter($reservation->checkout_session['expires_at'])]) }}
+                {{ __('Approval expires at :datetime.', ['datetime' => date_format($reservation->checkout_session['expires_at'])]) }}
             </p>
 
             <a
                 class="hover:underline flex items-center gap-2"
                 href="{{ route('change_request.create', [$reservation]) }}"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6"
+                >
+                    <path
+                        stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819"
+                    />
                 </svg>
                 <span>{{ __('Change the booking') }}</span>
             </a>
@@ -160,8 +180,14 @@ use function App\Helpers\datetime_formatter;
                 class="hover:underline flex items-center gap-2"
                 href="{{ route('change_request.create', [$reservation]) }}"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6"
+                >
+                    <path
+                        stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819"
+                    />
                 </svg>
                 <span>{{ __('Change the booking') }}</span>
             </a>
@@ -170,8 +196,14 @@ use function App\Helpers\datetime_formatter;
                 href="{{ route('reservation.cancellation_form', [$reservation]) }}"
                 class="hover:underline flex items-center gap-2"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6"
+                >
+                    <path
+                        stroke-linecap="round" stroke-linejoin="round"
+                        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
                 </svg>
                 <span>{{ __('Cancel the booking') }}</span>
             </a>

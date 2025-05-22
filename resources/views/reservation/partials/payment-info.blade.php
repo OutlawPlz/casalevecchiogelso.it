@@ -2,8 +2,8 @@
     /** @var \App\Models\Reservation $reservation */
     use App\Enums\ReservationStatus as Status;
     use function App\Helpers\is_overnight_stay;
-    use function App\Helpers\money_formatter;
-    use function App\Helpers\datetime_formatter;
+    use function App\Helpers\money_format;
+    use function App\Helpers\date_format;
 @endphp
 
 <div class="prose-sm">
@@ -11,7 +11,7 @@
 
     @if(! $reservation->inStatus(Status::QUOTE) && ! $reservation->hasBeenPaid())
         <p class="text-zinc-600">
-            {{ __('The total will be charged to you on :date.', ['date' => datetime_formatter($reservation->due_date, timeFormat: IntlDateFormatter::NONE)]) }}
+            {{ __('The total will be charged to you on :date.', ['date' => date_format($reservation->due_date, time: null)]) }}
             {{ __('Please ensure your payment method is valid in your Billing Portal before that date.') }}
         </p>
     @else
@@ -25,14 +25,14 @@
             <div class="flex justify-between">
                 <div class="underline">
                     @if(is_overnight_stay($line['product']))
-                        <span>{{ money_formatter($line['unit_amount']) }}</span> x
+                        <span>{{ money_format($line['unit_amount']) }}</span> x
                         <span>{{ $line['quantity'] }}</span> {{ __('nights') }}
                     @else
                         <span class="underline">{{ __($line['name']) }}</span>
                     @endif
                 </div>
 
-                <div>{{ money_formatter($line['quantity'] * $line['unit_amount']) }}</div>
+                <div>{{ money_format($line['quantity'] * $line['unit_amount']) }}</div>
             </div>
         @endforeach
     </div>
@@ -42,13 +42,13 @@
     <div class="space-y-1">
         <div class="flex justify-between font-semibold">
             <div>{{ __('Tot.') }}</div>
-            <span>{{ money_formatter($reservation->tot) }}</span>
+            <span>{{ money_format($reservation->tot) }}</span>
         </div>
 
         @if(! $reservation->inStatus(Status::QUOTE))
             <div class="flex justify-between">
                 <div>{{ __('Due on:') }}</div>
-                <span>{{ datetime_formatter($reservation->due_date, timeFormat: IntlDateFormatter::NONE) }}</span>
+                <span>{{ date_format($reservation->due_date, time: null) }}</span>
             </div>
         @endif
     </div>
