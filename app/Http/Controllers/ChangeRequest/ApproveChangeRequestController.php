@@ -22,29 +22,28 @@ class ApproveChangeRequestController extends Controller
      */
     public function __invoke(Request $request, Reservation $reservation, ChangeRequest $changeRequest): void
     {
-        $priceDelta = $changeRequest->priceDifference();
+        $priceDifference = $changeRequest->priceDifference();
 
-        if ($reservation->inStatus(Status::QUOTE)) $priceDelta = 0;
+        if ($reservation->inStatus(Status::QUOTE)) $priceDifference = 0;
 
-        if ($priceDelta < 0) {
-            $amount = $priceDelta * refund_factor($reservation, $changeRequest->created_at);
+        if ($priceDifference > 0) {
+            (new Charge)($reservation->user, $priceDifference, ['metadata' => [
+                'reservation' => $reservation->ulid,
+                'change_request' => $changeRequest->ulid,
+                'retry_on_failure' => true,
+            ]]);
+
+            // Approval is handled by Stripe hooks.
+
+            return;
+        }
+
+        if ($priceDifference < 0) {
+            $amount = $priceDifference * refund_factor($reservation, $changeRequest->created_at);
 
             (new Refund)($reservation->payments, (int) $amount);
-
-            (new Approve)($changeRequest);
         }
 
-        if ($priceDelta === 0) (new Approve)($changeRequest);
-
-        if ($priceDelta > 0) {
-            $options = [
-                'metadata' => [
-                    'reservation' => $reservation->ulid,
-                    'change_request' => $changeRequest->ulid,
-                ]
-            ];
-
-            (new Charge)($reservation->user, $priceDelta, parameters: $options);
-        }
+        (new Approve)($changeRequest);
     }
 }

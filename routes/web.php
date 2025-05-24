@@ -113,12 +113,15 @@ Route::post('/locale-preference', LocalePreferenceController::class)->name('loca
 Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
     $user = \App\Models\User::query()->first();
 
-    return $user->payments->sum('amountPaid');
+    $reservation = \App\Models\Reservation::query()->first();
 
-//    return $stripe->paymentIntents->retrieve(
-//        'pi_3RMEFLAKSJP4UmE20jY687Vr',
-//        ['expand' => ['latest_charge.balance_transaction', 'latest_charge.refunds']]
-//    );
+    return $stripe->checkout->sessions->create([
+        'customer' => $user->stripe_id,
+        'line_items' => $reservation->toLineItems(),
+        'mode' => 'payment',
+        'success_url' => route('reservation.show', [$reservation]),
+        'cancel_url' => route('reservation.show', [$reservation]),
+    ]);
 
-    return (new \App\Actions\Charge)($user, 1000, ['payment_method' => 'pm_card_visa']);
+    return (new \App\Actions\Charge)($user, 1000, ['payment_method' => 'pm_card_threeDSecure2Required']);
 });

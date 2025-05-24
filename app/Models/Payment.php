@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\App;
 use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 
 /**
@@ -82,7 +83,7 @@ class Payment extends Model
     {
         /** @uses static::$netAmount */
         return Attribute::make(
-            get: fn () => $this->amount_captured - $this->fee - $this->amount_refunded
+            get: fn () => $this->isSucceeded() ? ($this->amount - $this->fee - $this->amount_refunded) : 0
         );
     }
 
@@ -90,8 +91,13 @@ class Payment extends Model
     {
         /** @uses static::$amountPaid */
         return Attribute::make(
-            get: fn () => $this->amount_captured - $this->amount_refunded
+            get: fn () => $this->isSucceeded() ? ($this->amount - $this->amount_refunded) : 0
         );
+    }
+
+    public function isSucceeded(): bool
+    {
+        return $this->status === PaymentIntent::STATUS_SUCCEEDED;
     }
 
     /**
@@ -133,5 +139,17 @@ class Payment extends Model
                 'refunds' => $refunds,
             ])
             ->save();
+    }
+
+    public static function makeFromStripe(PaymentIntent $paymentIntent): static
+    {
+        return new static([
+            'payment_intent' => $paymentIntent->id,
+            'status' => $paymentIntent->status,
+            'amount' => $paymentIntent->amount,
+            'customer' => $paymentIntent->customer,
+            'reservation_ulid' => @$paymentIntent->metadata->reservation,
+            'change_request_ulid' => @$paymentIntent->metadata->change_request,
+        ]);
     }
 }

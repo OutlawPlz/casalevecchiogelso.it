@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
-use Stripe\Refund;
+use Stripe\Refund as StripeRefund;
 use Stripe\StripeClient;
 
 class Refund
@@ -15,7 +15,7 @@ class Refund
     /**
      * @param Collection<Payment>|Payment $payments
      * @param int $cents
-     * @return Collection<Refund>
+     * @return Collection<StripeRefund>
      * @throws ApiErrorException
      * @throws ValidationException
      */

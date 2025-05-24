@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CancelChangeRequest;
+use App\Actions\CancelReservation;
+use App\Actions\RetryFailedPaymentOnSession;
 use App\Enums\ReservationStatus;
 use App\Actions\ApproveChangeRequest;
+use App\Models\ChangeRequest;
 use App\Models\Payment;
 use App\Models\Price;
 use App\Models\Product;
@@ -12,6 +16,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Stripe\Checkout\Session;
 use Stripe\Event;
 use Stripe\Exception\ApiErrorException;
@@ -57,7 +62,7 @@ class StripeController extends Controller
     {
         /** @var Session $session */
         $session = $event->data->object;
-        /** @var Reservation $reservation */
+
         $reservation = Reservation::query()
             ->where('ulid', $session->metadata->reservation)
             ->firstOrFail();
@@ -86,12 +91,21 @@ class StripeController extends Controller
             ->log('The reservation has been confirmed.');
     }
 
+    /**
+     * @throws ApiErrorException
+     * @throws ValidationException
+     */
     protected function handleCheckoutSessionExpired(Event $event): void
     {
-        /** @var string $ulid */
-        $ulid = $event->data->object->metadata->reservation;
-        /** @var Reservation $reservation */
-        $reservation = Reservation::query()->where('ulid', $ulid)->firstOrFail();
+        /** @var Session $checkoutSession */
+        $checkoutSession = $event->data->object;
+
+        $reservation = Reservation::query()
+            ->where('ulid', $checkoutSession->metadata->reservation)
+            ->firstOrFail();
+        $changeRequest = ChangeRequest::query()
+            ->where('ulid', @$checkoutSession->metadata->changeRequest)
+            ->first();
 
         $reservation->update([
             'checkout_session' => null,
@@ -105,6 +119,12 @@ class StripeController extends Controller
             ])
             ->log("The pre-approval has expired.");
 
+        if (@$checkoutSession->metadata->cancel_on_expire) {
+            $changeRequest
+                ? (new CancelChangeRequest)($changeRequest)
+                : (new CancelReservation)($reservation, 'The checkout session expired.');
+        }
+
         // TODO: Notify the guest and the host that pre-approval has expired..
     }
 
@@ -115,12 +135,15 @@ class StripeController extends Controller
         $payment->syncFromStripe();
     }
 
+    /**
+     * @throws ApiErrorException
+     */
     protected function handlePaymentIntentPaymentFailed(Event $event): void
     {
         /** @var PaymentIntent $paymentIntent */
         $paymentIntent = $event->data->object;
 
-        $payment = Payment::query()->where('payment_intent', $event->data->object->id)->firstOrFail();
+        $payment = Payment::query()->firstOrCreate(['payment_intent' => $paymentIntent->id]);
 
         $payment->syncFromStripe();
 
@@ -132,9 +155,12 @@ class StripeController extends Controller
                 'reservation' => $payment->reservation_ulid,
                 'payment_intent' => $payment->payment_intent,
                 'message' => $paymentIntent->last_payment_error->message,
-                'doc_url' => $paymentIntent->last_payment_error->doc_url,
             ])
             ->log("A payment of $amount failed due to {$paymentIntent->last_payment_error->type}.");
+
+        if (@$paymentIntent->metadata->retry_on_failure) {
+            (new RetryFailedPaymentOnSession)($payment);
+        }
     }
 
     /**

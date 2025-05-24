@@ -182,7 +182,7 @@ class Reservation extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Payment::class, 'reservation_ulid', 'ulid');
     }
 
     protected function nights(): Attribute

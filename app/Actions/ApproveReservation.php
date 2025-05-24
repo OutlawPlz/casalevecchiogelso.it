@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 
@@ -15,13 +16,17 @@ class ApproveReservation
     /**
      * @throws ApiErrorException
      */
-    public function __invoke(Reservation $reservation): void
+    public function __invoke(Reservation $reservation): Session
     {
         $checkoutSession = $this->createSetupIntent($reservation);
 
         $reservation->update([
             'status' => ReservationStatus::PENDING,
-            'checkout_session' => $checkoutSession,
+            'checkout_session' => [
+                'id' => $checkoutSession->id,
+                'url' => $checkoutSession->url,
+                'expires_at' => $checkoutSession->expires_at,
+            ],
         ]);
 
         /** @var ?User $authUser */
@@ -35,17 +40,19 @@ class ApproveReservation
                 'user' => $authUser?->email,
             ])
             ->log("The $authUser?->role has pre-approved the request.");
+
+        return $checkoutSession;
     }
 
     /**
      * @throws ApiErrorException
      */
-    protected function createSetupIntent(Reservation $reservation): array
+    protected function createSetupIntent(Reservation $reservation): Session
     {
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
-        $checkoutSession = $stripe->checkout->sessions->create([
+        return $stripe->checkout->sessions->create([
             'customer' => $reservation->user->createAsStripeCustomer(),
             'currency' => config('services.stripe.currency'),
             'mode' => 'setup',
@@ -60,11 +67,5 @@ class ApproveReservation
                 ]
             ],
         ]);
-
-        return [
-            'id' => $checkoutSession->id,
-            'url' => $checkoutSession->url,
-            'expires_at' => $checkoutSession->expires_at,
-        ];
     }
 }

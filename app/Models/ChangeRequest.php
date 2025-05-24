@@ -107,4 +107,16 @@ class ChangeRequest extends Model
             ]
         ]);
     }
+
+    public function toLineItems(): array
+    {
+        return [
+            'quantity' => 1,
+            'price_data' => [
+                'unit_amount' => $this->priceDifference(),
+                'currency' => config('services.stripe.currency'),
+                'product_data' => ['name' => 'Change Request'],
+            ],
+        ];
+    }
 }

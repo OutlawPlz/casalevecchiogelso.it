@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\ChargeOnDueDate;
 use App\Actions\RequestPayout;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Schedule;
@@ -13,3 +14,5 @@ Schedule::call(function () {
         (new RequestPayout)($reservation);
     }
 })->daily();
+
+Schedule::call(new ChargeOnDueDate)->daily();

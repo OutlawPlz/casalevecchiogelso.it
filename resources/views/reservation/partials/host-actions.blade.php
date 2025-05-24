@@ -47,7 +47,7 @@
 
                 <x-modal name="pre-approve" class="max-w-xl">
                     <form
-                        action="{{ route('reservation.status', [$reservation]) }}"
+                        action="{{ route('reservation.approve', [$reservation]) }}"
                         class="p-6"
                         method="POST"
                     >
@@ -119,7 +119,7 @@
 
             <x-modal name="reject" class="max-w-xl">
                 <form
-                    action="{{ route('reservation.status', [$reservation]) }}"
+                    action="{{ route('reservation.reject', [$reservation]) }}"
                     class="p-6"
                     method="POST"
                 >

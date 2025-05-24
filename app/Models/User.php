@@ -2,20 +2,19 @@
 
 namespace App\Models;
 
- use Database\Factories\UserFactory;
- use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
- use Illuminate\Http\RedirectResponse;
- use Illuminate\Notifications\Notifiable;
- use Illuminate\Support\Collection;
- use Illuminate\Support\Facades\App;
- use Stripe\BillingPortal\Session;
- use Stripe\Exception\ApiErrorException;
- use Stripe\PaymentMethod;
- use Stripe\StripeClient;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\App;
+use Stripe\BillingPortal\Session;
+use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentMethod;
+use Stripe\StripeClient;
 
 /**
  * @property int $id
@@ -85,7 +84,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
     public function hasStripeId(): bool
     {
-        return ! is_null($this->stripe_id);
+        return !is_null($this->stripe_id);
     }
 
     public function isHost(): bool
@@ -111,8 +110,8 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
-        if (! $this->hasStripeId()) {
-            throw new \RuntimeException(class_basename($this).' is not a Stripe customer yet. See the createAsStripeCustomer method.');
+        if (!$this->hasStripeId()) {
+            throw new \RuntimeException(class_basename($this) . ' is not a Stripe customer yet. See the createAsStripeCustomer method.');
         }
 
         return $stripe->billingPortal->sessions->create([
@@ -127,7 +126,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
      */
     public function paymentMethods(?string $type = null, $parameters = []): array
     {
-        if (! $this->hasStripeId()) return [];
+        if (!$this->hasStripeId()) return [];
 
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
@@ -146,7 +145,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
      */
     public function defaultPaymentMethod(): ?PaymentMethod
     {
-        if (! $this->hasStripeId()) return null;
+        if (!$this->hasStripeId()) return null;
 
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
