@@ -29,7 +29,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::group([
-    'middleware' => ['auth', 'verified']
+    'middleware' => ['auth', 'verified'],
 ], function () {
     /* ----- Profile ----- */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -59,24 +59,18 @@ Route::group([
 
     /* ----- Change Request ----- */
     Route::scopeBindings()->group(function () {
-        Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])
-            ->name('change_request.show')
-            ->can('view', 'changeRequest');
         Route::get('/reservations/{reservation:ulid}/change-requests/create', [ChangeRequestController::class, 'create'])
-            ->name('change_request.create')
-            ->can('create', 'changeRequest');
+            ->name('change_request.create');
+        Route::get('/reservations/{reservation:ulid}/change-requests/{changeRequest}', [ChangeRequestController::class, 'show'])
+            ->name('change_request.show');
         Route::post('/reservations/{reservation:ulid}/change-requests', [ChangeRequestController::class, 'store'])
-            ->name('change_request.store')
-            ->can('create', 'changeRequest');
+            ->name('change_request.store');
         Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/approve', ApproveChangeRequestController::class)
-            ->name('change_request.approve')
-            ->can('approve', 'changeRequest');
+            ->name('change_request.approve');
         Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/reject', RejectChangeRequestController::class)
-            ->name('change_request.reject')
-            ->can('reject', 'changeRequest');
+            ->name('change_request.reject');
         Route::post('/reservations/{reservation:ulid}/change-requests/{changeRequest}/cancel', CancelChangeRequestController::class)
-            ->name('change_request.cancel')
-            ->can('cancel', 'changeRequest');
+            ->name('change_request.cancel');
     });
 
     /* ----- Message ----- */
@@ -91,7 +85,7 @@ Route::group([
         ->can('view', [Message::class, 'reservation']);
 
     /* ----- Billing portal ----- */
-    Route::post('/billing-portal', BillingPortalController::class)->name('billing_portal');;
+    Route::post('/billing-portal', BillingPortalController::class)->name('billing_portal');
 });
 
 /* ----- Stripe Webhook ----- */

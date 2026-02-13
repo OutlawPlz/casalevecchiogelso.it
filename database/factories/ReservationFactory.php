@@ -17,6 +17,7 @@ class ReservationFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => \App\Models\User::factory(),
             'ulid' => Str::ulid(),
             'name' => fake()->name(),
             'email' => fake()->safeEmail(),

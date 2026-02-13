@@ -6,7 +6,6 @@ use App\Actions\CancelChangeRequest;
 use App\Actions\CancelReservation;
 use App\Actions\RetryFailedPaymentOnSession;
 use App\Enums\ReservationStatus;
-use App\Actions\ApproveChangeRequest;
 use App\Models\ChangeRequest;
 use App\Models\Payment;
 use App\Models\Price;
@@ -27,6 +26,7 @@ use Stripe\Refund;
 use Stripe\Stripe;
 use Stripe\Webhook;
 use UnexpectedValueException;
+
 use function App\Helpers\money_format;
 
 class StripeController extends Controller
@@ -49,7 +49,7 @@ class StripeController extends Controller
             abort(400);
         }
 
-        $method = 'handle' . Str::studly(str_replace('.', '_', $event->type));
+        $method = 'handle'.Str::studly(str_replace('.', '_', $event->type));
 
         if (method_exists($this, $method)) {
             $this->$method($event);
@@ -117,7 +117,7 @@ class StripeController extends Controller
             ->withProperties([
                 'reservation' => $reservation->ulid,
             ])
-            ->log("The pre-approval has expired.");
+            ->log('The pre-approval has expired.');
 
         if (@$checkoutSession->metadata->cancel_on_expire) {
             $changeRequest
@@ -174,6 +174,12 @@ class StripeController extends Controller
 
         $amount = money_format($payment->amount);
 
+        $logMessage = "The {$payment->user->role} paid $amount.";
+
+        if ($payment->changeRequest) {
+            $logMessage .= ' Payment for change request confirmed by Stripe.';
+        }
+
         activity()
             ->performedOn($payment->reservation)
             ->causedBy($payment->user)
@@ -182,10 +188,12 @@ class StripeController extends Controller
                 'user' => $payment->user->email,
                 'amount' => $payment->amount,
                 'payment_intent' => $payment->payment_intent,
+                'change_request' => $payment->change_request_ulid,
             ])
-            ->log("The {$payment->user->role} paid $amount.");
+            ->log($logMessage);
 
-        if ($payment->changeRequest) (new ApproveChangeRequest)($payment->changeRequest);
+        // Note: ChangeRequest is already approved by ProcessChangeRequestCharge job
+        // This webhook only logs confirmation for audit purposes
     }
 
     protected function handlePayoutPaid(Event $event): void
@@ -224,6 +232,43 @@ class StripeController extends Controller
                 'payout' => $payout->id,
             ])
             ->log('The payout has been cancelled.');
+    }
+
+    protected function handleChargeRefunded(Event $event): void
+    {
+        /** @var \Stripe\Charge $charge */
+        $charge = $event->data->object;
+
+        // Find the refund from the charge
+        $refund = $charge->refunds->data[0] ?? null;
+
+        if (! $refund || ! isset($refund->metadata->change_request)) {
+            return;
+        }
+
+        $changeRequest = ChangeRequest::query()
+            ->where('ulid', $refund->metadata->change_request)
+            ->first();
+
+        if (! $changeRequest) {
+            return;
+        }
+
+        $reservation = $changeRequest->reservation;
+        $amount = money_format($refund->amount);
+
+        activity()
+            ->performedOn($reservation)
+            ->withProperties([
+                'reservation' => $reservation->ulid,
+                'change_request' => $changeRequest->ulid,
+                'refund_id' => $refund->id,
+                'amount' => $refund->amount,
+            ])
+            ->log("Refund of $amount confirmed by Stripe. Customer will receive refund in 5-10 days.");
+
+        // Note: ChangeRequest is already approved by ProcessChangeRequestRefund job
+        // This webhook only logs confirmation for audit purposes
     }
 
     protected function handleCustomerDeleted(Event $event): void

@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Models\Payment;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
@@ -13,15 +14,18 @@ use Stripe\StripeClient;
 class Refund
 {
     /**
-     * @param Collection<Payment>|Payment $payments
-     * @param int $cents
+     * @param  Collection<Payment>|Payment  $payments
+     * @param  array<string, mixed>  $metadata
      * @return Collection<StripeRefund>
+     *
      * @throws ApiErrorException
-     * @throws ValidationException
+     * @throws ValidationException|BindingResolutionException
      */
-    public function __invoke(Collection|Payment $payments, int $cents = 0): Collection
+    public function __invoke(Collection|Payment $payments, int $cents = 0, array $metadata = []): Collection
     {
-        if ($payments instanceof Payment) $payments = collect([$payments]);
+        if ($payments instanceof Payment) {
+            $payments = collect([$payments]);
+        }
 
         $amountPaid = $payments->reduce(fn ($tot, Payment $payment) => $tot + ($payment->amountPaid), 0);
 
@@ -31,7 +35,9 @@ class Refund
             ]);
         }
 
-        if (! $cents) $cents = $amountPaid;
+        if (! $cents) {
+            $cents = $amountPaid;
+        }
 
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
@@ -39,21 +45,25 @@ class Refund
         $refunds = [];
 
         foreach ($payments as $payment) {
-            if (! $payment->amountPaid) continue;
+            if (! $payment->amountPaid) {
+                continue;
+            }
 
             $amount = min($cents, $payment->amountPaid);
 
             $refunds[] = $stripe->refunds->create([
                 'payment_intent' => $payment->payment_intent,
                 'amount' => $amount,
-                'metadata' => [
+                'metadata' => array_merge([
                     'reservation' => $payment->reservation_ulid,
-                ],
+                ], $metadata),
             ]);
 
             $cents -= $amount;
 
-            if (! $cents) break;
+            if (! $cents) {
+                break;
+            }
         }
 
         return collect($refunds);

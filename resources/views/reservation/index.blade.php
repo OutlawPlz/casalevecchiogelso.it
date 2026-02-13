@@ -22,7 +22,7 @@
                     @foreach($reservations as $reservation)
                     <a
                         href="{{ route('reservation.show', [$reservation]) }}"
-                        class="flex justify-between flex space-x-4 p-4 sm:p-6"
+                        class="flex justify-between space-x-4 p-4 sm:p-6"
                     >
                         <div @class(['line-through decoration-zinc-500' => $reservation->inStatus(Status::REJECTED, Status::CANCELLED)])>
                             <h4 class="text-xl capitalize">{{ $reservation->check_in->diffForHumans() }}</h4>
@@ -56,7 +56,7 @@
                                 <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                </a>
+                    </a>
                     @endforeach
                 </div>
             </div>

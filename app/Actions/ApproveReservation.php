@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Enums\ReservationStatus;
 use App\Models\Reservation;
 use App\Models\User;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Checkout\Session;
@@ -14,7 +15,7 @@ use Stripe\StripeClient;
 class ApproveReservation
 {
     /**
-     * @throws ApiErrorException
+     * @throws ApiErrorException|BindingResolutionException
      */
     public function __invoke(Reservation $reservation): Session
     {
@@ -45,7 +46,7 @@ class ApproveReservation
     }
 
     /**
-     * @throws ApiErrorException
+     * @throws ApiErrorException|BindingResolutionException
      */
     protected function createSetupIntent(Reservation $reservation): Session
     {

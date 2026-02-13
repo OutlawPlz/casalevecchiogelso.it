@@ -7,6 +7,7 @@ use App\Models\ChangeRequest;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<ChangeRequest>
@@ -19,6 +20,7 @@ class ChangeRequestFactory extends Factory
     public function definition(): array
     {
         return [
+            'ulid' => (string) Str::ulid(),
             'reservation_id' => Reservation::factory(),
             'user_id' => User::factory(),
             'from' => function (array $attributes) {

@@ -11,12 +11,10 @@ use Stripe\Exception\ApiErrorException;
 
 class ApproveChangeRequest
 {
-    /**
-     * @throws ApiErrorException
-     */
     public function __invoke(ChangeRequest $changeRequest): void
     {
         $reservation = $changeRequest->reservation;
+
         /** @var ?User $authUser */
         $authUser = Auth::user();
 
@@ -33,9 +31,5 @@ class ApproveChangeRequest
                 'user' => $authUser?->email,
             ])
             ->log("The $authUser?->role has approved the change request.");
-
-        if ($reservation->inStatus(Status::QUOTE)) {
-            (new ApproveReservation)($reservation);
-        }
     }
 }

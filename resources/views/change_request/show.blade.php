@@ -85,9 +85,7 @@
                 @if($refundAmount)
                     {{ __('Confirm and refund') }}
                 @elseif($amountDue)
-                    {{ $changeRequest->user->isHost()
-                        ? __('Confirm and pay')
-                        : __('Confirm and charge') }}
+                    {{ $changeRequest->user->isHost() ? __('Confirm and pay') : __('Confirm and charge') }}
                 @else
                     {{ __('Confirm the modification') }}
                 @endif
@@ -103,21 +101,25 @@
                 name="confirm"
         >
             <form
-                    x-data="{
+                x-data="{
                     loading: false,
 
                     async submit() {
                         this.loading = true;
 
                         await axios.post('{{ route('change_request.approve', [$reservation, $changeRequest]) }}')
-                            .then()
-                            .catch();
+                            .then(() => window.location = '{{ route('reservation.show', [$reservation]) }}')
+                            .catch((error) => {
+                                if (error.response.status === 422) {
+                                    return this.errors = error.response.data.errors;
+                                }
+                            });
 
                         this.loading = false;
                     },
                 }"
-                    x-on:submit.prevent="submit"
-                    class="p-6"
+                x-on:submit.prevent="submit"
+                class="p-6"
             >
                 <div class="prose">
                     <h3>{{ __('Confirm the modification') }}</h3>

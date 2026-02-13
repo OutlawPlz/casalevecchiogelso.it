@@ -3,7 +3,6 @@
 namespace App\Actions;
 
 use App\Models\User;
-use Illuminate\Support\Facades\App;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -28,7 +27,7 @@ class Charge
         ], $parameters);
 
         /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
+        $stripe = app(StripeClient::class);
 
         return $stripe->paymentIntents->create($parameters);
     }
