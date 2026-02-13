@@ -103,6 +103,7 @@ class StripeController extends Controller
         $reservation = Reservation::query()
             ->where('ulid', $checkoutSession->metadata->reservation)
             ->firstOrFail();
+
         $changeRequest = ChangeRequest::query()
             ->where('ulid', @$checkoutSession->metadata->changeRequest)
             ->first();
@@ -125,7 +126,7 @@ class StripeController extends Controller
                 : (new CancelReservation)($reservation, 'The checkout session expired.');
         }
 
-        // TODO: Notify the guest and the host that pre-approval has expired..
+        // TODO: Notify the guest and the host that pre-approval has expired.
     }
 
     protected function handlePaymentIntentCreated(Event $event): void

@@ -107,8 +107,7 @@ class Payment extends Model
     {
         if (! $this->payment_intent) return false;
 
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
+        $stripe = app(StripeClient::class);
 
         $paymentIntent = $stripe->paymentIntents->retrieve(
             'pi_3RMEFLAKSJP4UmE20jY687Vr',

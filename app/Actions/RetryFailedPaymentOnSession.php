@@ -35,8 +35,7 @@ class RetryFailedPaymentOnSession
      */
     protected function createPaymentIntent(Payment $payment): Session
     {
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
+        $stripe = app(StripeClient::class);
 
         $lineItems = $payment->changeRequest
             ? $payment->changeRequest->toLineItems()
