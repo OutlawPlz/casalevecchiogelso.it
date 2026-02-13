@@ -192,7 +192,7 @@ class StripeController extends Controller
             ])
             ->log($logMessage);
 
-        // Note: ChangeRequest is already approved by ProcessChangeRequestCharge job
+        // Note: ChangeRequest is already approved by ProcessCharge job
         // This webhook only logs confirmation for audit purposes
     }
 
@@ -267,7 +267,7 @@ class StripeController extends Controller
             ])
             ->log("Refund of $amount confirmed by Stripe. Customer will receive refund in 5-10 days.");
 
-        // Note: ChangeRequest is already approved by ProcessChangeRequestRefund job
+        // Note: ChangeRequest is already approved by ProcessRefund job
         // This webhook only logs confirmation for audit purposes
     }
 

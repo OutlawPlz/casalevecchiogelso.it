@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Reservation;
 
 use App\Actions\CancelReservation;
-use App\Actions\Refund;
-use App\Enums\ReservationStatus;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Stripe\Exception\ApiErrorException;
+
 use function App\Helpers\refund_factor;
 
 class CancelReservationController
@@ -21,11 +18,7 @@ class CancelReservationController
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $refundFactor = refund_factor($reservation, causer: $authUser);
-
-        $daysLeft = date_diff(now(), $reservation->check_out)->d;
-
-        $refundAmount = $reservation->amountPaid() * $refundFactor * ($daysLeft / $reservation->nights);
+        $refundAmount = (int) ($reservation->amountPaid() * refund_factor($reservation, causer: $authUser));
 
         return view('reservation.delete', [
             'authUser' => $authUser,
@@ -34,15 +27,11 @@ class CancelReservationController
         ]);
     }
 
-    /**
-     * @throws ApiErrorException
-     * @throws ValidationException
-     */
     public function store(Request $request, Reservation $reservation): RedirectResponse
     {
         $attributes = $request->validate(self::rules());
 
-        (new CancelReservation)($reservation, $attributes['reason']);
+        (new CancelReservation)($reservation, $attributes['reason'], $request->user());
 
         return redirect()->route('reservation.show', [$reservation]);
     }

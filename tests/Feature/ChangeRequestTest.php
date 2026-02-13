@@ -2,8 +2,8 @@
 
 use App\Actions\ApproveChangeRequest;
 use App\Enums\ChangeRequestStatus as Status;
-use App\Jobs\ProcessChangeRequestCharge;
-use App\Jobs\ProcessChangeRequestRefund;
+use App\Jobs\Charge;
+use App\Jobs\Refund;
 use App\Models\ChangeRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
@@ -75,60 +75,25 @@ test('approval dispatches charge job when price difference is positive', functio
     Queue::fake();
 
     $host = User::factory()->host()->create();
-    $changeRequest = ChangeRequest::factory()->create([
-        'to' => [
-            'check_in' => today()->addWeek(),
-            'check_out' => today()->addWeeks(3),
-            'guest_count' => 10,
-            'price_list' => [
-                [
-                    'product' => 'prod_QFGF5ANGoEMpOI',
-                    'name' => 'Overnight stay',
-                    'description' => 'Test',
-                    'price' => 'price_1POlisAKSJP4UmE2U0xe8DXq',
-                    'unit_amount' => 25000,
-                    'quantity' => 14,
-                ],
-            ],
-        ],
-    ]);
+
+    $changeRequest = ChangeRequest::factory()->amountIncrease()->create();
 
     $this->actingAs($host)
-        ->withSession(['_token' => 'test'])
-        ->post("/reservations/{$changeRequest->reservation->ulid}/change-requests/{$changeRequest->id}/approve", [
-            '_token' => 'test',
-        ]);
+        ->post(route('change_request.approve', [$changeRequest->reservation, $changeRequest]));
 
-    Queue::assertPushed(ProcessChangeRequestCharge::class);
+    Queue::assertPushed(Charge::class);
 });
 
 test('approval dispatches refund job when price difference is negative', function () {
     Queue::fake();
 
     $host = User::factory()->host()->create();
-    $changeRequest = ChangeRequest::factory()->create([
-        'to' => [
-            'check_in' => today()->addWeek(),
-            'check_out' => today()->addWeeks(2)->subDays(2),
-            'guest_count' => 7,
-            'price_list' => [
-                [
-                    'product' => 'prod_QFGF5ANGoEMpOI',
-                    'name' => 'Overnight stay',
-                    'description' => 'Test',
-                    'price' => 'price_1POlisAKSJP4UmE2U0xe8DXq',
-                    'unit_amount' => 25000,
-                    'quantity' => 3,
-                ],
-            ],
-        ],
-    ]);
 
-    $this->actingAs($host)
-        ->withSession(['_token' => 'test'])
-        ->post("/reservations/{$changeRequest->reservation->ulid}/change-requests/{$changeRequest->id}/approve", [
-            '_token' => 'test',
-        ]);
+    $changeRequest = ChangeRequest::factory()->create();
 
-    Queue::assertPushed(ProcessChangeRequestRefund::class);
+    $this
+        ->actingAs($host)
+        ->post(route('change_request.approve', [$changeRequest->reservation, $changeRequest]));
+
+    Queue::assertPushed(Refund::class);
 });

@@ -23,9 +23,10 @@ function dates_in_range(
     DateTimeInterface $end,
     string|DateInterval $interval = 'P1D',
     string $format = 'Y-m-d'
-): array
-{
-    if (is_string($interval)) $interval = new DateInterval($interval);
+): array {
+    if (is_string($interval)) {
+        $interval = new DateInterval($interval);
+    }
 
     $period = new DatePeriod($start, $interval, $end, DatePeriod::EXCLUDE_START_DATE | DatePeriod::INCLUDE_END_DATE);
 
@@ -47,7 +48,9 @@ function get_overnight_stay(array $priceList): array
 {
     $overnightStay = array_find($priceList, fn ($line) => is_overnight_stay($line['product']));
 
-    if (! $overnightStay) throw new \RuntimeException('Product "overnight_stay" not found in price list.');
+    if (! $overnightStay) {
+        throw new \RuntimeException('Product "overnight_stay" not found in price list.');
+    }
 
     return $overnightStay;
 }
@@ -58,9 +61,13 @@ function refund_factor(Reservation $reservation, ?CarbonInterface $date = null, 
 
     $refundFactor = 1;
 
-    if ($causer?->isHost()) return $refundFactor;
+    if ($causer?->isHost()) {
+        return $refundFactor;
+    }
 
-    if ($reservation->inProgress()) $refundFactor = 0;
+    if ($reservation->inProgress()) {
+        $refundFactor = 0;
+    }
 
     if ($date->isBetween(...$reservation->refundPeriod)) {
         $refundFactor = $reservation->cancellation_policy->refundFactor();
@@ -82,15 +89,16 @@ function date_format(
     DateTimeInterface|int $datetime,
     ?int $date = IntlDateFormatter::SHORT,
     ?int $time = IntlDateFormatter::SHORT
-): string
-{
+): string {
     $formatter = new IntlDateFormatter(
         config('app.locale'),
         $date ?? IntlDateFormatter::NONE,
         $time ?? IntlDateFormatter::NONE
     );
 
-    if (is_int($datetime)) $datetime = new DateTime("@$datetime");
+    if (is_int($datetime)) {
+        $datetime = new DateTime("@$datetime");
+    }
 
     return $formatter->format($datetime);
 }

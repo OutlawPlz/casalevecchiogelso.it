@@ -3,27 +3,21 @@
 namespace App\Actions;
 
 use App\Enums\ReservationStatus;
+use App\Jobs\Refund;
 use App\Models\Reservation;
 use App\Models\User;
-use Illuminate\Validation\ValidationException;
-use Stripe\Exception\ApiErrorException;
+
 use function App\Helpers\refund_factor;
 
 class CancelReservation
 {
-    /**
-     * @throws ApiErrorException
-     * @throws ValidationException
-     */
     public function __invoke(Reservation $reservation, string $reason, ?User $causer = null): void
     {
-        $refundFactor = refund_factor($reservation, causer: $causer);
+        $refundAmount = (int) ($reservation->amountPaid() * refund_factor($reservation, causer: $causer));
 
-        $daysLeft = date_diff(now(), $reservation->check_out)->d;
-
-        $refundAmount = $reservation->amountPaid() * $refundFactor * ($daysLeft / $reservation->nights);
-
-        if ($refundAmount) (new Refund)($reservation->payments, (int) $refundAmount);
+        if ($refundAmount) {
+            Refund::dispatch($reservation, $refundAmount, ['reservation' => $reservation->ulid]);
+        }
 
         $reservation->update(['status' => ReservationStatus::CANCELLED]);
 

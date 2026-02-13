@@ -1,31 +1,37 @@
 <?php
 
-namespace App\Actions;
+namespace App\Jobs;
 
 use App\Models\Payment;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use App\Models\Reservation;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
 use Stripe\Exception\ApiErrorException;
-use Stripe\Refund as StripeRefund;
 use Stripe\StripeClient;
 
-class Refund
+class Refund implements ShouldQueue
 {
+    use Queueable;
+
+    public int $tries = 3;
+
+    public int $backoff = 60;
+
+    public function __construct(
+        public Reservation $reservation,
+        public int $amount,
+        public array $metadata = []
+    ) {}
+
     /**
-     * @param  Collection<Payment>|Payment  $payments
-     * @param  array<string, mixed>  $metadata
-     * @return Collection<StripeRefund>
-     *
      * @throws ApiErrorException
-     * @throws ValidationException|BindingResolutionException
      */
-    public function __invoke(Collection|Payment $payments, int $cents = 0, array $metadata = []): Collection
+    public function handle(): Collection
     {
-        if ($payments instanceof Payment) {
-            $payments = collect([$payments]);
-        }
+        $payments = $this->reservation->payments;
+        $cents = $this->amount;
 
         $amountPaid = $payments->reduce(fn ($tot, Payment $payment) => $tot + ($payment->amountPaid), 0);
 
@@ -40,7 +46,7 @@ class Refund
         }
 
         /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
+        $stripe = app(StripeClient::class);
 
         $refunds = [];
 
@@ -56,7 +62,7 @@ class Refund
                 'amount' => $amount,
                 'metadata' => array_merge([
                     'reservation' => $payment->reservation_ulid,
-                ], $metadata),
+                ], $this->metadata),
             ]);
 
             $cents -= $amount;

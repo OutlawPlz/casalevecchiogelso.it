@@ -15,7 +15,8 @@ class ReservationPolicy
 
     public function cancel(User $user, Reservation $reservation): bool
     {
-        return $user->isHost() || $reservation->user()->is($user);
+        return $reservation->inStatus(Status::CONFIRMED, Status::PENDING)
+            && ($user->isHost() || $reservation->user()->is($user));
     }
 
     public function reject(User $user, Reservation $reservation): bool

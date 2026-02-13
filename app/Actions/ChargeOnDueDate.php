@@ -2,25 +2,22 @@
 
 namespace App\Actions;
 
+use App\Jobs\Charge;
 use App\Models\Reservation;
 use Illuminate\Support\Collection;
-use Stripe\Exception\ApiErrorException;
 
 class ChargeOnDueDate
 {
-    /**
-     * @throws ApiErrorException
-     */
     public function __invoke(): void
     {
         /** @var Collection<Reservation> $reservations */
         $reservations = Reservation::query()->where('due_date', today())->get();
 
         foreach ($reservations as $reservation) {
-            (new Charge)($reservation->user, $reservation->tot, ['metadata' => [
+            Charge::dispatch($reservation->user, $reservation->tot, [
                 'reservation' => $reservation->ulid,
-                'retry_on_failure' => true
-            ]]);
+                'retry_on_failure' => true,
+            ]);
         }
     }
 }

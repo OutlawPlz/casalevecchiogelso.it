@@ -50,7 +50,7 @@ Route::group([
     Route::get('/reservations/{reservation:ulid}/cancel', [CancelReservationController::class, 'show'])
         ->name('reservation.cancellation_form')
         ->can('cancel', 'reservation');
-    Route::post('/reservations/{reservation:ulid}/cancel', [CancelReservationController::class, 'store'])
+    Route::delete('/reservations/{reservation:ulid}/cancel', [CancelReservationController::class, 'store'])
         ->name('reservation.cancel')
         ->can('cancel', 'reservation');
     Route::post('/reservation/{reservation:ulid}/reject', RejectReservationController::class)

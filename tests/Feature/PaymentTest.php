@@ -1,8 +1,9 @@
 <?php
 
-use App\Actions\Charge;
-use App\Actions\Refund;
+use App\Jobs\Charge;
+use App\Jobs\Refund;
 use App\Models\Payment;
+use App\Models\Reservation;
 use App\Models\User;
 use Stripe\PaymentIntent;
 use Stripe\Refund as StripeRefund;
@@ -10,7 +11,9 @@ use Stripe\Refund as StripeRefund;
 test('user can be charged', function () {
     $user = User::factory()->guest()->create();
 
-    $paymentIntent = (new Charge)($user, 1000, ['payment_method' => 'pm_card_visa']);
+    $job = new Charge($user, 1000, paymentMethod: 'pm_card_visa');
+
+    $paymentIntent = $job->handle();
 
     expect($paymentIntent)
         ->toBeInstanceOf(PaymentIntent::class)
@@ -21,11 +24,24 @@ test('user can be charged', function () {
 test('user can be refunded', function () {
     $user = User::factory()->guest()->create();
 
-    $paymentIntent = (new Charge)($user, 1000, ['payment_method' => 'pm_card_visa']);
+    $chargeJob = new Charge($user, 1000, paymentMethod: 'pm_card_visa');
+    $paymentIntent = $chargeJob->handle();
 
-    $payment = Payment::makeFromStripe($paymentIntent);
+    $reservation = Reservation::factory()->create();
 
-    $refunds = (new Refund)($payment, 1000);
+    Payment::create([
+        'payment_intent' => $paymentIntent->id,
+        'status' => $paymentIntent->status,
+        'amount' => $paymentIntent->amount,
+        'amount_captured' => $paymentIntent->amount,
+        'amount_refunded' => 0,
+        'fee' => 0,
+        'customer' => $paymentIntent->customer,
+        'reservation_ulid' => $reservation->ulid,
+    ]);
+
+    $refundJob = new Refund($reservation->fresh(), 1000);
+    $refunds = $refundJob->handle();
 
     /** @var StripeRefund $refund */
     $refund = $refunds->first();
@@ -35,7 +51,5 @@ test('user can be refunded', function () {
         ->and($refund->amount)->toBe(1000)
         ->and($refund->payment_intent)->toBe($paymentIntent->id);
 
-    $count = $refunds->count();
-
-    expect($count)->toBe(1);
+    expect($refunds->count())->toBe(1);
 });

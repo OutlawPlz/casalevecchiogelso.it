@@ -51,4 +51,42 @@ class ChangeRequestFactory extends Factory
             'status' => ChangeRequestStatus::PENDING,
         ];
     }
+
+    public function amountIncrease(): static
+    {
+        return $this->state([
+            'to' => function (array $attributes) {
+                $reservation = Reservation::query()->find($attributes['reservation_id']);
+
+                $priceList = $reservation->price_list;
+                $priceList[0]['quantity'] *= 2;
+
+                return [
+                    'check_in' => $reservation->check_in,
+                    'check_out' => $reservation->check_out,
+                    'guest_count' => $reservation->guest_count,
+                    'price_list' => $priceList,
+                ];
+            },
+        ]);
+    }
+
+    public function amountDecrease(): static
+    {
+        return $this->state([
+            'to' => function (array $attributes) {
+                $reservation = Reservation::query()->find($attributes['reservation_id']);
+
+                $priceList = $reservation->price_list;
+                $priceList[0]['quantity'] = max(1, intdiv($priceList[0]['quantity'], 2));
+
+                return [
+                    'check_in' => $reservation->check_in,
+                    'check_out' => $reservation->check_out,
+                    'guest_count' => $reservation->guest_count,
+                    'price_list' => $priceList,
+                ];
+            },
+        ]);
+    }
 }

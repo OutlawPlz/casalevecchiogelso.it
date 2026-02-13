@@ -6,8 +6,8 @@ use App\Actions\ApproveChangeRequest as Approve;
 use App\Actions\ApproveReservation;
 use App\Enums\ReservationStatus as Status;
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessChangeRequestCharge;
-use App\Jobs\ProcessChangeRequestRefund;
+use App\Jobs\Charge;
+use App\Jobs\Refund;
 use App\Models\ChangeRequest;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
@@ -25,17 +25,19 @@ class ApproveChangeRequestController extends Controller
         }
 
         if ($priceDifference > 0) {
-            ProcessChangeRequestCharge::dispatch(
-                $reservation->user,
-                $priceDifference,
-                $changeRequest
-            );
+            Charge::dispatch($reservation->user, $priceDifference, [
+                'reservation' => $reservation->ulid,
+                'change_request' => $changeRequest->ulid,
+                'retry_on_failure' => true,
+            ]);
         }
 
         if ($priceDifference < 0) {
             $amount = $priceDifference * refund_factor($reservation, $changeRequest->created_at);
 
-            ProcessChangeRequestRefund::dispatch($changeRequest, (int) $amount);
+            Refund::dispatch($changeRequest->reservation, (int) $amount, [
+                'change_request' => $changeRequest->ulid,
+            ]);
 
             return;
         }

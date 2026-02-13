@@ -105,8 +105,8 @@ class Reservation extends Model
 
         return Attribute::make(
             get: fn () => [
-                $this->check_in->sub($timeWindow) ,
-                $this->check_in
+                $this->check_in->sub($timeWindow),
+                $this->check_in,
             ]
         );
     }
@@ -128,9 +128,14 @@ class Reservation extends Model
 
     public function hasNewMessageFor(User $user): bool
     {
-        if (! $this->visited_at || ! $this->replied_at) return false;
+        if (! $this->visited_at || ! $this->replied_at) {
+            return false;
+        }
+
         // The given user has never visited the reservation...
-        if (! array_key_exists($user->email, $this->visited_at)) return false;
+        if (! array_key_exists($user->email, $this->visited_at)) {
+            return false;
+        }
 
         $visitedAt = new CarbonImmutable($this->visited_at[$user->email]);
 
@@ -189,7 +194,7 @@ class Reservation extends Model
     {
         return Attribute::make(
             get: function () {
-                return date_diff($this->check_in, $this->check_out)->d;
+                return date_diff($this->check_in, $this->check_out)->days;
             }
         );
     }
@@ -207,11 +212,13 @@ class Reservation extends Model
             get: function () {
                 $preparationTime = config('reservation.preparation_time');
 
-                if (! $preparationTime) return [];
+                if (! $preparationTime) {
+                    return [];
+                }
 
                 return [
                     $this->check_in->sub($preparationTime),
-                    $this->check_in
+                    $this->check_in,
                 ];
             }
         );
@@ -223,11 +230,13 @@ class Reservation extends Model
             get: function () {
                 $preparationTime = config('reservation.preparation_time');
 
-                if (! $preparationTime) return [];
+                if (! $preparationTime) {
+                    return [];
+                }
 
                 return [
                     $this->check_out,
-                    $this->check_out->add($preparationTime)
+                    $this->check_out->add($preparationTime),
                 ];
             }
         );
