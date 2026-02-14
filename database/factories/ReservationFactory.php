@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\CancellationPolicy;
 use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -40,5 +41,25 @@ class ReservationFactory extends Factory
             'status' => 'confirmed',
             'cancellation_policy' => 'moderate',
         ];
+    }
+
+    public function inProgress(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'check_in' => now()->subDays(4),
+            'check_out' => now()->addDays(3),
+        ]);
+    }
+
+    public function inRefundPeriod(): static
+    {
+        return $this->state(function (array $attributes) {
+            $cancellationPolicy = CancellationPolicy::from($attributes['cancellation_policy']);
+
+            return [
+                'check_in' => now()->add($cancellationPolicy->timeWindow()),
+                'check_out' => now()->add($cancellationPolicy->timeWindow())->addWeek(),
+            ];
+        });
     }
 }

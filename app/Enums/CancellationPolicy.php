@@ -8,6 +8,10 @@ enum CancellationPolicy: string
     case MODERATE = 'moderate';
     case STRICT = 'strict';
 
+    const int FULL_REFUND = 1;
+
+    const int NO_REFUND = 0;
+
     public function refundFactor(): float
     {
         return .7;

@@ -11,11 +11,11 @@ use Stripe\Refund as StripeRefund;
 test('user can be charged', function () {
     $user = User::factory()->guest()->create();
 
-    $job = new Charge($user, 1000, paymentMethod: 'pm_card_visa');
+    $chargeJob = new Charge($user, 1000, paymentMethod: 'pm_card_visa');
+    $paymentIntent = $chargeJob->handle();
 
-    $paymentIntent = $job->handle();
-
-    expect($paymentIntent)
+    expect($chargeJob->idempotencyKey)->not->toBeNull()
+        ->and($paymentIntent)
         ->toBeInstanceOf(PaymentIntent::class)
         ->and($paymentIntent->amount)->toBe(1000)
         ->and($paymentIntent->customer)->toBe($user->stripe_id);
@@ -46,7 +46,8 @@ test('user can be refunded', function () {
     /** @var StripeRefund $refund */
     $refund = $refunds->first();
 
-    expect($refund)
+    expect($refundJob->idempotencyKey)->not->toBeNull()
+        ->and($refund)
         ->toBeInstanceOf(StripeRefund::class)
         ->and($refund->amount)->toBe(1000)
         ->and($refund->payment_intent)->toBe($paymentIntent->id);

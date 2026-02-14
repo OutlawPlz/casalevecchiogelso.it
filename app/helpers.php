@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Enums\CancellationPolicy;
 use App\Models\Reservation;
 use App\Models\User;
 use Carbon\CarbonInterface;
@@ -59,14 +60,14 @@ function refund_factor(Reservation $reservation, ?CarbonInterface $date = null, 
 {
     $date ??= now();
 
-    $refundFactor = 1;
+    $refundFactor = CancellationPolicy::FULL_REFUND;
 
     if ($causer?->isHost()) {
         return $refundFactor;
     }
 
     if ($reservation->inProgress()) {
-        $refundFactor = 0;
+        $refundFactor = CancellationPolicy::NO_REFUND;
     }
 
     if ($date->isBetween(...$reservation->refundPeriod)) {

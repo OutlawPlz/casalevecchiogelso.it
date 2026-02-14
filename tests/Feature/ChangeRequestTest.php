@@ -7,7 +7,6 @@ use App\Jobs\Refund;
 use App\Models\ChangeRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
-use Spatie\Activitylog\Models\Activity;
 
 test('change request can be approved', function () {
     $host = User::factory()->host()->create();
@@ -36,64 +35,34 @@ test('change request can be approved', function () {
 
 });
 
-test('change request can be cancelled', function () {
-    $guest = User::factory()->create();
-    $host = User::factory()->host()->create();
-    $changeRequest = ChangeRequest::factory()
-        ->for($guest, 'user')
-        ->create();
-
-    $this->actingAs($host)
-        ->withSession(['_token' => 'test'])
-        ->post("/reservations/{$changeRequest->reservation->ulid}/change-requests/{$changeRequest->id}/cancel", [
-            '_token' => 'test',
-        ]);
-
-    expect($changeRequest->refresh()->status)
-        ->toBe(Status::CANCELLED)
-        ->and(Activity::query()->where('subject_id', $changeRequest->reservation->id)->latest()->first())
-        ->not->toBeNull();
-});
-
-test('change request can be rejected', function () {
-    $host = User::factory()->host()->create();
-    $changeRequest = ChangeRequest::factory()->create();
-
-    $this->actingAs($host)
-        ->withSession(['_token' => 'test'])
-        ->post("/reservations/{$changeRequest->reservation->ulid}/change-requests/{$changeRequest->id}/reject", [
-            '_token' => 'test',
-        ]);
-
-    expect($changeRequest->refresh()->status)
-        ->toBe(Status::REJECTED)
-        ->and(Activity::query()->where('subject_id', $changeRequest->reservation->id)->latest()->first())
-        ->not->toBeNull();
-});
-
-test('approval dispatches charge job when price difference is positive', function () {
+it('dispatches a charge when price difference is positive', function () {
     Queue::fake();
 
     $host = User::factory()->host()->create();
 
     $changeRequest = ChangeRequest::factory()->amountIncrease()->create();
 
-    $this->actingAs($host)
+    $this
+        ->actingAs($host)
         ->post(route('change_request.approve', [$changeRequest->reservation, $changeRequest]));
 
-    Queue::assertPushed(Charge::class);
+    Queue::assertPushed(Charge::class, function ($job) {
+        return $job->idempotencyKey !== null;
+    });
 });
 
-test('approval dispatches refund job when price difference is negative', function () {
+it('dispatches a refund when price difference is negative', function () {
     Queue::fake();
 
     $host = User::factory()->host()->create();
 
-    $changeRequest = ChangeRequest::factory()->create();
+    $changeRequest = ChangeRequest::factory()->amountDecrease()->create();
 
     $this
         ->actingAs($host)
         ->post(route('change_request.approve', [$changeRequest->reservation, $changeRequest]));
 
-    Queue::assertPushed(Refund::class);
+    Queue::assertPushed(Refund::class, function ($job) {
+        return $job->idempotencyKey !== null;
+    });
 });

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Str;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -21,8 +22,11 @@ class Charge implements ShouldQueue
         public User $user,
         public int $amount,
         public array $metadata = [],
-        public ?string $paymentMethod = null
-    ) {}
+        public ?string $paymentMethod = null,
+        public ?string $idempotencyKey = null
+    ) {
+        $this->idempotencyKey ??= (string) Str::ulid();
+    }
 
     /**
      * @throws ApiErrorException
@@ -39,9 +43,10 @@ class Charge implements ShouldQueue
             'metadata' => $this->metadata,
         ]);
 
-        /** @var StripeClient $stripe */
         $stripe = app(StripeClient::class);
 
-        return $stripe->paymentIntents->create($parameters);
+        return $stripe->paymentIntents->create($parameters, [
+            'idempotency_key' => $this->idempotencyKey,
+        ]);
     }
 }

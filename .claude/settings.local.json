@@ -6,7 +6,8 @@
       "Bash(php artisan make:test:*)",
       "Bash(vendor/bin/pint:*)",
       "Bash(php artisan test:*)",
-      "mcp__laravel-boost__database-schema"
+      "mcp__laravel-boost__database-schema",
+      "mcp__laravel-boost__search-docs"
     ]
   },
   "enableAllProjectMcpServers": true,

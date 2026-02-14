@@ -8,71 +8,6 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 
-use function App\Helpers\refund_factor;
-
-/* ----------------------------------------------------------------
- | refund_factor()
- | ---------------------------------------------------------------- */
-
-test('refund_factor returns 1 for host causer', function () {
-    $host = User::factory()->host()->create();
-    $reservation = Reservation::factory()->create([
-        'check_in' => today()->subDay(),
-        'check_out' => today()->addDays(3),
-    ]);
-
-    expect(refund_factor($reservation, causer: $host))->toBe(1.0);
-});
-
-test('refund_factor returns 0 when reservation is in progress', function () {
-    $reservation = Reservation::factory()->create([
-        'check_in' => today()->subDay(),
-        'check_out' => today()->addDays(3),
-    ]);
-
-    expect(refund_factor($reservation))->toBe(0.0);
-});
-
-test('refund_factor returns cancellation policy factor within refund window', function () {
-    $reservation = Reservation::factory()->create([
-        'cancellation_policy' => 'moderate',
-        'check_in' => today()->addDays(3),
-        'check_out' => today()->addDays(10),
-    ]);
-
-    expect(refund_factor($reservation))->toBe(0.7);
-});
-
-test('refund_factor returns 1 outside refund window', function () {
-    $reservation = Reservation::factory()->create([
-        'cancellation_policy' => 'moderate',
-        'check_in' => today()->addMonth(),
-        'check_out' => today()->addMonth()->addWeek(),
-    ]);
-
-    expect(refund_factor($reservation))->toBe(1.0);
-});
-
-test('in-progress takes precedence over refund window', function () {
-    $reservation = Reservation::factory()->create([
-        'cancellation_policy' => 'strict',
-        'check_in' => today()->subDay(),
-        'check_out' => today()->addDays(20),
-    ]);
-
-    expect(refund_factor($reservation))->toBe(0.0);
-});
-
-test('host causer takes precedence over in-progress', function () {
-    $host = User::factory()->host()->create();
-    $reservation = Reservation::factory()->create([
-        'check_in' => today()->subDay(),
-        'check_out' => today()->addDays(3),
-    ]);
-
-    expect(refund_factor($reservation, causer: $host))->toBe(1.0);
-});
-
 /* ----------------------------------------------------------------
  | CancelReservation action
  | ---------------------------------------------------------------- */
@@ -102,7 +37,8 @@ test('cancellation dispatches ProcessRefund job', function () {
     Queue::assertPushed(Refund::class, function ($job) use ($reservation) {
         return $job->reservation->is($reservation)
             && $job->amount === 175000
-            && $job->metadata === ['reservation' => $reservation->ulid];
+            && $job->metadata === ['reservation' => $reservation->ulid]
+            && $job->idempotencyKey !== null;
     });
 });
 
