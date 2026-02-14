@@ -2,15 +2,10 @@
 
 namespace App\Models;
 
-use App\Services\GoogleTranslate;
 use Carbon\CarbonImmutable;
-use Google\Cloud\Core\Exception\ServiceException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * @property ?int $user_id
@@ -40,9 +35,6 @@ class Message extends Model
         'locale',
     ];
 
-    /**
-     * @return array
-     */
     protected function casts(): array
     {
         return [
@@ -52,17 +44,11 @@ class Message extends Model
         ];
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function reservation(): BelongsTo
     {
         return $this->belongsTo(Reservation::class);

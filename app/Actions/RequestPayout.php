@@ -8,13 +8,12 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
+
 use function App\Helpers\money_format;
 
 class RequestPayout
 {
     /**
-     * @param  Reservation  $reservation
-     * @return void
      * @throws ApiErrorException
      */
     public function __invoke(Reservation $reservation): void
@@ -26,8 +25,8 @@ class RequestPayout
 
         $paymentIntent = $stripe->paymentIntents->retrieve(
             $reservation->payment_intent,
-            ['expand' => ['latest_charge.balance_transaction']
-        ]);
+            ['expand' => ['latest_charge.balance_transaction'],
+            ]);
 
         $balanceTransaction = $paymentIntent->latest_charge->balance_transaction;
 

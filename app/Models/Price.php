@@ -33,7 +33,6 @@ class Price extends Model
     }
 
     /**
-     * @return int
      * @throws \Stripe\Exception\ApiErrorException
      */
     public static function syncFromStripe(): int
@@ -55,10 +54,6 @@ class Price extends Model
         );
     }
 
-    /**
-     * @param  StripePrice  $price
-     * @return static
-     */
     public static function makeFromStripe(StripePrice $price): static
     {
         return new static([

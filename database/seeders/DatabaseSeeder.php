@@ -7,7 +7,6 @@ use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Database\Factories\ReservationFactory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

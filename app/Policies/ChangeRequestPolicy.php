@@ -16,10 +16,12 @@ class ChangeRequestPolicy
         $forbiddenStatuses = [
             ReservationStatus::CANCELLED,
             ReservationStatus::REJECTED,
-            ReservationStatus::COMPLETED
+            ReservationStatus::COMPLETED,
         ];
 
-        if ($reservation->inStatus(...$forbiddenStatuses)) return false;
+        if ($reservation->inStatus(...$forbiddenStatuses)) {
+            return false;
+        }
 
         return $user->isHost() || $reservation->user()->is($user);
     }
@@ -31,7 +33,9 @@ class ChangeRequestPolicy
 
     public function approve(User $user, ChangeRequest $changeRequest): bool
     {
-        if (! $changeRequest->inStatus(Status::PENDING)) return false;
+        if (! $changeRequest->inStatus(Status::PENDING)) {
+            return false;
+        }
 
         if ($changeRequest->user->isHost()) {
             return $changeRequest->reservation->user()->is($user);
@@ -42,7 +46,9 @@ class ChangeRequestPolicy
 
     public function reject(User $user, ChangeRequest $changeRequest): bool
     {
-        if (! $changeRequest->inStatus(Status::PENDING)) return false;
+        if (! $changeRequest->inStatus(Status::PENDING)) {
+            return false;
+        }
 
         if ($changeRequest->user->isHost()) {
             return $changeRequest->reservation->user()->is($user);
@@ -53,7 +59,9 @@ class ChangeRequestPolicy
 
     public function cancel(User $user, ChangeRequest $changeRequest): bool
     {
-        if (! $changeRequest->inStatus(Status::PENDING)) return false;
+        if (! $changeRequest->inStatus(Status::PENDING)) {
+            return false;
+        }
 
         if ($changeRequest->user->isHost()) {
             return $changeRequest->reservation->user()->is($user);

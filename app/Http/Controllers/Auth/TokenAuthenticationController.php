@@ -15,10 +15,6 @@ use Illuminate\Support\Str;
 
 class TokenAuthenticationController extends Controller
 {
-    /**
-     * @param Request $request
-     * @return void
-     */
     public function create(Request $request): void
     {
         $attributes = $request->validate([
@@ -31,23 +27,23 @@ class TokenAuthenticationController extends Controller
         Notification::route('mail', $attributes['email'])->notify(new TokenLogin($signedUrl));
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function store(Request $request): RedirectResponse
     {
-        if (! $request->hasValidSignature()) abort(401);
+        if (! $request->hasValidSignature()) {
+            abort(401);
+        }
 
         /** @var User $user */
         $user = User::query()->firstOrNew(['email' => $request->get('email')]);
 
-        if (! $user->exists) $user->forceFill([
-            'name' => $request->get('name'),
-            'password' => Hash::make(Str::password()),
-            'email_verified_at' => now(),
-            'provider' => 'email',
-        ]);
+        if (! $user->exists) {
+            $user->forceFill([
+                'name' => $request->get('name'),
+                'password' => Hash::make(Str::password()),
+                'email_verified_at' => now(),
+                'provider' => 'email',
+            ]);
+        }
 
         $user->save();
 

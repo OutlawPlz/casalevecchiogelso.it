@@ -3,7 +3,6 @@
 namespace App\Actions;
 
 use App\Models\Payment;
-use Illuminate\Support\Facades\App;
 use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
@@ -22,7 +21,7 @@ class RetryFailedPaymentOnSession
                 'id' => $checkoutSession->id,
                 'url' => $checkoutSession->url,
                 'expires_at' => $checkoutSession->expires_at,
-            ]
+            ],
         ]);
 
         // TODO: Notify the guest.
@@ -57,7 +56,7 @@ class RetryFailedPaymentOnSession
                 'metadata' => [
                     'reservation' => $payment->reservation_ulid,
                     'change_request' => $payment->change_request_ulid,
-                ]
+                ],
             ],
         ]);
     }

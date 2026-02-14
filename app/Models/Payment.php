@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\App;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -60,7 +59,7 @@ class Payment extends Model
     protected function casts(): array
     {
         return [
-            'refunds' => 'array'
+            'refunds' => 'array',
         ];
     }
 
@@ -105,7 +104,9 @@ class Payment extends Model
      */
     public function syncFromStripe(): bool
     {
-        if (! $this->payment_intent) return false;
+        if (! $this->payment_intent) {
+            return false;
+        }
 
         $stripe = app(StripeClient::class);
 

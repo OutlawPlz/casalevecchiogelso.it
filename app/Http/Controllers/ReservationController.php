@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+
 use function App\Helpers\is_overnight_stay;
 
 class ReservationController extends Controller
@@ -47,7 +48,9 @@ class ReservationController extends Controller
         $priceList = Product::defaultPriceList();
 
         array_walk($priceList, function (&$line) use ($reservation) {
-            if (is_overnight_stay($line['product'])) $line['quantity'] = $reservation->nights;
+            if (is_overnight_stay($line['product'])) {
+                $line['quantity'] = $reservation->nights;
+            }
         });
 
         /** @var ?User $authUser */
@@ -69,7 +72,7 @@ class ReservationController extends Controller
 
         if ($calendar->isNotAvailable(...$reservation->reservedPeriod)) {
             throw ValidationException::withMessages([
-                'unavailable_dates' => __('The selected dates are not available.')
+                'unavailable_dates' => __('The selected dates are not available.'),
             ]);
         }
 
@@ -102,7 +105,7 @@ class ReservationController extends Controller
         return [
             'check_in' => ['required', 'date', "after:$date"],
             'check_out' => ['required', 'date', 'after:check_in'],
-            'guest_count' => ['required','numeric', 'min:1', 'max:10']
+            'guest_count' => ['required', 'numeric', 'min:1', 'max:10'],
         ];
     }
 }

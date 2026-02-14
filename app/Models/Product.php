@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\App;
 use Stripe\Product as StripeProduct;
 use Stripe\StripeClient;
+
 use function App\Helpers\is_overnight_stay;
 
 /**
@@ -31,24 +32,17 @@ class Product extends Model
         'active',
     ];
 
-    /**
-     * @param  array  $attributes
-     */
     final public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function defaultPrice(): BelongsTo
     {
         return $this->belongsTo(Price::class, 'default_price', 'stripe_id');
     }
 
     /**
-     * @return int
      * @throws \Stripe\Exception\ApiErrorException
      */
     public static function syncFromStripe(): int
@@ -70,10 +64,6 @@ class Product extends Model
         );
     }
 
-    /**
-     * @param  StripeProduct  $product
-     * @return static
-     */
     public static function makeFromStripe(StripeProduct $product): static
     {
         return new static([

@@ -26,17 +26,21 @@ class ApproveChangeRequestController extends Controller
 
         if ($priceDifference > 0) {
             Charge::dispatch($reservation->user, $priceDifference, [
-                'reservation' => $reservation->ulid,
-                'change_request' => $changeRequest->ulid,
-                'retry_on_failure' => true,
+                'metadata' => [
+                    'reservation' => $reservation->ulid,
+                    'change_request' => $changeRequest->ulid,
+                    'retry_on_failure' => true,
+                ],
             ]);
         }
 
         if ($priceDifference < 0) {
             $amount = $priceDifference * refund_factor($reservation, $changeRequest->created_at);
 
-            Refund::dispatch($changeRequest->reservation, (int) $amount, [
-                'change_request' => $changeRequest->ulid,
+            Refund::dispatch($changeRequest->reservation->payments, (int) $amount, [
+                'metadata' => [
+                    'change_request' => $changeRequest->ulid,
+                ],
             ]);
 
             return;

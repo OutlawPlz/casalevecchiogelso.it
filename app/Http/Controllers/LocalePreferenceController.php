@@ -9,10 +9,6 @@ use Illuminate\Validation\Rule;
 
 class LocalePreferenceController extends Controller
 {
-    /**
-     * @param  Request  $request
-     * @return RedirectResponse
-     */
     public function __invoke(Request $request): RedirectResponse
     {
         /** @var ?User $authUser */
@@ -27,9 +23,6 @@ class LocalePreferenceController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * @return array
-     */
     public static function rules(): array
     {
         $availableLocales = array_keys(config('app.available_locales'));

@@ -16,6 +16,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
+
 use function App\Helpers\is_overnight_stay;
 use function App\Helpers\refund_factor;
 
@@ -25,7 +26,9 @@ class ChangeRequestController extends Controller
     {
         $refundFactor = refund_factor($reservation, $changeRequest->created_at);
 
-        if ($changeRequest->user->isHost()) $refundFactor = 1;
+        if ($changeRequest->user->isHost()) {
+            $refundFactor = 1;
+        }
 
         $refundAmount = 0;
 
@@ -74,7 +77,8 @@ class ChangeRequestController extends Controller
         /** @var ?User $authUser */
         $authUser = $request->user();
 
-        $reason = $attributes['reason']; unset($attributes['reason']);
+        $reason = $attributes['reason'];
+        unset($attributes['reason']);
 
         $changeRequest = ChangeRequest::for($reservation)->fill([
             'status' => ChangeRequestStatus::PENDING,
@@ -86,7 +90,9 @@ class ChangeRequestController extends Controller
         $priceList = Product::defaultPriceList();
 
         array_walk($priceList, function (&$line) use ($changeRequest) {
-            if (is_overnight_stay($line['product'])) $line['quantity'] = $changeRequest->toReservation->nights;
+            if (is_overnight_stay($line['product'])) {
+                $line['quantity'] = $changeRequest->toReservation->nights;
+            }
         });
 
         $changeRequest->fill(['to' => $attributes + ['price_list' => $priceList]]);
@@ -97,7 +103,7 @@ class ChangeRequestController extends Controller
 
         if ($calendar->isNotAvailable($checkIn, $checkOut, ignore: $reservation)) {
             throw ValidationException::withMessages([
-                'unavailable_dates' => __('The selected dates are not available.')
+                'unavailable_dates' => __('The selected dates are not available.'),
             ]);
         }
 
@@ -126,7 +132,7 @@ class ChangeRequestController extends Controller
         $rules = [
             'check_in' => ['required', 'date', "after:$date"],
             'check_out' => ['required', 'date', 'after:check_in'],
-            'guest_count' => ['required','numeric', 'min:1', 'max:10'],
+            'guest_count' => ['required', 'numeric', 'min:1', 'max:10'],
             'reason' => ['required', 'string', 'max:255'],
         ];
 

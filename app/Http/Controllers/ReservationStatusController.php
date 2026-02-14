@@ -37,10 +37,6 @@ class ReservationStatusController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * @param  Reservation  $reservation
-     * @return RedirectResponse
-     */
     protected function markAsRejected(Reservation $reservation): RedirectResponse
     {
         $reservation->update(['status' => ReservationStatus::REJECTED]);
@@ -61,8 +57,6 @@ class ReservationStatusController extends Controller
     }
 
     /**
-     * @param  Reservation  $reservation
-     * @return RedirectResponse
      * @throws ApiErrorException
      */
     protected function markAsCancelled(Reservation $reservation): RedirectResponse

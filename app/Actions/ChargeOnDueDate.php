@@ -15,8 +15,10 @@ class ChargeOnDueDate
 
         foreach ($reservations as $reservation) {
             Charge::dispatch($reservation->user, $reservation->tot, [
-                'reservation' => $reservation->ulid,
-                'retry_on_failure' => true,
+                'metadata' => [
+                    'reservation' => $reservation->ulid,
+                    'retry_on_failure' => true,
+                ],
             ]);
         }
     }

@@ -104,7 +104,7 @@ class ChangeRequest extends Model
                 'check_out' => $reservation->check_out,
                 'guest_count' => $reservation->guest_count,
                 'price_list' => $reservation->price_list,
-            ]
+            ],
         ]);
     }
 

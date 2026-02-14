@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
-use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;

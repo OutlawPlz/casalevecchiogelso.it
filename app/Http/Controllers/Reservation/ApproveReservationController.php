@@ -20,7 +20,9 @@ class ApproveReservationController extends Controller
         /** @var ?User $authUser */
         $authUser = $request->user();
 
-        if (! $authUser?->isHost()) abort(403);
+        if (! $authUser?->isHost()) {
+            abort(403);
+        }
 
         (new ApproveReservation)($reservation);
 

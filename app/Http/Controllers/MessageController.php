@@ -15,18 +15,10 @@ use Illuminate\Validation\ValidationException;
 
 class MessageController extends Controller
 {
-    /**
-     * @param  MessageRenderer  $messageRenderer
-     */
     public function __construct(
         protected MessageRenderer $messageRenderer,
     ) {}
 
-    /**
-     * @param Request $request
-     * @param Reservation $reservation
-     * @return Paginator
-     */
     public function index(Request $request, Reservation $reservation): Paginator
     {
         /** @var User $authUser */
@@ -54,12 +46,6 @@ class MessageController extends Controller
         return $messages;
     }
 
-    /**
-     * @param  Request  $request
-     * @param  Reservation  $reservation
-     * @param  Message  $message
-     * @return Message
-     */
     public function show(Request $request, Reservation $reservation, Message $message): Message
     {
         /** @var User $authUser */
@@ -80,16 +66,15 @@ class MessageController extends Controller
     }
 
     /**
-     * @param  Request  $request
-     * @param  Reservation  $reservation
-     * @return Message
      * @throws ValidationException
      */
     public function store(Request $request, Reservation $reservation): Message
     {
         $attributes = $request->validate(self::rules());
         // Having an empty string instead of NULL makes the code easier.
-        if (is_null($attributes['content'])) $attributes['content'] = '';
+        if (is_null($attributes['content'])) {
+            $attributes['content'] = '';
+        }
 
         /** @var User $authUser */
         $authUser = $request->user();
@@ -120,7 +105,7 @@ class MessageController extends Controller
             'channel' => $reservation->ulid,
             'author' => [
                 'name' => $authUser->name,
-                'email' => $authUser->email
+                'email' => $authUser->email,
             ],
             'content' => ['raw' => $attributes['content']],
             'media' => $media,
@@ -133,9 +118,6 @@ class MessageController extends Controller
         return $message;
     }
 
-    /**
-     * @return array
-     */
     public static function rules(): array
     {
         return [

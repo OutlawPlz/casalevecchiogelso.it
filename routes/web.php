@@ -103,19 +103,3 @@ Route::get('auth/token', [TokenAuthenticationController::class, 'store'])->name(
 
 /* ----- Locale preference ----- */
 Route::post('/locale-preference', LocalePreferenceController::class)->name('locale-preference');
-
-Route::get('/test', function (\Illuminate\Http\Request $request, \Stripe\StripeClient $stripe) {
-    $user = \App\Models\User::query()->first();
-
-    $reservation = \App\Models\Reservation::query()->first();
-
-    return $stripe->checkout->sessions->create([
-        'customer' => $user->stripe_id,
-        'line_items' => $reservation->toLineItems(),
-        'mode' => 'payment',
-        'success_url' => route('reservation.show', [$reservation]),
-        'cancel_url' => route('reservation.show', [$reservation]),
-    ]);
-
-    return (new \App\Actions\Charge)($user, 1000, ['payment_method' => 'pm_card_threeDSecure2Required']);
-});

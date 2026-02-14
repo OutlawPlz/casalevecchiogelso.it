@@ -16,16 +16,19 @@ class Charge implements ShouldQueue
 
     public int $tries = 3;
 
-    public int $backoff = 60;
+    public function backoff(): array
+    {
+        return [3, 5, 7];
+    }
+
+    public string $idempotencyKey;
 
     public function __construct(
         public User $user,
         public int $amount,
-        public array $metadata = [],
-        public ?string $paymentMethod = null,
-        public ?string $idempotencyKey = null
+        public array $parameters = []
     ) {
-        $this->idempotencyKey ??= (string) Str::ulid();
+        $this->idempotencyKey = Str::ulid()->toString();
     }
 
     /**
@@ -33,20 +36,20 @@ class Charge implements ShouldQueue
      */
     public function handle(): PaymentIntent
     {
-        $parameters = array_filter([
+        if (! array_key_exists('payment_method', $this->parameters)) {
+            $parameters['payment_method'] = $this->user->defaultPaymentMethod()?->id;
+        }
+
+        $parameters = array_merge([
             'amount' => $this->amount,
             'confirm' => true,
             'off_session' => true,
             'customer' => $this->user->stripe_id,
             'currency' => config('services.stripe.currency'),
-            'payment_method' => $this->paymentMethod ?? $this->user->defaultPaymentMethod()?->id,
-            'metadata' => $this->metadata,
-        ]);
+        ], $this->parameters);
 
         $stripe = app(StripeClient::class);
 
-        return $stripe->paymentIntents->create($parameters, [
-            'idempotency_key' => $this->idempotencyKey,
-        ]);
+        return $stripe->paymentIntents->create($parameters, ['idempotency_key' => $this->idempotencyKey]);
     }
 }

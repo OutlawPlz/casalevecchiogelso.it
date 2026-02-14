@@ -16,7 +16,7 @@ class CancelReservation
         $refundAmount = (int) ($reservation->amountPaid() * refund_factor($reservation, causer: $causer));
 
         if ($refundAmount) {
-            Refund::dispatch($reservation, $refundAmount, ['reservation' => $reservation->ulid]);
+            Refund::dispatch($reservation->payments, $refundAmount);
         }
 
         $reservation->update(['status' => ReservationStatus::CANCELLED]);

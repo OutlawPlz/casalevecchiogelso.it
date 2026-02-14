@@ -2,10 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Message;
 use App\Models\Reservation;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class MessagePolicy
 {
@@ -14,7 +12,9 @@ class MessagePolicy
      */
     public function viewAny(User $user, Reservation $reservation): bool
     {
-        if ($user->isHost()) return true;
+        if ($user->isHost()) {
+            return true;
+        }
 
         return $reservation->user()->is($user);
     }
@@ -24,7 +24,9 @@ class MessagePolicy
      */
     public function view(User $user, Reservation $reservation): bool
     {
-        if ($user->isHost()) return true;
+        if ($user->isHost()) {
+            return true;
+        }
 
         return $reservation->user()->is($user);
     }
@@ -34,7 +36,9 @@ class MessagePolicy
      */
     public function create(User $user, Reservation $reservation): bool
     {
-        if ($user->isHost()) return true;
+        if ($user->isHost()) {
+            return true;
+        }
 
         return $reservation->user()->is($user);
     }

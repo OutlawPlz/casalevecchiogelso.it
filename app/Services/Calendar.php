@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Spatie\Period\Boundaries;
 use Spatie\Period\Period;
 use Spatie\Period\Precision;
+
 use function App\Helpers\dates_in_range;
 
 class Calendar
@@ -45,7 +46,9 @@ class Calendar
 
             $overlaps = $eventPeriod->overlapsWith($reservedPeriod);
 
-            if ($overlaps) return false;
+            if ($overlaps) {
+                return false;
+            }
         }
 
         return true;
@@ -63,12 +66,14 @@ class Calendar
 
     public function syncFromServices(string ...$services): void
     {
-        if (! $services) $services = $this->defaultServices;
+        if (! $services) {
+            $services = $this->defaultServices;
+        }
 
         $events = [];
 
         foreach ($services as $service) {
-            $fromService = 'from' . Str::studly($service);
+            $fromService = 'from'.Str::studly($service);
 
             $events = array_merge($events, $this->$fromService());
         }
@@ -84,7 +89,7 @@ class Calendar
         $reservations = Reservation::query()
             ->where([
                 ['check_in', '>', today()],
-                ['status', '=', ReservationStatus::CONFIRMED]
+                ['status', '=', ReservationStatus::CONFIRMED],
             ])
             ->get();
 
@@ -96,7 +101,7 @@ class Calendar
                 'start_at' => $reservation->check_in->toISOString(),
                 'end_at' => $reservation->check_out->toISOString(),
                 'unavailable_dates' => dates_in_range($reservation->check_in, $reservation->check_out),
-                'summary' => $reservation->summary
+                'summary' => $reservation->summary,
             ];
 
             $wholePreparationTime = [
@@ -106,7 +111,9 @@ class Calendar
 
             /** @var CarbonImmutable[] $preparationTime */
             foreach ($wholePreparationTime as $prePost => $preparationTime) {
-                if (! $preparationTime) continue;
+                if (! $preparationTime) {
+                    continue;
+                }
 
                 [$startAt, $endAt] = $preparationTime;
 
@@ -115,7 +122,7 @@ class Calendar
                     'start_at' => $startAt->toISOString(),
                     'end_at' => $endAt->toISOString(),
                     'unavailable_dates' => dates_in_range($startAt, $endAt),
-                    'summary' => 'Preparation time'
+                    'summary' => 'Preparation time',
                 ];
             }
         }
@@ -155,7 +162,7 @@ class Calendar
                 'start_at' => $startAt->toISOString(),
                 'end_at' => $endAt->toISOString(),
                 'unavailable_dates' => dates_in_range($startAt, $endAt),
-                'summary' => $event['DESCRIPTION'] ?? $event['SUMMARY']
+                'summary' => $event['DESCRIPTION'] ?? $event['SUMMARY'],
             ];
         }
 

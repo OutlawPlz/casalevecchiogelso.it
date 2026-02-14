@@ -8,15 +8,10 @@ use Illuminate\Support\Str;
 
 class MessageRenderer
 {
-    /**
-     * @param  GoogleTranslate  $translator
-     */
     public function __construct(protected GoogleTranslate $translator) {}
 
     /**
-     * @param  Message  $message
      * @param  array<string, mixed>  $data
-     * @return string
      */
     public function render(Message $message, array $data = []): string
     {
@@ -33,9 +28,11 @@ class MessageRenderer
         $render = $isTemplate ? 'renderTemplate' : 'renderContent';
 
         /** @var string $renderedContent */
-        $renderedContent =  $this->$render($message, $data);
+        $renderedContent = $this->$render($message, $data);
 
-        if (! $language) return $renderedContent;
+        if (! $language) {
+            return $renderedContent;
+        }
 
         try {
             $content = $message->content;
@@ -52,11 +49,6 @@ class MessageRenderer
         return $renderedContent;
     }
 
-    /**
-     * @param  Message  $message
-     * @param  array  $data
-     * @return string
-     */
     protected function renderContent(Message $message, array $data): string
     {
         return Str::markdown($message->content['raw'], [
@@ -65,16 +57,13 @@ class MessageRenderer
         ]);
     }
 
-    /**
-     * @param  Message  $message
-     * @param  array  $data
-     * @return string
-     */
     protected function renderTemplate(Message $message, array $data): string
     {
         $template = explode(':', $message->content['raw'], 2)[1] ?? '';
 
-        if (! $template) return 'Not found';
+        if (! $template) {
+            return 'Not found';
+        }
 
         return view("messages.$template", $data)->render();
     }

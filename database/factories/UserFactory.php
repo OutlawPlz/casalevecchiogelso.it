@@ -46,7 +46,7 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'name' => 'Guest User',
             'email' => 'guest@example.com',
-            'stripe_id' => 'cus_SLrr1mYs4mcFTJ'
+            'stripe_id' => 'cus_SLrr1mYs4mcFTJ',
         ]);
     }
 

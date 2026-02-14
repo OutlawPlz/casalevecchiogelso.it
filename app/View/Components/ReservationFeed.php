@@ -12,9 +12,6 @@ class ReservationFeed extends Component
         public Reservation $reservation
     ) {}
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('components.reservation-feed');

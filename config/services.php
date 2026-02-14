@@ -51,6 +51,6 @@ return [
     ],
 
     'airbnb' => [
-        'ics_link' => env('AIRBNB_ICS_LINK')
+        'ics_link' => env('AIRBNB_ICS_LINK'),
     ],
 ];

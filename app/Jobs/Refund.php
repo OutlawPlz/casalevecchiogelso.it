@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Payment;
-use App\Models\Reservation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
@@ -20,13 +19,14 @@ class Refund implements ShouldQueue
 
     public int $backoff = 60;
 
+    public string $idempotencyKey;
+
     public function __construct(
-        public Reservation $reservation,
-        public int $amount,
-        public array $metadata = [],
-        public ?string $idempotencyKey = null
+        public Collection|Payment $payments,
+        public int $cents = 0,
+        public array $parameters = []
     ) {
-        $this->idempotencyKey ??= (string) Str::ulid();
+        $this->idempotencyKey = Str::ulid()->toString();
     }
 
     /**
@@ -34,46 +34,46 @@ class Refund implements ShouldQueue
      */
     public function handle(): Collection
     {
-        $payments = $this->reservation->payments;
+        if ($this->payments instanceof Payment) {
+            $this->payments = collect([$this->payments]);
+        }
 
-        $cents = $this->amount;
+        $amountPaid = $this->payments->reduce(fn ($tot, Payment $payment) => $tot + ($payment->amountPaid), 0);
 
-        $amountPaid = $payments->reduce(fn ($tot, Payment $payment) => $tot + ($payment->amountPaid), 0);
-
-        if ($amountPaid < $cents) {
+        if ($amountPaid < $this->cents) {
             throw ValidationException::withMessages([
                 'refund_amount' => 'The amount to refund is greater than the amount paid.',
             ]);
         }
 
-        if (! $cents) {
-            $cents = $amountPaid;
+        if (! $this->cents) {
+            $this->cents = $amountPaid;
         }
 
         $stripe = app(StripeClient::class);
 
         $refunds = [];
 
-        foreach ($payments as $payment) {
+        foreach ($this->payments as $payment) {
             if (! $payment->amountPaid) {
                 continue;
             }
 
-            $amount = min($cents, $payment->amountPaid);
+            $amount = min($this->cents, $payment->amountPaid);
 
-            $refunds[] = $stripe->refunds->create([
+            $parameters = array_replace_recursive([
                 'payment_intent' => $payment->payment_intent,
                 'amount' => $amount,
-                'metadata' => array_merge([
-                    'reservation' => $payment->reservation_ulid,
-                ], $this->metadata),
-            ], [
+                'metadata' => ['reservation' => $payment->reservation_ulid],
+            ], $this->parameters);
+
+            $refunds[] = $stripe->refunds->create($parameters, [
                 'idempotency_key' => "{$payment->payment_intent}_{$this->idempotencyKey}",
             ]);
 
-            $cents -= $amount;
+            $this->cents -= $amount;
 
-            if (! $cents) {
+            if (! $this->cents) {
                 break;
             }
         }

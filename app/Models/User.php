@@ -84,7 +84,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
     public function hasStripeId(): bool
     {
-        return !is_null($this->stripe_id);
+        return ! is_null($this->stripe_id);
     }
 
     public function isHost(): bool
@@ -110,8 +110,8 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
 
-        if (!$this->hasStripeId()) {
-            throw new \RuntimeException(class_basename($this) . ' is not a Stripe customer yet. See the createAsStripeCustomer method.');
+        if (! $this->hasStripeId()) {
+            throw new \RuntimeException(class_basename($this).' is not a Stripe customer yet. See the createAsStripeCustomer method.');
         }
 
         return $stripe->billingPortal->sessions->create([
@@ -122,11 +122,14 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
     /**
      * @return PaymentMethod[]
+     *
      * @throws ApiErrorException
      */
     public function paymentMethods(?string $type = null, $parameters = []): array
     {
-        if (!$this->hasStripeId()) return [];
+        if (! $this->hasStripeId()) {
+            return [];
+        }
 
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
@@ -145,7 +148,9 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
      */
     public function defaultPaymentMethod(): ?PaymentMethod
     {
-        if (!$this->hasStripeId()) return null;
+        if (! $this->hasStripeId()) {
+            return null;
+        }
 
         /** @var StripeClient $stripe */
         $stripe = App::make(StripeClient::class);
