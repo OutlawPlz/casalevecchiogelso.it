@@ -65,6 +65,7 @@ class Reservation extends Model
         'due_date',
         'check_in',
         'check_out',
+        'payout',
         'price_list',
     ];
 

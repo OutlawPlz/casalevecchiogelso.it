@@ -3,7 +3,10 @@
 namespace Database\Factories;
 
 use App\Enums\CancellationPolicy;
+use App\Enums\ReservationStatus;
+use App\Models\Payment;
 use App\Models\Reservation;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -18,7 +21,7 @@ class ReservationFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
             'ulid' => Str::ulid(),
             'name' => fake()->name(),
             'email' => fake()->safeEmail(),
@@ -46,9 +49,15 @@ class ReservationFactory extends Factory
     public function inProgress(): static
     {
         return $this->state(fn (array $attributes) => [
+            'status' => ReservationStatus::CONFIRMED,
             'check_in' => now()->subDays(4),
             'check_out' => now()->addDays(3),
-        ]);
+        ])->afterCreating(function (Reservation $reservation) {
+            Payment::factory()->create([
+                'reservation_ulid' => $reservation->ulid,
+                'amount' => $reservation->tot,
+            ]);
+        });
     }
 
     public function inRefundPeriod(): static
@@ -57,9 +66,15 @@ class ReservationFactory extends Factory
             $cancellationPolicy = CancellationPolicy::from($attributes['cancellation_policy']);
 
             return [
+                'status' => ReservationStatus::CONFIRMED,
                 'check_in' => now()->add($cancellationPolicy->timeWindow()),
                 'check_out' => now()->add($cancellationPolicy->timeWindow())->addWeek(),
             ];
+        })->afterCreating(function (Reservation $reservation) {
+            Payment::factory()->create([
+                'reservation_ulid' => $reservation->ulid,
+                'amount' => $reservation->tot,
+            ]);
         });
     }
 }

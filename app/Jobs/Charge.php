@@ -18,7 +18,7 @@ class Charge implements ShouldQueue
 
     public function backoff(): array
     {
-        return [3, 5, 7];
+        return [7, 21, 63];
     }
 
     public string $idempotencyKey;
@@ -40,7 +40,7 @@ class Charge implements ShouldQueue
             $parameters['payment_method'] = $this->user->defaultPaymentMethod()?->id;
         }
 
-        $parameters = array_merge([
+        $parameters = array_replace_recursive([
             'amount' => $this->amount,
             'confirm' => true,
             'off_session' => true,

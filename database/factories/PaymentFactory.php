@@ -18,7 +18,10 @@ class PaymentFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'customer' => 'cus_1234567890',
+            'payment_intent' => 'pi_1234567890',
+            'amount' => 100,
+            'status' => 'succeeded',
         ];
     }
 }

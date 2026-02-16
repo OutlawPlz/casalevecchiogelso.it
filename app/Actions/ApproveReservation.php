@@ -4,9 +4,6 @@ namespace App\Actions;
 
 use App\Enums\ReservationStatus;
 use App\Models\Reservation;
-use App\Models\User;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
@@ -15,7 +12,7 @@ use Stripe\StripeClient;
 class ApproveReservation
 {
     /**
-     * @throws ApiErrorException|BindingResolutionException
+     * @throws ApiErrorException
      */
     public function __invoke(Reservation $reservation): Session
     {
@@ -30,7 +27,6 @@ class ApproveReservation
             ],
         ]);
 
-        /** @var ?User $authUser */
         $authUser = Auth::user();
 
         activity()
@@ -46,12 +42,11 @@ class ApproveReservation
     }
 
     /**
-     * @throws ApiErrorException|BindingResolutionException
+     * @throws ApiErrorException
      */
     protected function createSetupIntent(Reservation $reservation): Session
     {
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
+        $stripe = app(StripeClient::class);
 
         return $stripe->checkout->sessions->create([
             'customer' => $reservation->user->createAsStripeCustomer(),

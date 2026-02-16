@@ -3,8 +3,6 @@
 namespace App\Actions;
 
 use App\Models\Reservation;
-use App\Models\User;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
@@ -18,15 +16,14 @@ class RequestPayout
      */
     public function __invoke(Reservation $reservation): void
     {
-        /** @var User|null $authUser */
+        $stripe = app(StripeClient::class);
+
         $authUser = Auth::user();
-        /** @var StripeClient $stripe */
-        $stripe = App::make(StripeClient::class);
 
         $paymentIntent = $stripe->paymentIntents->retrieve(
             $reservation->payment_intent,
-            ['expand' => ['latest_charge.balance_transaction'],
-            ]);
+            ['expand' => ['latest_charge.balance_transaction']]
+        );
 
         $balanceTransaction = $paymentIntent->latest_charge->balance_transaction;
 

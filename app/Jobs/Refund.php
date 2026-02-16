@@ -17,7 +17,10 @@ class Refund implements ShouldQueue
 
     public int $tries = 3;
 
-    public int $backoff = 60;
+    public function backoff(): array
+    {
+        return [7, 21, 63];
+    }
 
     public string $idempotencyKey;
 
