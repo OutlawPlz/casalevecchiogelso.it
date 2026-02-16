@@ -5,6 +5,7 @@ use App\Actions\CancelReservation;
 use App\Enums\ReservationStatus;
 use App\Jobs\Refund;
 use App\Models\Reservation;
+use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 use Spatie\Activitylog\Models\Activity;
 
@@ -46,3 +47,53 @@ test('reservation can be cancelled', function (Reservation $reservation) {
     fn () => Reservation::factory()->inRefundPeriod()->create(),
     fn () => Reservation::factory()->inProgress()->create(),
 ]);
+
+test('reservation can be rejected', function (ReservationStatus $status) {
+    $host = User::factory()->host()->create();
+
+    $reservation = Reservation::factory()->create(['status' => $status]);
+
+    $this
+        ->actingAs($host)
+        ->post(route('reservation.reject', $reservation))
+        ->assertRedirect();
+
+    expect($reservation->fresh()->status)->toBe(ReservationStatus::REJECTED);
+
+    $activity = Activity::query()->first();
+
+    expect($activity->description)
+        ->toBe("The host rejected the reservation.")
+        ->and($activity->properties->toArray())->toMatchArray([
+            'reservation' => $reservation->ulid,
+            'user' => $host->email,
+        ]);
+})->with([
+    ReservationStatus::QUOTE,
+    ReservationStatus::PENDING,
+]);
+
+test('reservation cannot be rejected', function (ReservationStatus $status) {
+    $host = User::factory()->host()->create();
+
+    $reservation = Reservation::factory()->create(['status' => $status]);
+
+    $this
+        ->actingAs($reservation->user)
+        ->post(route('reservation.reject', $reservation))
+        ->assertForbidden();
+
+    $forbidden = [
+        ReservationStatus::CONFIRMED,
+        ReservationStatus::CANCELLED,
+        ReservationStatus::REJECTED,
+        ReservationStatus::COMPLETED,
+    ];
+
+    if ($reservation->inStatus(...$forbidden)) {
+        $this
+            ->actingAs($host)
+            ->post(route('reservation.reject', $reservation))
+            ->assertForbidden();
+    }
+})->with(ReservationStatus::cases());
