@@ -17,10 +17,7 @@ class TokenAuthenticationController extends Controller
 {
     public function create(Request $request): void
     {
-        $attributes = $request->validate([
-            'email' => 'required|email|max:255',
-            'name' => 'required|max:255',
-        ]);
+        $attributes = $request->validate(self::rules());
 
         $signedUrl = URL::temporarySignedRoute('auth.token', now()->addHour(), $attributes);
 
@@ -33,12 +30,14 @@ class TokenAuthenticationController extends Controller
             abort(401);
         }
 
+        $attributes = $request->validate(self::rules());
+
         /** @var User $user */
-        $user = User::query()->firstOrNew(['email' => $request->get('email')]);
+        $user = User::query()->firstOrNew(['email' => $attributes['email']]);
 
         if (! $user->exists) {
             $user->forceFill([
-                'name' => $request->get('name'),
+                'name' => $attributes['name'],
                 'password' => Hash::make(Str::password()),
                 'email_verified_at' => now(),
                 'provider' => 'email',
@@ -50,5 +49,13 @@ class TokenAuthenticationController extends Controller
         Auth::login($user);
 
         return redirect('/');
+    }
+
+    public static function rules(): array
+    {
+        return [
+            'email' => ['required', 'email', 'max:255'],
+            'name' => ['required', 'max:255'],
+        ];
     }
 }
