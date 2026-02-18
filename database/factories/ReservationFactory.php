@@ -22,7 +22,7 @@ class ReservationFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'ulid' => Str::ulid(),
+            'ulid' => Str::ulid()->toString(),
             'name' => fake()->name(),
             'email' => fake()->safeEmail(),
             'phone' => fake()->phoneNumber(),

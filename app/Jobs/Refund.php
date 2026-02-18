@@ -33,6 +33,7 @@ class Refund implements ShouldQueue
     }
 
     /**
+     * @return Collection<Refund>
      * @throws ApiErrorException
      */
     public function handle(): Collection

@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Str;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Payout as StripePayout;
 use Stripe\StripeClient;
 
 use function App\Helpers\money_format;
@@ -32,7 +33,7 @@ class Payout implements ShouldQueue
     /**
      * @throws ApiErrorException
      */
-    public function handle(): void
+    public function handle(): StripePayout
     {
         $netAmount = $this->reservation->payments->sum(fn ($payment) => $payment->netAmount);
 
@@ -56,5 +57,7 @@ class Payout implements ShouldQueue
                 'amount' => $netAmount,
             ])
             ->log('A payout of '.money_format($netAmount).' has been requested.');
+
+        return $payout;
     }
 }

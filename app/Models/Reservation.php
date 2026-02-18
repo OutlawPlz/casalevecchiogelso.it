@@ -31,6 +31,7 @@ use Illuminate\Support\Collection;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $check_in
  * @property CarbonImmutable $check_out
+ * @property string|null $payout
  * @property array{product: string, name: string, description: string, price: string, unit_amount: int, quantity: int}[] $price_list
  * @property-read Collection<ChangeRequest> $changeRequests
  * @property-read User $user
