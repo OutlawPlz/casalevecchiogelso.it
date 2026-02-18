@@ -4,7 +4,7 @@ use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
-it('creates and log-in the user', function () {
+it('creates a new user', function () {
     $user = User::factory()->make();
 
     Socialite::fake('google', (new SocialiteUser)->map([
@@ -27,4 +27,17 @@ it('creates and log-in the user', function () {
     ]);
 
     $this->assertAuthenticatedAs(User::query()->firstWhere('email', $user->email));
+});
+
+it('logs-in existing users', function () {
+    $user = User::factory()->create();
+
+    Socialite::fake('google', (new SocialiteUser)->map([
+        'id' => 'google-123',
+        'email' => $user->email,
+    ]));
+
+    $this->get('/auth/google/callback')->assertRedirect();
+
+    $this->assertAuthenticatedAs($user);
 });
