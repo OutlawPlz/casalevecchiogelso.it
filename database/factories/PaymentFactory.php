@@ -11,17 +11,22 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class PaymentFactory extends Factory
 {
     /**
-     * Define the model's default state.
-     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'customer' => 'cus_1234567890',
-            'payment_intent' => 'pi_1234567890',
+            'customer' => 'cus_SLrr1mYs4mcFTJ',
+            'payment_intent' => 'pi_3RMEFLAKSJP4UmE20jY687Vr',
             'amount' => 100,
             'status' => 'succeeded',
         ];
+    }
+
+    public function failed(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'payment_failed',
+        ]);
     }
 }
