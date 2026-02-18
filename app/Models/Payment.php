@@ -130,8 +130,8 @@ class Payment extends Model
                 'amount' => $paymentIntent->amount,
                 'customer' => $paymentIntent->customer,
                 'status' => $paymentIntent->status,
-                'reservation_ulid' => @$paymentIntent->metadata->reservation,
-                'change_request_ulid' => @$paymentIntent->metadata->change_request,
+                'reservation_ulid' => $paymentIntent->metadata->reservation,
+                'change_request_ulid' => $paymentIntent->metadata->change_request ?? '',
                 'receipt_url' => $paymentIntent->latest_charge?->receipt_url,
                 'amount_captured' => $paymentIntent->latest_charge->amount_captured ?? 0,
                 'amount_refunded' => $paymentIntent->latest_charge->amount_refunded ?? 0,
@@ -148,8 +148,8 @@ class Payment extends Model
             'status' => $paymentIntent->status,
             'amount' => $paymentIntent->amount,
             'customer' => $paymentIntent->customer,
-            'reservation_ulid' => @$paymentIntent->metadata->reservation,
-            'change_request_ulid' => @$paymentIntent->metadata->change_request,
+            'reservation_ulid' => $paymentIntent->metadata->reservation,
+            'change_request_ulid' => $paymentIntent->metadata->change_request ?? '',
         ]);
     }
 }

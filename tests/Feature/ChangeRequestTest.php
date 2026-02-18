@@ -7,6 +7,29 @@ use App\Jobs\Refund;
 use App\Models\ChangeRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
+use Spatie\Activitylog\Models\Activity;
+
+test('change request can be cancelled', function () {
+    $changeRequest = ChangeRequest::factory()->create();
+
+    $this
+        ->actingAs($changeRequest->user)
+        ->post(route('change_request.cancel', [$changeRequest->reservation, $changeRequest]))
+        ->assertOk();
+
+    expect($changeRequest->fresh()->status)->toBe(Status::CANCELLED);
+
+    /** @var Activity $activity */
+    $activity = Activity::query()->first();
+
+    expect($activity->description)
+        ->toBe("The {$changeRequest->user->role} has cancelled the change request.")
+        ->and($activity->properties->toArray())->toMatchArray([
+            'reservation' => $changeRequest->reservation->ulid,
+            'change_request' => $changeRequest->ulid,
+            'user' => $changeRequest->user->email,
+        ]);
+});
 
 test('change request can be approved', function () {
     $host = User::factory()->host()->create();

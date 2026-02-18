@@ -44,6 +44,7 @@ it('splits refunds across multiple payments', function () {
         $payments->add(
             new Charge($user, 100, [
                 'payment_method' => 'pm_card_visa',
+                'metadata' => ['reservation' => Str::ulid()],
             ])
                 ->withFakeQueueInteractions()
                 ->handle()

@@ -9,7 +9,10 @@
       "mcp__laravel-boost__database-schema",
       "mcp__laravel-boost__search-docs",
       "Bash(grep:*)",
-      "mcp__laravel-boost__list-routes"
+      "mcp__laravel-boost__list-routes",
+      "mcp__laravel-boost__get-config",
+      "mcp__laravel-boost__database-query",
+      "Bash(php artisan:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -105,7 +105,7 @@ class StripeController extends Controller
             ->firstOrFail();
 
         $changeRequest = ChangeRequest::query()
-            ->where('ulid', @$checkoutSession->metadata->changeRequest)
+            ->where('ulid', $checkoutSession->metadata->changeRequest ?? '')
             ->first();
 
         $reservation->update([
@@ -120,7 +120,7 @@ class StripeController extends Controller
             ])
             ->log('The pre-approval has expired.');
 
-        if (@$checkoutSession->metadata->cancel_on_expire) {
+        if ($checkoutSession->metadata->cancel_on_expire ?? false) {
             $changeRequest
                 ? (new CancelChangeRequest)($changeRequest)
                 : (new CancelReservation)($reservation, 'The checkout session expired.');
