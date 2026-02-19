@@ -74,15 +74,14 @@ Route::group([
     });
 
     /* ----- Message ----- */
-    Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])
-        ->name('message.index')
-        ->can('viewAny', [Message::class, 'reservation']);
-    Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])
-        ->name('message.store')
-        ->can('create', [Message::class, 'reservation']);
-    Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])
-        ->name('message.show')
-        ->can('view', [Message::class, 'reservation']);
+    Route::can('participate', [Message::class, 'reservation'])->group(function () {
+        Route::get('/reservations/{reservation:ulid}/messages', [MessageController::class, 'index'])
+            ->name('message.index');
+        Route::post('/reservations/{reservation:ulid}/messages', [MessageController::class, 'store'])
+            ->name('message.store');
+        Route::get('/reservations/{reservation:ulid}/messages/{message}', [MessageController::class, 'show'])
+            ->name('message.show');
+    });
 
     /* ----- Billing portal ----- */
     Route::post('/billing-portal', BillingPortalController::class)->name('billing_portal');
