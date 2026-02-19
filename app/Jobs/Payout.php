@@ -6,7 +6,9 @@ use App\Models\Reservation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Str;
+use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\RateLimitException;
 use Stripe\Payout as StripePayout;
 use Stripe\StripeClient;
 
@@ -39,13 +41,21 @@ class Payout implements ShouldQueue
 
         $stripe = app(StripeClient::class);
 
-        $payout = $stripe->payouts->create([
-            'amount' => $netAmount,
-            'currency' => config('services.stripe.currency'),
-            'metadata' => ['reservation' => $this->reservation->ulid,],
-        ], [
-            'idempotency_key' => $this->idempotencyKey
-        ]);
+        try {
+            $payout = $stripe->payouts->create([
+                'amount' => $netAmount,
+                'currency' => config('services.stripe.currency'),
+                'metadata' => ['reservation' => $this->reservation->ulid],
+            ], [
+                'idempotency_key' => $this->idempotencyKey,
+            ]);
+        } catch (ApiErrorException $exception) {
+            if (! in_array($exception::class, [ApiConnectionException::class, RateLimitException::class])) {
+                $this->fail($exception);
+            }
+
+            throw $exception;
+        }
 
         $this->reservation->update(['payout' => $payout->id]);
 

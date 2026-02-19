@@ -6,7 +6,9 @@ use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Str;
+use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\RateLimitException;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 
@@ -50,6 +52,14 @@ class Charge implements ShouldQueue
 
         $stripe = app(StripeClient::class);
 
-        return $stripe->paymentIntents->create($parameters, ['idempotency_key' => $this->idempotencyKey]);
+        try {
+            return $stripe->paymentIntents->create($parameters, ['idempotency_key' => $this->idempotencyKey]);
+        } catch (ApiErrorException $exception) {
+            if (! in_array($exception::class, [ApiConnectionException::class, RateLimitException::class])) {
+                $this->fail($exception);
+            }
+
+            throw $exception;
+        }
     }
 }

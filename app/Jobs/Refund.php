@@ -8,7 +8,9 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\RateLimitException;
 use Stripe\StripeClient;
 
 class Refund implements ShouldQueue
@@ -34,6 +36,7 @@ class Refund implements ShouldQueue
 
     /**
      * @return Collection<Refund>
+     *
      * @throws ApiErrorException
      */
     public function handle(): Collection
@@ -45,9 +48,13 @@ class Refund implements ShouldQueue
         $amountPaid = $this->payments->reduce(fn ($tot, Payment $payment) => $tot + ($payment->amountPaid), 0);
 
         if ($amountPaid < $this->cents) {
-            throw ValidationException::withMessages([
+            $exception = ValidationException::withMessages([
                 'refund_amount' => 'The amount to refund is greater than the amount paid.',
             ]);
+
+            $this->fail($exception);
+
+            throw $exception;
         }
 
         if (! $this->cents) {
@@ -71,9 +78,17 @@ class Refund implements ShouldQueue
                 'metadata' => ['reservation' => $payment->reservation_ulid],
             ], $this->parameters);
 
-            $refunds[] = $stripe->refunds->create($parameters, [
-                'idempotency_key' => "{$payment->payment_intent}_{$this->idempotencyKey}",
-            ]);
+            try {
+                $refunds[] = $stripe->refunds->create($parameters, [
+                    'idempotency_key' => "{$payment->payment_intent}_{$this->idempotencyKey}",
+                ]);
+            } catch (ApiErrorException $exception) {
+                if (! in_array($exception::class, [ApiConnectionException::class, RateLimitException::class])) {
+                    $this->fail($exception);
+                }
+
+                throw $exception;
+            }
 
             $this->cents -= $amount;
 
