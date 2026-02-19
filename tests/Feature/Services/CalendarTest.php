@@ -91,6 +91,7 @@ it('returns events for confirmed future reservations', function () {
     $reservation = Reservation::factory()->create();
 
     $calendar = new Calendar;
+
     $events = $calendar->fromDatabase();
 
     $uids = array_column($events, 'uid');
@@ -125,6 +126,7 @@ it('parses an ics feed and returns events', function () {
     Http::fake(['*' => Http::response($ics)]);
 
     $calendar = new Calendar;
+
     $events = $calendar->fromAirbnb('https://example.com/calendar.ics');
 
     expect($events)->toHaveCount(1)
