@@ -50,26 +50,6 @@ class Reservation extends Model
     /** @use HasFactory<ReservationFactory> */
     use HasFactory;
 
-    protected $fillable = [
-        'ulid',
-        'user_id',
-        'name',
-        'email',
-        'phone',
-        'guest_count',
-        'summary',
-        'status',
-        'visited_at',
-        'replied_at',
-        'cancellation_policy',
-        'checkout_session',
-        'due_date',
-        'check_in',
-        'check_out',
-        'payout',
-        'price_list',
-    ];
-
     final public function __construct(array $attributes = [])
     {
         $today = today()->format('Y-m-d');

@@ -1,13 +1,13 @@
 <?php
 
 use App\Models\Message;
-use App\Services\DeepL;
 use App\Services\MessageRenderer;
 use DeepL\TextResult;
+use DeepL\Translator as DeepLClient;
 
 beforeEach(function () {
-    $this->deepl = Mockery::mock(DeepL::class);
-    $this->app->instance(DeepL::class, $this->deepl);
+    $this->deepl = Mockery::mock(DeepLClient::class);
+    $this->app->instance(DeepLClient::class, $this->deepl);
 });
 
 it('returns cached translation when language already exists in content', function () {
@@ -34,7 +34,7 @@ it('translates content and persists it using DeepL', function () {
     $textResult = Mockery::mock(TextResult::class);
     $textResult->text = '<p>Translated text</p>';
 
-    $this->deepl->shouldReceive('translate')
+    $this->deepl->shouldReceive('translateText')
         ->once()
         ->andReturn($textResult);
 
@@ -52,7 +52,7 @@ it('translates content and persists it using DeepL', function () {
 });
 
 it('reports exception and returns rendered content when DeepL fails', function () {
-    $this->deepl->shouldReceive('translate')
+    $this->deepl->shouldReceive('translateText')
         ->once()
         ->andThrow(new \DeepL\DeepLException('API error'));
 

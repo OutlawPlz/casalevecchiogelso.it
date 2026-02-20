@@ -36,21 +36,6 @@ class Payment extends Model
     /** @use HasFactory<PaymentFactory> */
     use HasFactory;
 
-    protected $fillable = [
-        'payment_intent',
-        'status',
-        'amount',
-        'amount_captured',
-        'amount_refunded',
-        'fee',
-        'reservation_ulid',
-        'customer',
-        'charge',
-        'receipt_url',
-        'change_request_ulid',
-        'refunds',
-    ];
-
     final public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -126,7 +111,7 @@ class Payment extends Model
         }
 
         return $this
-            ->forceFill([
+            ->fill([
                 'amount' => $paymentIntent->amount,
                 'customer' => $paymentIntent->customer,
                 'status' => $paymentIntent->status,

@@ -24,14 +24,6 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'stripe_id',
-        'name',
-        'description',
-        'default_price',
-        'active',
-    ];
-
     final public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

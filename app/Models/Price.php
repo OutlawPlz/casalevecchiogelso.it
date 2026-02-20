@@ -19,14 +19,6 @@ class Price extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'stripe_id',
-        'currency',
-        'unit_amount',
-        'product',
-        'active',
-    ];
-
     final public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

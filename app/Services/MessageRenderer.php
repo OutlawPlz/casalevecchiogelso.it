@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Models\Message;
 use DeepL\DeepLException;
+use DeepL\Translator as DeepLClient;
 use Illuminate\Support\Str;
+
 use function App\Helpers\is_template;
 
 class MessageRenderer
 {
-    public function __construct(protected DeepL $translator) {}
+    public function __construct(protected DeepLClient $translator) {}
 
     /**
      * @param  array<string, mixed>  $data
@@ -23,21 +25,17 @@ class MessageRenderer
         }
 
         $renderedContent = is_template($message)
-            ? $this->renderContent($message)
-            : $this->renderTemplate($message, $data);
+            ? $this->renderTemplate($message, $data)
+            : $this->renderContent($message);
 
         if (! $language) {
             return $renderedContent;
         }
 
         try {
-            $content = $message->content;
+            $renderedContent = $this->translator->translateText($renderedContent, null, $language)->text;
 
-            $content[$language] = $this->translator->translate($renderedContent, $language)->text;
-
-            $message->update(['content' => $content]);
-
-            $renderedContent = $content[$language];
+            $message->update(["content->$language" => $renderedContent]);
         } catch (DeepLException $exception) {
             report($exception);
         }

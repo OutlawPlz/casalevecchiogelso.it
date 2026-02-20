@@ -30,13 +30,6 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'locale',
-    ];
-
     protected $hidden = [
         'password',
         'remember_token',

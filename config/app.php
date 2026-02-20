@@ -87,6 +87,16 @@ return [
     'available_locales' => [
         'it' => 'Italiano',
         'en' => 'English',
+        'fr' => 'Français',
+        'de' => 'Deutsch',
+        'es' => 'Español',
+        'pt-PT' => 'Português',
+        'nl' => 'Nederlands',
+        'pl' => 'Polski',
+        'ru' => 'Русский',
+        'zh' => '简体中文',
+        'ja' => '日本語',
+        'ko' => '한국어',
     ],
 
     /*

@@ -25,16 +25,6 @@ class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'reservation_id',
-        'channel',
-        'author',
-        'content',
-        'media',
-        'locale',
-    ];
-
     protected function casts(): array
     {
         return [

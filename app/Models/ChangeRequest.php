@@ -31,17 +31,6 @@ class ChangeRequest extends Model
     /** @use HasFactory<ChangeRequestFactory> */
     use HasFactory;
 
-    protected $fillable = [
-        'ulid',
-        'reservation_id',
-        'user_id',
-        'from',
-        'to',
-        'checkout_session',
-        'status',
-        'reason',
-    ];
-
     /**
      * @return string[]
      */

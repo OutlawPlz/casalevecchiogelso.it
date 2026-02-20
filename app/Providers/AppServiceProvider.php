@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Policies\ActivityPolicy;
+use DeepL\Translator as DeepLClient;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
@@ -22,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
             StripeClient::class,
             fn () => new StripeClient(config('services.stripe.secret'))
         );
+
+        $this->app->singleton(
+            DeepLClient::class,
+            fn () => new DeepLClient(config('services.deepl.api_key'))
+        );
     }
 
     /**
@@ -29,6 +36,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Model::unguard();
+
         Gate::policy(Activity::class, ActivityPolicy::class);
 
         Blade::if('host', function (): bool {
