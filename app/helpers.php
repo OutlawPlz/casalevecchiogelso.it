@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Enums\CancellationPolicy;
+use App\Models\Message;
 use App\Models\Reservation;
 use App\Models\User;
 use Carbon\CarbonInterface;
@@ -102,4 +103,9 @@ function date_format(
     }
 
     return $formatter->format($datetime);
+}
+
+function is_template(Message $message): bool
+{
+    return str_starts_with($message->content['raw'], '/blade');
 }

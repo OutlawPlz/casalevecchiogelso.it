@@ -17,7 +17,8 @@
       "WebFetch(domain:docs.stripe.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "mcp__laravel-boost__tinker"
+      "mcp__laravel-boost__tinker",
+      "WebSearch"
     ]
   },
   "enableAllProjectMcpServers": true,

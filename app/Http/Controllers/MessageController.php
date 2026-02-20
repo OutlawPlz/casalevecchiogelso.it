@@ -31,7 +31,7 @@ class MessageController extends Controller
 
         /** @var Message $message */
         foreach ($messages as $message) {
-            $language = $message->user()->is($authUser) ? '' : $request->get('locale');
+            $language = $message->user()->is($authUser) ? '' : $request->input('locale');
 
             $data = [
                 'language' => $language,
@@ -51,7 +51,7 @@ class MessageController extends Controller
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $language = $message->user()->is($authUser) ? '' : $request->get('locale');
+        $language = $message->user()->is($authUser) ? '' : $request->input('locale');
 
         $data = [
             'language' => $language,

@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use App\Models\Message;
-use Google\Cloud\Core\Exception\ServiceException;
+use DeepL\DeepLException;
 use Illuminate\Support\Str;
+use function App\Helpers\is_template;
 
 class MessageRenderer
 {
-    public function __construct(protected GoogleTranslate $translator) {}
+    public function __construct(protected DeepL $translator) {}
 
     /**
      * @param  array<string, mixed>  $data
@@ -21,14 +22,9 @@ class MessageRenderer
             return $message->content[$language];
         }
 
-        $isTemplate = str_starts_with($message->content['raw'], '/blade');
-
-        /** @uses MessageRenderer::renderContent() */
-        /** @uses MessageRenderer::renderTemplate() */
-        $render = $isTemplate ? 'renderTemplate' : 'renderContent';
-
-        /** @var string $renderedContent */
-        $renderedContent = $this->$render($message, $data);
+        $renderedContent = is_template($message)
+            ? $this->renderContent($message)
+            : $this->renderTemplate($message, $data);
 
         if (! $language) {
             return $renderedContent;
@@ -37,19 +33,19 @@ class MessageRenderer
         try {
             $content = $message->content;
 
-            $content[$language] = $this->translator->translate($renderedContent, ['target' => $language])[0]['text'];
+            $content[$language] = $this->translator->translate($renderedContent, $language)->text;
 
             $message->update(['content' => $content]);
 
             $renderedContent = $content[$language];
-        } catch (ServiceException $exception) {
+        } catch (DeepLException $exception) {
             report($exception);
         }
 
         return $renderedContent;
     }
 
-    protected function renderContent(Message $message, array $data): string
+    protected function renderContent(Message $message): string
     {
         return Str::markdown($message->content['raw'], [
             'html_input' => 'strip',
@@ -62,7 +58,7 @@ class MessageRenderer
         $template = explode(':', $message->content['raw'], 2)[1] ?? '';
 
         if (! $template) {
-            return 'Not found';
+            return "Not found {$message->content['raw']}";
         }
 
         return view("messages.$template", $data)->render();

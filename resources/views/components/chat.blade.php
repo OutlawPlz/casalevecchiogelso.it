@@ -95,7 +95,7 @@
                 .listen('ChatReply', (event) => this.show(event.message.id));
         },
     }"
-    x-on:tranzinc-chat.window="locale = $event.detail"
+    x-on:translate-chat.window="locale = $event.detail"
 >
     <div class="sticky top-0 py-4 bg-white flex shrink-0 overflow-x-scroll px-4 sm:px-6 border-l shadow-xs">
         <h3 class="text-xl font-bold me-6">{{ __('Chat') }}</h3>

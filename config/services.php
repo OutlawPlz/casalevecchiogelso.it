@@ -53,4 +53,8 @@ return [
     'airbnb' => [
         'ics_link' => env('AIRBNB_ICS_LINK'),
     ],
+
+    'deepl' => [
+        'api_key' => env('DEEPL_API_KEY'),
+    ],
 ];

@@ -106,7 +106,7 @@
                 class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3"
                 x-on:change="$dispatch('translate-chat', $event.target.value)"
         >
-            @foreach(App\Services\GoogleTranslate::languages() as $language)
+            @foreach(App\Services\DeepL::languages() as $language)
                 <label
                         class="has-checked:ring-zinc-700 ring-1 ring-transparent flex cursor-pointer items-center space-x-1 p-3 rounded-md hover:bg-zinc-100"
                 >
