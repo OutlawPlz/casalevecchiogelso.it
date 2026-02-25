@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * @property-read int $id
  * @property ?int $user_id
  * @property ?int $reservation_id
  * @property string $channel ULID

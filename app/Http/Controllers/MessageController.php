@@ -15,9 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 class MessageController extends Controller
 {
-    public function __construct(
-        protected MessageRenderer $messageRenderer,
-    ) {}
+    public function __construct(protected MessageRenderer $messageRenderer) {}
 
     public function index(Request $request, Reservation $reservation): Paginator
     {
@@ -29,16 +27,10 @@ class MessageController extends Controller
             ->latest()
             ->simplePaginate();
 
-        /** @var Message $message */
-        foreach ($messages as $message) {
-            $language = $message->user()->is($authUser) ? '' : app()->getLocale();
+        $rendered = $this->messageRenderer->renderMany($messages->items(), app()->getLocale());
 
-            $data = [
-                'language' => $language,
-                'reservation' => $reservation,
-            ];
-
-            $message->rendered_content = $this->messageRenderer->render($message, $data);
+        foreach ($rendered as $key => $content) {
+            $messages[$key]->rendered_content = $content;
         }
 
         $reservation->visitedBy($authUser)->save();
@@ -51,14 +43,7 @@ class MessageController extends Controller
         /** @var User $authUser */
         $authUser = $request->user();
 
-        $language = $message->user()->is($authUser) ? '' : app()->getLocale();
-
-        $data = [
-            'language' => $language,
-            'reservation' => $reservation,
-        ];
-
-        $message->rendered_content = $this->messageRenderer->render($message, $data);
+        $message->rendered_content = $this->messageRenderer->render($message, app()->getLocale());
 
         $reservation->visitedBy($authUser)->save();
 
@@ -71,6 +56,7 @@ class MessageController extends Controller
     public function store(Request $request, Reservation $reservation): Message
     {
         $attributes = $request->validate(self::rules());
+
         // Having an empty string instead of NULL makes the code easier.
         if (is_null($attributes['content'])) {
             $attributes['content'] = '';
@@ -81,7 +67,6 @@ class MessageController extends Controller
 
         $isTemplate = str_starts_with($attributes['content'], '/blade');
 
-        // Prevents guest from using templates
         if ($isTemplate && $authUser->isGuest()) {
             throw ValidationException::withMessages([
                 'illegal_character' => __('Content cannot begin with the character /'),
