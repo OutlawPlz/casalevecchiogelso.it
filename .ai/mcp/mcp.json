@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "laravel-boost": {
+      "command": "/Users/matteo/Library/Application Support/Herd/bin/php84",
+      "args": [
+        "/Users/matteo/dev/casalevecchiogelso.it/artisan",
+        "boost:mcp"
+      ]
+    }
+  }
+}

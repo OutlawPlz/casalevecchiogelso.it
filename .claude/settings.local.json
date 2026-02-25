@@ -18,7 +18,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "mcp__laravel-boost__tinker",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:developers.deepl.com)"
     ]
   },
   "enableAllProjectMcpServers": true,
